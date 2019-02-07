@@ -1,0 +1,12 @@
+Bin32
+BinTemp
+Code/*.sdf
+Code/*.ncb
+Code/*.rc
+Code/*.suo
+Code/*.vcproj
+Code/*.vcxproj
+Code/*.user
+Code/*.sln
+CMakeLists.txt
+
