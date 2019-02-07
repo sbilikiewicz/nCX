@@ -183,6 +183,8 @@ public:
 	virtual bool Shoot(bool resetAnimation, bool autoreload = true , bool noSound = false ) { return true; };
 	virtual void NetShoot(const Vec3 &hit, int predictionHandle){};
 	virtual void NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle){};
+	//nCX
+	float GetBeamRange() const { return m_beamparams.range; };
 
 protected:
 	SBeamParams				m_beamparams;

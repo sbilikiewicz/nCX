@@ -118,6 +118,7 @@ struct SCVars
 	float g_walkMultiplier;
 	float g_suitRecoilEnergyCost;
 	float g_suitSpeedMult;
+	int g_painSoundGap;
 	float g_suitSpeedMultMultiplayer;
 	float g_suitArmorHealthValue;
 	float g_suitSpeedEnergyConsumption;
@@ -430,6 +431,11 @@ struct SCVars
 	int			g_debugMines;
 	int			g_deathCam;
 	int			g_deathEffects;
+	//nCX
+	int			nCX_HighPingLimit;
+	int			nCX_PerformanceValue;
+	int			nCX_DeathBulletMinDistance;
+	float		nCX_VehicleCollisionRatio;
 
 	SCVars()
 	{

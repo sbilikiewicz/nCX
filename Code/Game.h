@@ -185,10 +185,24 @@ public:
 
 	const string& GetLastSaveGame(string &levelName);
 	const string& GetLastSaveGame() { string tmp; return GetLastSaveGame(tmp); }
-
-  ILINE SCVars *GetCVars() {return m_pCVars;}
+	
+	//nCX
+	string m_Root;
+	int m_ServerPerformance;
+	float m_ServerPerformanceCounter;
+	int m_LowestServerPerformance;
+	int m_HighestServerPerformance;
+	int m_CurrentServerRate;
+	std::vector<float>		m_PerformanceTab;
+	//
+	ILINE SCVars *GetCVars() { return m_pCVars; }
 	static void DumpMemInfo(const char* format, ...) PRINTF_PARAMS(1, 2);
 
+	//nCX
+	bool                      nCX_Performance;
+	bool                      nCX_GameMod;
+	bool                      nCX_Logs;
+	//
 protected:
 	virtual void LoadActionMaps(const char* filename = "libs/config/defaultProfile.xml");
 

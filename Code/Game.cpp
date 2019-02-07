@@ -44,7 +44,7 @@
 #include "ILoadGame.h"
 
 //nCX
-#include "nCX/Init.h"
+#include "nCX\nCX_Main.h"
 #include "Coop/CoopSystem.h"
 
 #define GAME_DEBUG_MEM  // debug memory usage
@@ -346,7 +346,7 @@ bool CGame::Init(IGameFramework *pFramework)
   
 	//Init nCX
 	if (gEnv->pSystem->IsDedicated())
-		CInit::InitMod();
+		nCX::Init();
 
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init end");

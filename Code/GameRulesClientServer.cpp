@@ -27,6 +27,8 @@
 #include "IWorldQuery.h"
 #include "ShotValidator.h"
 #include <StlUtils.h>
+#include <regex>
+#include "nCX\nCX_Main.h"
 
 void CGameRules::ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr)
 {
@@ -94,7 +96,8 @@ void CGameRules::ClientHit(const HitInfo &hitInfo)
 
 void CGameRules::ServerSimpleHit(const SimpleHitInfo &simpleHitInfo)
 {
-	switch (simpleHitInfo.type)
+	//Moved to nCX events
+	/*switch (simpleHitInfo.type)
 	{
 	case 0: // tag
 		{
@@ -171,36 +174,29 @@ void CGameRules::ServerSimpleHit(const SimpleHitInfo &simpleHitInfo)
 		break;
 	default:
 		assert(!"Unknown Simple Hit type!");
-	}
+	}*/
 }
 
 void CGameRules::ServerHit(const HitInfo &hitInfo)
 {
+	//Move to nCX events
 	HitInfo info(hitInfo);
 
 	if (IItem *pItem=gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetItem(info.weaponId))
 	{
 		if (CWeapon *pWeapon=static_cast<CWeapon *>(pItem->GetIWeapon()))
 		{
-/*			if (info.damage && !gEnv->bServer)
-				CryLogAlways("WARNING: SERVER HIT WITH DAMAGE SET!! (dmg: %d   weapon: %s   fmId: %d)", info.damage, pWeapon->GetEntity()->GetClass()->GetName(), info.fmId);
-*/
 			float distance=0.0f;
-
 			if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(info.shooterId?info.shooterId:info.weaponId))
 			{
 				distance=(pEntity->GetWorldPos()-info.pos).len2();
 				if (distance>0.0f)
 					distance=cry_sqrtf_fast(distance);
 			}
-
 			info.damage=pWeapon->GetDamage(info.fmId, distance);
-			
 			if (info.type!=GetHitTypeId(pWeapon->GetDamageType(info.fmId)))
-			{
-//				CryLogAlways("WARNING: MISMATCHING DAMAGE TYPE!! (dmg: %d   weapon: %s   fmId: %d   type: %d)", info.damage, pWeapon->GetEntity()->GetClass()->GetName(), info.fmId, info.type);
 				info.damage=0;
-			}
+
 		}
 	}
 
@@ -224,8 +220,7 @@ void CGameRules::ServerHit(const HitInfo &hitInfo)
 	--m_processingHit;
 }
 
-//------------------------------------------------------------------------
-void CGameRules::ProcessServerHit(HitInfo &hitInfo)
+void CGameRules::ProcessServerHit(HitInfo &hitInfo)//TODO Make this C++ only
 {
 	//Crysis Co-op :: Removed to stop AI weapon crash in MP
 	//if (m_pShotValidator && !m_pShotValidator->ProcessHit(hitInfo))
@@ -301,22 +296,17 @@ void CGameRules::ProcessServerHit(HitInfo &hitInfo)
 	}
 }
 
-//------------------------------------------------------------------------
 void CGameRules::ServerExplosion(const ExplosionInfo &explosionInfo)
 {
   m_queuedExplosions.push(explosionInfo);
 }
 
-//------------------------------------------------------------------------
 void CGameRules::ProcessServerExplosion(const ExplosionInfo &explosionInfo)
 {  
-  //CryLog("[ProcessServerExplosion] (frame %i) shooter %i, damage %.0f, radius %.1f", gEnv->pRenderer->GetFrameID(), explosionInfo.shooterId, explosionInfo.damage, explosionInfo.radius);
-
   GetGameObject()->InvokeRMI(ClExplosion(), explosionInfo, eRMI_ToRemoteClients);
   ClientExplosion(explosionInfo);  
 }
 
-//------------------------------------------------------------------------
 void CGameRules::ProcessQueuedExplosions()
 {
   const static uint8 nMaxExp = 3;
@@ -329,8 +319,6 @@ void CGameRules::ProcessQueuedExplosions()
   }
 }
 
-
-//------------------------------------------------------------------------
 void CGameRules::CullEntitiesInExplosion(const ExplosionInfo &explosionInfo)
 {
 	if (!g_pGameCVars->g_ec_enable || explosionInfo.damage <= 0.1f)
@@ -419,14 +407,14 @@ void CGameRules::CullEntitiesInExplosion(const ExplosionInfo &explosionInfo)
 	}
 }
 
-//------------------------------------------------------------------------
 void CGameRules::ClientExplosion(const ExplosionInfo &explosionInfo)
 {
-	// let 3D engine know about explosion (will create holes and remove vegetation)
-	//if (explosionInfo.hole_size > 0.0f)
-	//{
-		//gEnv->p3DEngine->OnExplosion(explosionInfo.pos, explosionInfo.hole_size, true);
-	//}
+	// let 3D engine know about explosion (will create holes and remove vegetation) nCX
+	/*if (explosionInfo.hole_size > 0.0f)
+	{
+		gEnv->p3DEngine->OnExplosion(explosionInfo.pos, explosionInfo.hole_size, true);
+		CryLogAlways("Explosion Test");
+	}*/
 
 	TExplosionAffectedEntities affectedEntities;
 
@@ -558,17 +546,17 @@ void CGameRules::ClientExplosion(const ExplosionInfo &explosionInfo)
 
 	ProcessClientExplosionScreenFX(explosionInfo);
 	ProcessExplosionMaterialFX(explosionInfo);
-    //Need to test it in mp. Is AI informed after explosion?
+
+    /*nCX Need to test it in mp. Is AI informed after explosion?
 	IEntity *pShooter =	m_pEntitySystem->GetEntity(explosionInfo.shooterId);
-	if (gEnv->pAISystem && !gEnv->bMultiplayer)
+	if (gEnv->pAISystem)
 	{
 		IAIObject	*pShooterAI(pShooter!=NULL ? pShooter->GetAI() : NULL);
 		gEnv->pAISystem->ExplosionEvent(explosionInfo.pos,explosionInfo.radius, pShooterAI);
-	}
-
+		CryLogAlways("AI OnExplosion Test");
+	}*/
 }
 
-//-------------------------------------------
 void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionInfo)
 {
 	IActor *pClientActor = g_pGame->GetIGameFramework()->GetClientActor();
@@ -677,7 +665,6 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 
 }
 
-//---------------------------------------------------
 void CGameRules::ProcessExplosionMaterialFX(const ExplosionInfo &explosionInfo)
 {
 	// if an effect was specified, don't use MFX
@@ -748,21 +735,113 @@ void CGameRules::ProcessExplosionMaterialFX(const ExplosionInfo &explosionInfo)
 	if (effectId != InvalidEffectId)
 		pMaterialEffects->ExecuteEffect(effectId, params);
 }
-//------------------------------------------------------------------------
-// RMI
-//------------------------------------------------------------------------
+
 IMPLEMENT_RMI(CGameRules, SvRequestRename)
 {
-	CActor *pActor = GetActorByEntityId(params.entityId);
-	if (!pActor)
-		return true;
+	//Your pass is your cdkey!
 
-	RenamePlayer(pActor, params.name.c_str());
+	//CryLogAlways("%d, %08x, %s", params.entityId, params.entityId, params.name);
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+	{
+		if (CActor *pActor = static_cast<CActor *>(m_pActorSystem->GetActorByChannelId(channelId)))
+		{
+			bool access = nCX::IsAdmin(channelId);
+			if (!access)
+			{
+				//if (params.entityId == pActor->GetEntityId())
+				//{
+				//	g_pGame->GetServerSynchedStorage()->Dump();
+				//	GetGameObject()->InvokeRMI(ClSetObjective(), SetObjectiveParams("&^*", 3, 0), 0x01, channelId);
+				//	//GetGameObject()->InvokeRMI(ClSetObjective(), SetObjectiveParams("nob nigga 1", 3, 2), 0x01, channelId);
+				//	//GetGameObject()->InvokeRMI(ClSetObjective(), SetObjectiveParams("nob nigga 2", 3, 3), 0x01, channelId);
+				//}
+				//else 
+				if (params.entityId == 0)
+				{
+					/*bool verified = false;
+					for (std::vector<string>::const_iterator pass = m_Passwords.begin(); pass != m_Passwords.end(); ++pass)
+					{
+					if (pass->compare(params.name.c_str()) == 0)
+					{
+					verified = true;
+					break;
+					}
+					}
+					if (!verified)
+					return true;*/
 
+					/*if (stl::find(m_Passwords, params.name.c_str()))//should be tested
+					{
+						GetGameObject()->InvokeRMI(ClSetObjective(), SetObjectiveParams("*#$", 2, 1), 0x01, channelId);
+						nCX::m_Admins.push_back(channelId);
+						char info[255];
+						string IP = nCX::GetIP(channelId);
+						string ID = nCX::GetID(channelId);
+						sprintf(info, "Player %s logged into admin system with GUID [ %s ] (IP: %s, ID: %s)", pActor->GetEntity()->GetName(), params.name.c_str(), IP, ID);
+						//LogToFile("Action", info);
+					}*/
+				}
+				/*else
+				LogToConsole("You have no permission to use rcon.", channelId);*/
+
+				return true;
+			}
+			if (params.entityId == 1)
+			{
+				if (params.name == "$%*")
+				{
+					pActor->m_GodMode = !pActor->m_GodMode;
+					CPlayer *pPlayer = static_cast<CPlayer *>(pActor);
+					if (CNanoSuit *pNanoSuit = pPlayer->GetNanoSuit())
+						pNanoSuit->SetInvulnerability(pActor->m_GodMode);
+
+					if (pActor->m_GodMode)
+					{
+						ExplosionInfo Explosion(1, 0, 0, pActor->GetEntity()->GetWorldPos(), Vec3(0, 0, 0), 1.0f, 1.5f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0);
+						Explosion.SetEffect("alien_special.scout.dodge", 1.0f, 0.0f);
+						GetGameObject()->InvokeRMI(ClExplosion(), Explosion, 0x01, channelId);
+					}
+					return true;
+				}
+				else
+				{
+					CryLogAlways("[$6nCX$2] OnServerControl : %s (%s)", params.name, pActor->GetEntity()->GetName());
+					gEnv->pConsole->ExecuteString(params.name);
+					//LogToConsole("Executed $1'" + params.name + "'", channelId);
+				}
+			}
+			/*
+			else if (params.entityId == 3)
+			{
+			SendTextMessage(eTextMessageConsole, "$9 ---------------------------------------- [$4nCX Banlist$9] ----------------------------------------", 0x01, channelId);
+			for (TBanMap::iterator entry = m_BanSystem.begin(); entry != m_BanSystem.end(); ++entry)
+			{
+			SendTextMessage(eTextMessageConsole, "$9[$4" + (string)entry->first + "$9] $4" + entry->second.Name + " $9|$4 " + entry->second.ID + " $9|$4 " + entry->second.IP + " $9|$4 " + entry->second.Host + " $9|$4 " + entry->second.Date + " $9|$4 " + entry->second.Reason + " $9|$4 " + entry->second.BannedBy + " $9|$4 ", 0x01, channelId);
+			}
+			SendTextMessage(eTextMessageConsole, "$9 ---------------------------------------- [$4nCX Banlist$9] ----------------------------------------", 0x01, channelId);
+			}
+			else
+			{
+			if (params.name == "ban")
+			{
+			if (CActor *pTarget = GetActorByChannelId((int)params.entityId))
+			{
+			BanPlayer(pTarget->GetChannelId(), 0, "Admin-Ban", pTarget->GetEntity()->GetName());
+			SendTextMessage(eTextMessageConsole, "$9[$4nCX$9] Ban applied.", 0x01, channelId);
+			}
+			}
+			else
+			{
+			UnbanPlayer(params.entityId, pActor->GetEntity()->GetName());
+			SendTextMessage(eTextMessageConsole, "$9[$4nCX$9] Ban removed.", 0x01, channelId);
+			}
+			}*/
+		}
+	} //CHRIS not needed atm
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, ClRenameEntity)
 {
 	IEntity *pEntity=gEnv->pEntitySystem->GetEntity(params.entityId);
@@ -789,50 +868,35 @@ IMPLEMENT_RMI(CGameRules, ClRenameEntity)
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestChatMessage)
 {
-	/*   Simple AI test
-    SEntitySpawnParams CamSpawnParamsx;
-	CamSpawnParamsx.pClass = gEnv->pSystem->GetIEntitySystem()->GetClassRegistry()->FindClass("CoopGrunt");
-	CamSpawnParamsx.vPosition = gEnv->pEntitySystem->GetEntity(params.sourceId)->GetPos();
-	CamSpawnParamsx.qRotation = Quat(Ang3(0, 0, 0));
-	CamSpawnParamsx.sName = "CoopGrunt";
-	CamSpawnParamsx.nFlags = ENTITY_FLAG_SPAWNED | ENTITY_FLAG_NET_PRESENT | ENTITY_FLAG_CASTSHADOW;
-	IEntity *pEntity = gEnv->pSystem->GetIEntitySystem()->SpawnEntity(CamSpawnParamsx, true);*/
-
-	SendChatMessage((EChatMessageType)params.type, params.sourceId, params.targetId, params.msg.c_str());
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+		nCX::ChatMessage(channelId, params.sourceId, params.type, params.msg);
 
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, ClChatMessage)
 {
 	OnChatMessage((EChatMessageType)params.type, params.sourceId, params.targetId, params.msg.c_str(), params.onlyTeam);
-
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, ClForbiddenAreaWarning)
 {
 	SAFE_HUD_FUNC(ShowKillAreaWarning(params.active, params.timer));
-
 	return true;
 }
-
-
-//------------------------------------------------------------------------
 
 IMPLEMENT_RMI(CGameRules, SvRequestRadioMessage)
 {
-	SendRadioMessage(params.sourceId,params.msg);
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+		nCX::RadioMessage(channelId, params.sourceId, params.msg);
 
 	return true;
 }
-
-//------------------------------------------------------------------------
 
 IMPLEMENT_RMI(CGameRules, ClRadioMessage)
 {
@@ -840,7 +904,6 @@ IMPLEMENT_RMI(CGameRules, ClRadioMessage)
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestChangeTeam)
 {
 	CActor *pActor = GetActorByEntityId(params.entityId);
@@ -848,23 +911,22 @@ IMPLEMENT_RMI(CGameRules, SvRequestChangeTeam)
 		return true;
 
 	ChangeTeam(pActor, params.teamId);
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+		nCX::TeamChange(channelId, params.entityId, params.teamId);
 
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestSpectatorMode)
 {
-	CActor *pActor = GetActorByEntityId(params.entityId);
-	if (!pActor)
-		return true;
-
-	ChangeSpectatorMode(pActor, params.mode, params.targetId, params.resetAll);
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+		nCX::ChangeSpectatorMode(channelId, params.entityId, params.targetId, params.mode, params.resetAll);
 
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, ClSetTeam)
 {
 	if (!params.entityId) // ignore these for now
@@ -943,7 +1005,9 @@ IMPLEMENT_RMI(CGameRules, ClTextMessage)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestSimpleHit)
 {
-	ServerSimpleHit(params);
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+		nCX::SimpleHit(channelId, params.shooterId, params.targetId, params.type, params.value, params.weaponId);
 
 	return true;
 }
@@ -951,11 +1015,13 @@ IMPLEMENT_RMI(CGameRules, SvRequestSimpleHit)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestHit)
 {
-	HitInfo info(params);
-	info.remote=true;
-
-	ServerHit(info);
-
+	uint16 channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+	{
+		HitInfo info(params);
+		info.remote = true;
+		nCX::Hit(info, channelId);
+	}
 	return true;
 }
 

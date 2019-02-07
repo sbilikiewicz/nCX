@@ -264,6 +264,18 @@ CActor::CActor()
 	m_airResistance = 0.0f;
 	m_airControl = 1.0f;
 	m_netLastSelectablePickedUp = 0;
+	//nCX
+	m_HighPing = 0;
+	m_RMIFlood = 0;
+	m_ChatCounter = 0;
+	m_LagCounter = 0;
+	m_MovementWarning = 0;
+	m_ExpectedDelay = 0.0f;
+	m_WeaponCheatDelay = 0.0f;
+	m_GodMode = false;
+	m_IsLagging = false;
+	m_frostShooterId = 0;
+	//nCX
 }
 
 //------------------------------------------------------------------------
@@ -418,6 +430,11 @@ void CActor::Revive( bool fromInit )
 
 	if (fromInit)
 		g_pGame->GetGameRules()->OnRevive(this, GetEntity()->GetWorldPos(), GetEntity()->GetWorldRotation(), m_teamId);
+
+	//nCX
+	m_frostShooterId = 0;
+	m_MovementWarning = 0;
+	//
 
 	//set the actor game parameters
 	SmartScriptTable gameParams;
@@ -1365,6 +1382,14 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 	}
 }
 
+void CActor::ResetMovementSys()
+{
+	while (!m_MovementSys.empty())
+		m_MovementSys.pop_back();
+
+	m_ExpectedDelay = gEnv->pTimer->GetCurrTime();
+}
+
 void CActor::UpdateScriptStats(SmartScriptTable &rTable)
 {
 	CScriptSetGetChain stats(rTable);
@@ -1387,7 +1412,7 @@ void CActor::UpdateScriptStats(SmartScriptTable &rTable)
 		stats.SetValue("flatSpeed",pStats->speedFlat);
 		//stats.SetValue("speedModule",pStats->speed);
 
-		stats.SetValue("godMode",IsGod());
+		//stats.SetValue("godMode",IsGod()); nCX?
 		stats.SetValue("inFiring",pStats->inFiring);		
 		pStats->inFreefall.SetDirtyValue(stats, "inFreeFall");
 		pStats->isHidden.SetDirtyValue(stats, "isHidden");
@@ -4086,5 +4111,113 @@ void CActor::NotifyInventoryAmmoChange(IEntityClass* pAmmoClass, int amount)
 		g_pGame->GetHUD()->DisplayAmmoPickup(pAmmoClass->GetName(), amount);
 }
 
+void CActor::SequenceChecks()//every sec
+{
+	if (INetChannel *pNetChannel = m_pGameFramework->GetNetChannel(GetChannelId()))
+	{
+		if (m_IsLagging)
+			++m_LagCounter;
+		if (m_LagCounter > 5)
+		{
+			m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
+			m_LagCounter = 0;
+		}
+		else
+			m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
+	}
+	else
+		m_IsLagging = false;
+
+	if (m_RMIFlood > 140)
+	{
+		char info[6];
+		sprintf(info, "%d", m_RMIFlood);
+		//g_pGame->GetGameRules()->OnCheatDetected(GetEntityId(), "RMI Flood", info, false);
+	}
+
+	if (m_ChatCounter > 3)
+		//g_pGame->GetGameRules()->OnCheatDetected(GetEntityId(), "Chat Spam", "", true);
+
+	m_ChatCounter = 0;
+	m_RMIFlood = 0;
+	if (CPlayer *pPlayer = ((CPlayer*)this))
+	{
+		//Ripped from CPlayer::Update	
+		if (pPlayer->m_stats.spectatorMode == 3/*eASM_Follow*/)
+		{
+			CActor* pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActor(pPlayer->m_stats.spectatorTarget));
+			if (pActor)
+			{
+				CPlayer* pTargetPlayer = static_cast<CPlayer*>(pActor);
+				float timeSinceDeath = gEnv->pTimer->GetFrameStartTime().GetSeconds() - pTargetPlayer->GetDeathTime();
+				if (pTargetPlayer && (pTargetPlayer->GetHealth() <= 0 && timeSinceDeath > 3.0f) || pTargetPlayer->GetSpectatorMode() != eASM_None)
+				{
+					pPlayer->m_stats.spectatorTarget = 0;
+					g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+				}
+			}
+			else
+			{
+				pPlayer->m_stats.spectatorTarget = 0;
+				g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+			}
+		}
+		//Ripped from CNanosuit::OnUpdate
+		if (CNanoSuit *pSuit = pPlayer->m_pNanoSuit)
+		{
+			if (!pSuit->m_invulnerable)
+				pSuit->m_invulnerabilityTimeout = 0.0f;
+
+			if (pSuit->m_invulnerabilityTimeout > 0.0f)
+			{
+				--pSuit->m_invulnerabilityTimeout;
+				if (pSuit->m_invulnerabilityTimeout < 1.0f)
+				{
+					pSuit->m_invulnerabilityTimeout = 0.0f;
+					pSuit->SetInvulnerability(false);
+				}
+			}
+			/*if (!pSuit->IsActive())
+			{
+				for (int i = 0; i < NANODISABLE_NUMENTRIES; i++)
+				{
+					if (pSuit->m_disabledTimes[i] > 0.0f)
+					{
+						--pSuit->m_disabledTimes[i];
+						if (pSuit->m_disabledTimes[i] < 1.0f)
+						{
+							pSuit->m_disabledTimes[i] = 0.0f;
+							pSuit->m_disabledFlags[i] = false;
+						}
+					}
+				}
+			}*/
+		}
+	}
+}
+
+void CActor::SendQueueMessage(int type, const char* msg, float delay)
+{
+	if (type == 5) //Wars stuff
+		return;
+
+	float rate = (float)g_pGame->m_CurrentServerRate;
+	float mult = 0.1f;
+	if (delay == 0.0f)
+		mult = 0.05f; //speed up
+
+	m_MsgQueue.push_back(SMsgQueue(type, MAX(1.0f, delay) * (rate / 30.0f) * mult, msg));
+}
+
+void CActor::ClearQueueMessage()
+{
+	if (!m_MsgQueue.empty())
+	{
+		if (g_pGame->GetGameRules())
+			g_pGame->GetGameRules()->SendTextMessage((ETextMessageType)m_MsgQueue.front().type, "", 0x01, GetChannelId());
+
+		m_MsgQueue.clear();
+	}
+}
 
 

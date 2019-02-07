@@ -193,6 +193,7 @@ public:
 
 private:
 	void InitHeightVariance(SmartScriptTable &rTable);
+	void RegisterMultiplayerAI();
 	void Jump();
   void JumpEffect();
 protected:

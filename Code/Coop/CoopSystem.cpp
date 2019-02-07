@@ -94,10 +94,22 @@ bool bReinited = false;
 //	Updates the CCoopSystem instance.
 void CCoopSystem::Update(float fFrameTime)
 {
-	if (m_pDialogSystem)
-		m_pDialogSystem->Update(fFrameTime);
+	//Not using right now
+	/*if (m_pDialogSystem)
+		m_pDialogSystem->Update(fFrameTime);*/
 
-	// Registers vehicles into the AI system
+	//Check if AI System works fine
+	/*ICVar* pAIUpdateAlways = gEnv->pConsole->GetCVar("ai_UpdateAllAlways");
+	if (pAIUpdateAlways->GetIVal() != 1 || gEnv->pAISystem->GetUpdateAllAlways() != true)
+	{
+		gEnv->bMultiplayer = false;
+		pAIUpdateAlways->ForceSet("1");
+		gEnv->pAISystem->Enable(true);
+		CryLogAlways("AI not updated, turning ON");
+		gEnv->bMultiplayer = true;
+	}*/
+
+	/* Registers vehicles into the AI system
 	if (gEnv->bServer)
 	{
 		IVehicleIteratorPtr iter = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->CreateVehicleIterator();
@@ -108,7 +120,8 @@ void CCoopSystem::Update(float fFrameTime)
 				if (!pEntity->GetAI())
 				{
 					gEnv->bMultiplayer = false;
-										
+					gEnv->pAISystem->Re
+					///nCX removed cause couldnt find this in lua and this crashed server
 					HSCRIPTFUNCTION scriptFunction(0);
 					IScriptSystem*	pIScriptSystem = gEnv->pScriptSystem;
 					if (IScriptTable* pScriptTable = pEntity->GetScriptTable())
@@ -125,8 +138,10 @@ void CCoopSystem::Update(float fFrameTime)
 				}
 			}
 		}
-	}
-	CCoopCutsceneSystem::GetInstance()->Update(fFrameTime);
+	}*/
+
+	//Not using right now
+	//CCoopCutsceneSystem::GetInstance()->Update(fFrameTime);
 }
 
 void CCoopSystem::OnLoadingStart(ILevelInfo *pLevel)
@@ -135,7 +150,6 @@ void CCoopSystem::OnLoadingStart(ILevelInfo *pLevel)
 	if (!gEnv->bServer) return;
 
 	m_nInitialized = 0;
-	CryLogAlways("[CCoopSystem] Initializing AI System...");
 
 	gEnv->bMultiplayer = false;
 	if (!gEnv->pAISystem->Init())

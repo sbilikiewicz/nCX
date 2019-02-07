@@ -14,7 +14,6 @@
 #include "GameCVars.h"
 #include "GameRules.h"
 #include "ItemSharedParams.h"
-
 #include <INetwork.h>
 #include <IGameObject.h>
 #include <IActorSystem.h>
@@ -26,7 +25,6 @@
 #include "Menus/QuickGame.h"
 #include "Environment/BattleDust.h"
 #include "NetInputChainDebug.h"
-
 #include "Menus/FlashMenuObject.h"
 #include "Menus/MPHub.h"
 #include "INetworkService.h"
@@ -40,6 +38,19 @@ void ValidateSvMaxPlayers(ICVar* p)
 
 	if (val > 99)
 		CryLogAlways("[$6nCX$5] : $6Warning sv_maxplayers over 99 won't be displayed correctly!");
+}
+
+void ResetMovementForAllPlayers(ICVar* p)//nCX needs to reset movement system onchanged movementcvar otherwise false positives sometimes
+{
+	if (CGameRules *pGameRules = g_pGame->GetGameRules())
+	{
+		for (std::vector<int>::const_iterator it = pGameRules->m_channelIds.begin(); it != pGameRules->m_channelIds.end(); ++it)
+		{
+			CActor *pActor = pGameRules->GetActorByChannelId(*it);
+			if (pActor && pGameRules->IsPlayerActivelyPlaying(pActor->GetEntityId()))
+				pActor->ResetMovementSys();
+		}
+	}
 }
 
 static void BroadcastChangeSafeMode( ICVar * )
@@ -59,7 +70,6 @@ void CmdBulletTimeMode( IConsoleCmdArgs* cmdArgs)
 {
 	g_pGameCVars->goc_enable = 0;
 	g_pGameCVars->goc_tpcrosshair = 0;
-
 	g_pGameCVars->bt_ironsight = 1;
 	g_pGameCVars->bt_speed = 0;
 	g_pGameCVars->bt_energy_decay = 2.5;
@@ -72,7 +82,6 @@ void CmdGOCMode( IConsoleCmdArgs* cmdArgs)
 {
 	g_pGameCVars->goc_enable = 1;
 	g_pGameCVars->goc_tpcrosshair = 1;
-	
 	g_pGameCVars->bt_ironsight = 1;
 	g_pGameCVars->bt_speed = 0;
 	g_pGameCVars->bt_energy_decay = 0;
@@ -80,7 +89,6 @@ void CmdGOCMode( IConsoleCmdArgs* cmdArgs)
 	g_pGameCVars->bt_end_select = 1;
 	g_pGameCVars->bt_end_melee = 0;
 
-	//
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if(pPlayer && !pPlayer->IsThirdPerson())
 	{
@@ -207,7 +215,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("cl_frozenAngleMin", &cl_frozenAngleMin, 1.f, VF_CHEAT, "Frozen clamp angle min");
 	pConsole->Register("cl_frozenAngleMax", &cl_frozenAngleMax, 10.f, VF_CHEAT, "Frozen clamp angle max");
 	pConsole->Register("cl_frozenMouseMult", &cl_frozenMouseMult, 0.00015f, VF_CHEAT, "Frozen mouseshake multiplier");
-  pConsole->Register("cl_frozenKeyMult", &cl_frozenKeyMult, 0.02f, VF_CHEAT, "Frozen movement keys multiplier");
+	pConsole->Register("cl_frozenKeyMult", &cl_frozenKeyMult, 0.02f, VF_CHEAT, "Frozen movement keys multiplier");
 	pConsole->Register("cl_frozenSoundDelta", &cl_frozenSoundDelta, 0.004f, VF_CHEAT, "Threshold for unfreeze shake to trigger a crack sound");
 	
 	pConsole->Register("g_frostDecay", &g_frostDecay, 0.25f, VF_CHEAT, "Frost decay speed when freezing actors");
@@ -219,10 +227,6 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_walkMultiplier", &g_walkMultiplier, 1, VF_SAVEGAME, "Modify movement speed");
 	pConsole->Register("g_suitRecoilEnergyCost", &g_suitRecoilEnergyCost, 15.0f, VF_CHEAT, "Subtracted energy when weapon is fired in strength mode.");
 	pConsole->Register("g_suitSpeedMult", &g_suitSpeedMult, 1.85f, 0, "Modify speed mode effect.");
-	
-
-	
-	pConsole->Register("g_suitSpeedMultMultiplayer", &g_suitSpeedMultMultiplayer, 0.35f, 0, "Modify speed mode effect for Multiplayer.");
 	pConsole->Register("g_suitArmorHealthValue", &g_suitArmorHealthValue, 200.0f, 0, "This defines how much damage is reduced by 100% energy, not considering recharge. The value should be between 1 and <SuitMaxEnergy>.");
 	pConsole->Register("g_suitSpeedEnergyConsumption", &g_suitSpeedEnergyConsumption, 110.0f, 0, "Energy reduction in speed mode per second.");
 	pConsole->Register("g_suitSpeedEnergyConsumptionMultiplayer", &g_suitSpeedEnergyConsumptionMultiplayer, 50.0f, 0, "Energy reduction in speed mode per second in multiplayer.");
@@ -567,12 +571,22 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_MPDeathEffects", &g_deathEffects, 0, 0, "Enables / disables the MP death screen-effects");
 
 	pConsole->Register("sv_pacifist", &sv_pacifist, 0, 0, "Pacifist mode (only works on dedicated server)");
- 
+
+	//nCX fix
+	pConsole->Register("g_painSoundGap", &g_painSoundGap, 0, VF_CHEAT, "PainSound");
+	pConsole->Register("g_suitSpeedMultMultiplayer", &g_suitSpeedMultMultiplayer, 0.35f, 0, "Modify speed mode effect for Multiplayer.");
+	pConsole->GetCVar("g_suitspeedmultmultiplayer")->SetOnChangeCallback(ResetMovementForAllPlayers);
 	pConsole->GetCVar("sv_maxplayers")->SetOnChangeCallback(ValidateSvMaxPlayers);
+	
+	pConsole->Register("nCX_HighPingLimit", &nCX_HighPingLimit, 300, 0x00000080);
+	pConsole->Register("nCX_PerformanceValue", &nCX_PerformanceValue, 110, 0x00000080);
+	pConsole->Register("nCX_DeathBulletMinDistance", &nCX_DeathBulletMinDistance, 30, 0x00000080);
+	pConsole->Register("nCX_VehicleCollisionRatio", &nCX_VehicleCollisionRatio, 0.003f, 0x00000080);
 
-	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");		assert(pVehicleQuality);
+	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");
+	assert(pVehicleQuality);
 
-  NetInputChainInitCVars();
+	NetInputChainInitCVars();
 }
 
 //------------------------------------------------------------------------
@@ -655,6 +669,10 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("g_walkMultiplier", true);
 	pConsole->UnregisterVariable("g_suitSpeedMult", true);
 	pConsole->UnregisterVariable("g_suitRecoilEnergyCost", true);
+
+	//nCX fix
+	pConsole->UnregisterVariable("g_painSoundGap", true);
+
 	pConsole->UnregisterVariable("g_suitSpeedMultMultiplayer", true);
 	pConsole->UnregisterVariable("g_suitArmorHealthValue", true);
 	pConsole->UnregisterVariable("g_suitSpeedEnergyConsumption", true);

@@ -1,15 +1,11 @@
-/*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 27:10:2004   11:29 : Created by Márcio Martins
-
-*************************************************************************/
+/**********************************************************
+             #####  ##   ##
+ ####    ## ##   ##  ## ##  Crysis nCX V3.0
+##  ##   ## ##        ###     by MrHorseDick
+##   ##  ## ##        ###       and
+##    ## ## ##   ##  ## ##        MrCtaoistrach
+##     ####  #####  ##   ##
+**********************************************************/
 #include "StdAfx.h"
 #include "ScriptBind_GameRules.h"
 #include "GameRules.h"
@@ -18,62 +14,65 @@ History:
 #include "GameCVars.h"
 #include "MPTutorial.h"
 
-//------------------------------------------------------------------------
 CScriptBind_GameRules::CScriptBind_GameRules(ISystem *pSystem, IGameFramework *pGameFramework)
 : m_pSystem(pSystem),
 	m_pSS(pSystem->GetIScriptSystem()),
 	m_pGameFW(pGameFramework)
 {
 	Init(m_pSS, m_pSystem, 1);
-
 	m_players.Create(m_pSS);
 	m_teamplayers.Create(m_pSS);
 	m_spawnlocations.Create(m_pSS);
 	m_spawngroups.Create(m_pSS);
 	m_spectatorlocations.Create(m_pSS);
-
+	
 	RegisterMethods();
 	RegisterGlobals();
+	if (gEnv->pSystem->IsDedicated())
+		SetGlobalName("nCX");
 }
 
-//------------------------------------------------------------------------
 CScriptBind_GameRules::~CScriptBind_GameRules()
 {
 }
 
-//------------------------------------------------------------------------
 void CScriptBind_GameRules::RegisterGlobals()
 {
-	m_pSS->SetGlobalValue("TextMessageCenter", eTextMessageCenter);
-	m_pSS->SetGlobalValue("TextMessageConsole", eTextMessageConsole);
-	m_pSS->SetGlobalValue("TextMessageError", eTextMessageError);
-	m_pSS->SetGlobalValue("TextMessageInfo", eTextMessageInfo);
-	m_pSS->SetGlobalValue("TextMessageServer", eTextMessageServer);
+	if (gEnv->pSystem->IsDedicated())
+	{
+		m_pSS->SetGlobalValue("TextMessageCenter", eTextMessageCenter);
+		m_pSS->SetGlobalValue("TextMessageConsole", eTextMessageConsole);
+		m_pSS->SetGlobalValue("TextMessageError", eTextMessageError);
+		m_pSS->SetGlobalValue("TextMessageInfo", eTextMessageInfo);
+		m_pSS->SetGlobalValue("TextMessageServer", eTextMessageServer);
 
-	m_pSS->SetGlobalValue("ChatToTarget", eChatToTarget);
-	m_pSS->SetGlobalValue("ChatToTeam", eChatToTeam);
-	m_pSS->SetGlobalValue("ChatToAll", eChatToAll);
+		m_pSS->SetGlobalValue("ChatToTarget", eChatToTarget);
+		m_pSS->SetGlobalValue("ChatToTeam", eChatToTeam);
+		m_pSS->SetGlobalValue("ChatToAll", eChatToAll);
 
-	m_pSS->SetGlobalValue("TextMessageToAll", eRMI_ToAllClients);
-	m_pSS->SetGlobalValue("TextMessageToAllRemote", eRMI_ToRemoteClients);
-	m_pSS->SetGlobalValue("TextMessageToClient", eRMI_ToClientChannel);
-	m_pSS->SetGlobalValue("TextMessageToOtherClients", eRMI_ToOtherClients);
-
- 	m_pSS->SetGlobalValue("eTE_TurretUnderAttack", eTE_TurretUnderAttack);
- 	m_pSS->SetGlobalValue("eTE_GameOverWin", eTE_GameOverWin);
- 	m_pSS->SetGlobalValue("eTE_GameOverLose", eTE_GameOverLose);
- 	m_pSS->SetGlobalValue("eTE_TACTankStarted", eTE_TACTankStarted);
- 	m_pSS->SetGlobalValue("eTE_SingularityStarted", eTE_SingularityStarted);
- 	m_pSS->SetGlobalValue("eTE_TACTankCompleted", eTE_TACTankCompleted);
-	m_pSS->SetGlobalValue("eTE_TACLauncherCompleted", eTE_TACLauncherCompleted);
- 	m_pSS->SetGlobalValue("eTE_SingularityCompleted", eTE_SingularityCompleted);
-	m_pSS->SetGlobalValue("eTE_EnemyNearBase", eTE_EnemyNearBase);
-	m_pSS->SetGlobalValue("eTE_Promotion", eTE_Promotion);
-	m_pSS->SetGlobalValue("eTE_Reactor50", eTE_Reactor50);
-	m_pSS->SetGlobalValue("eTE_Reactor100", eTE_Reactor100);
-	m_pSS->SetGlobalValue("eTE_ApproachEnemyHq", eTE_ApproachEnemyHq);
-	m_pSS->SetGlobalValue("eTE_ApproachEnemySub", eTE_ApproachEnemySub);
-	m_pSS->SetGlobalValue("eTE_ApproachEnemyCarrier", eTE_ApproachEnemyCarrier);	
+		m_pSS->SetGlobalValue("TextMessageToAll", eRMI_ToAllClients);
+		m_pSS->SetGlobalValue("TextMessageToAllRemote", eRMI_ToRemoteClients);
+		m_pSS->SetGlobalValue("TextMessageToClient", eRMI_ToClientChannel);
+		m_pSS->SetGlobalValue("TextMessageToOtherClients", eRMI_ToOtherClients);
+	}
+	else
+	{
+		m_pSS->SetGlobalValue("eTE_TurretUnderAttack", eTE_TurretUnderAttack);
+		m_pSS->SetGlobalValue("eTE_GameOverWin", eTE_GameOverWin);
+		m_pSS->SetGlobalValue("eTE_GameOverLose", eTE_GameOverLose);
+		m_pSS->SetGlobalValue("eTE_TACTankStarted", eTE_TACTankStarted);
+		m_pSS->SetGlobalValue("eTE_SingularityStarted", eTE_SingularityStarted);
+		m_pSS->SetGlobalValue("eTE_TACTankCompleted", eTE_TACTankCompleted);
+		m_pSS->SetGlobalValue("eTE_TACLauncherCompleted", eTE_TACLauncherCompleted);
+		m_pSS->SetGlobalValue("eTE_SingularityCompleted", eTE_SingularityCompleted);
+		m_pSS->SetGlobalValue("eTE_EnemyNearBase", eTE_EnemyNearBase);
+		m_pSS->SetGlobalValue("eTE_Promotion", eTE_Promotion);
+		m_pSS->SetGlobalValue("eTE_Reactor50", eTE_Reactor50);
+		m_pSS->SetGlobalValue("eTE_Reactor100", eTE_Reactor100);
+		m_pSS->SetGlobalValue("eTE_ApproachEnemyHq", eTE_ApproachEnemyHq);
+		m_pSS->SetGlobalValue("eTE_ApproachEnemySub", eTE_ApproachEnemySub);
+		m_pSS->SetGlobalValue("eTE_ApproachEnemyCarrier", eTE_ApproachEnemyCarrier);
+	}
 }
 
 //------------------------------------------------------------------------

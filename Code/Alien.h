@@ -372,6 +372,7 @@ public:
 	virtual bool CreateCodeEvent(SmartScriptTable &rTable);
 
 	virtual bool Init( IGameObject * pGameObject );
+	virtual void RegisterMultiplayerAI();
 	virtual void Update(SEntityUpdateContext&, int updateSlot);
 	virtual void PrePhysicsUpdate();
 	virtual void UpdateView(SViewParams &viewParams);

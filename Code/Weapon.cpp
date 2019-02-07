@@ -37,9 +37,7 @@ History:
 #include "IronSight.h"
 #include "Single.h"
 #include "Environment/BattleDust.h"
-
 #include "CryCharAnimationParams.h"
-
 #include "IPlayerInput.h"
 #include <IWorldQuery.h>
 
@@ -74,7 +72,13 @@ CWeapon::CWeapon()
 	m_raiseProbability(0.0f),
 	m_requestedFire(false),
 	m_nextShotTime(0.0f),
-	m_shootSeqN(1)
+	m_shootSeqN(1),
+	//nCX
+	m_RecoilWarning(0),
+	m_RapidFireDetections(0),
+	m_LastRecoil(0, 0, 0),
+	m_BulletsPassed(0.0f),
+	m_BulletsOut(0.0f)
 {
 	RegisterActions();
 }

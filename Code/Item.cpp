@@ -69,15 +69,29 @@ IEntityClass* CItem::sTACGunClass = 0;
 IEntityClass* CItem::sTACGunFleetClass = 0;
 IEntityClass* CItem::sAlienMountClass = 0;
 IEntityClass* CItem::sRocketLauncherClass = 0;
-
 IEntityClass* CItem::sFlashbangGrenade = 0;
 IEntityClass* CItem::sExplosiveGrenade = 0;
 IEntityClass* CItem::sEMPGrenade = 0;
 IEntityClass* CItem::sSmokeGrenade = 0;
-
 IEntityClass* CItem::sIncendiaryAmmo = 0;
-
-IEntityClass*	CItem::sScarGrenadeClass = 0;
+IEntityClass* CItem::sScarGrenadeClass = 0;
+//nCX
+IEntityClass* CItem::sMOARClass = 0;
+IEntityClass* CItem::sVehicleMOARMounted = 0;
+IEntityClass* CItem::sVehicleMOAR = 0;
+IEntityClass* CItem::sSCARClass = 0;
+IEntityClass* CItem::sFY71Class = 0;
+IEntityClass* CItem::sSMGClass = 0;
+IEntityClass* CItem::sHurricaneClass = 0;
+IEntityClass* CItem::sAsian50CalClass = 0;
+IEntityClass* CItem::sRadarKitClass = 0;
+IEntityClass* CItem::sShiTenClass = 0;
+IEntityClass* CItem::sAsianCoaxialGun = 0;
+IEntityClass* CItem::sUSCoaxialGun = 0;
+IEntityClass* CItem::sUSCoaxialGun_VTOL = 0;
+IEntityClass* CItem::sVehicleUSMachinegun = 0;
+IEntityClass* CItem::sVehicleShiTenV2 = 0;
+IEntityClass* CItem::sAvengerCannon = 0;
 
 //------------------------------------------------------------------------
 CItem::CItem()
@@ -102,7 +116,13 @@ CItem::CItem()
 	m_useFPCamSpacePP(true),
 	m_serializeActivePhysics(0),
 	m_serializeDestroyed(false),
-	m_bPostPostSerialize(false)
+	m_bPostPostSerialize(false),
+	//nCX
+	m_TickTimer(0.0f),
+	m_CoolDownCheck(0),
+	m_FireCheck(0),
+	m_FireControl(false),
+	m_spawnTime(0.0f)
 {
 #ifdef ITEM_DEBUG_MEMALLOC
 	++gInstanceCount;
@@ -193,15 +213,29 @@ bool CItem::Init( IGameObject *pGameObject )
 		sTACGunFleetClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass("TACGun_Fleet");
 		sAlienMountClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass("AlienMount");
 		sRocketLauncherClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass("LAW");
-
 		sFlashbangGrenade = gEnv->pEntitySystem->GetClassRegistry()->FindClass("flashbang");
 		sEMPGrenade       = gEnv->pEntitySystem->GetClassRegistry()->FindClass("empgrenade");
 		sSmokeGrenade     = gEnv->pEntitySystem->GetClassRegistry()->FindClass("smokegrenade");
 		sExplosiveGrenade = gEnv->pEntitySystem->GetClassRegistry()->FindClass("explosivegrenade");
-
 		sIncendiaryAmmo   = gEnv->pEntitySystem->GetClassRegistry()->FindClass("incendiarybullet");
-
 		sScarGrenadeClass   = gEnv->pEntitySystem->GetClassRegistry()->FindClass("scargrenade");
+		//nCX added for anticheat
+		sMOARClass				= gEnv->pEntitySystem->GetClassRegistry()->FindClass("MOAR");
+		sVehicleMOARMounted		= gEnv->pEntitySystem->GetClassRegistry()->FindClass("VehicleMOARMounted");
+		sVehicleMOAR			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("VehicleMOAR");
+		sSCARClass				= gEnv->pEntitySystem->GetClassRegistry()->FindClass("SCAR");
+		sFY71Class				= gEnv->pEntitySystem->GetClassRegistry()->FindClass("FY71");
+		sSMGClass				= gEnv->pEntitySystem->GetClassRegistry()->FindClass("SMG");
+		sHurricaneClass			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("Hurricane");
+		sAsian50CalClass		= gEnv->pEntitySystem->GetClassRegistry()->FindClass("Asian50Cal");
+		sRadarKitClass			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("RadarKit");
+		sShiTenClass			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("ShiTen");
+		sAsianCoaxialGun		= gEnv->pEntitySystem->GetClassRegistry()->FindClass("AsianCoaxialGun");
+		sUSCoaxialGun			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("USCoaxialGun");
+		sUSCoaxialGun_VTOL		= gEnv->pEntitySystem->GetClassRegistry()->FindClass("USCoaxialGun_VTOL");
+		sVehicleUSMachinegun	= gEnv->pEntitySystem->GetClassRegistry()->FindClass("VehicleUSMachinegun");
+		sVehicleShiTenV2		= gEnv->pEntitySystem->GetClassRegistry()->FindClass("VehicleShiTenV2");
+		sAvengerCannon			= gEnv->pEntitySystem->GetClassRegistry()->FindClass("AvengerCannon");
 	}
 
 	if (!GetGameObject()->CaptureProfileManager(this))
@@ -377,6 +411,12 @@ void CItem::Update( SEntityUpdateContext& ctx, int slot )
 	{
 		if (m_stats.mounted)
   		UpdateMounted(ctx.fFrameTime);
+	}
+	//nCX
+	if ((ctx.fCurrTime - m_TickTimer) > 1.0f)
+	{
+		m_TickTimer = ctx.fCurrTime;
+		m_FireCheck = 0;
 	}
 }
 

@@ -742,8 +742,6 @@ protected:
 
   void InitInterference();
 
-	CNanoSuit *m_pNanoSuit;
-
 	Ang3		m_angleOffset;	// Used only by the view system. (retained state)
 
 	Quat	m_viewQuat;//view quaternion
@@ -776,7 +774,6 @@ protected:
 	Vec3		m_lastRequestedVelocity;
 	Vec3    m_lastKnownPosition;
 
-	SPlayerStats		m_stats;
 	SPlayerParams		m_params;
 	
 	std::auto_ptr<IPlayerInput> m_pPlayerInput;
@@ -857,7 +854,9 @@ protected:
 public:
 	IDebugHistoryManager* m_pDebugHistoryManager;
 	void DebugGraph_AddValue(const char* id, float value) const;
-
+	//nCX moved here
+	SPlayerStats	m_stats;
+	CNanoSuit		*m_pNanoSuit;
 };
 
 

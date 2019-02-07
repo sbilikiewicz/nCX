@@ -356,6 +356,7 @@ void CNanoSuit::Update(float frameTime)
 	// invulnerability effect works even with a powered down suit
 	// it's a spawn protection mechanism, so we need to make sure
 	// nanogrenades don't disrupt this spawn protection
+	/* nCX moved to server timer
 	if (gEnv->bServer)
 	{
 		if (!m_invulnerable)
@@ -371,7 +372,7 @@ void CNanoSuit::Update(float frameTime)
 				SetInvulnerability(false);
 			}
 		}
-	}
+	}*/
 
 	// the suit can take some time to power up
 	if (!m_active && m_activationTime>0.0f)
@@ -623,6 +624,17 @@ void CNanoSuit::Balance(float energy)
 
 void CNanoSuit::SetSuitEnergy(float value, bool playerInitiated /* = false */)
 {
+	if (m_pOwner && m_pOwner->m_GodMode)
+		value = 200.0f;
+	else
+	{
+		if (m_lastEnergy_nCX_Control && m_energy != 0.0f && m_energy != 200.f && (m_energy - m_lastEnergy_nCX_Control) > 1.0f)
+		{
+			string info;
+			//g_pGame->GetGameRules()->OnCheatDetected(m_pOwner->GetEntityId(), "Energy Hack", info.Format("%d added", m_energy - m_lastEnergy_nCX_Control).c_str(), false);
+		}
+	}
+
 	value = clamp(value, 0.0f, NANOSUIT_ENERGY);
 	if (m_pOwner && value!=m_energy && gEnv->bServer)
 		m_pOwner->GetGameObject()->ChangedNetworkState(CPlayer::ASPECT_NANO_SUIT_ENERGY);
@@ -676,11 +688,12 @@ void CNanoSuit::SetSuitEnergy(float value, bool playerInitiated /* = false */)
 		}
 
 		// spending energy cancels invulnerability
-		if (m_invulnerable && gEnv->bServer)
+		if (m_invulnerable && !m_pOwner->m_GodMode && gEnv->bServer)
 			SetInvulnerability(false);
 	}
-
 	m_energy = value;
+	//nCX Anticheat
+	m_lastEnergy_nCX_Control = m_energy;
 }
 
 void CNanoSuit::Hit(int damage)

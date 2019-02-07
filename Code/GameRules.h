@@ -150,7 +150,6 @@ public:
 		virtual void EndGameNear(EntityId id) = 0;
 	};
 	typedef std::vector<SGameRulesListener*> TGameRulesListenerVec;
-
 	typedef std::map<IEntity *, float> TExplosionAffectedEntities;
 
 	CGameRules();
@@ -997,6 +996,27 @@ public:
 	typedef std::map<EntityId, SEntityRemovalData>	TEntityRemovalMap;
 
 	typedef std::vector<IHitListener*> THitListenerVec;
+	//nCX
+	std::vector<int>		m_channelIds;
+	std::vector<EntityId>	m_TimerTable;
+	string					m_GlobalDataPath;
+	std::vector<float>		m_DamageTable;
+	//Moved from protected to public
+	TFrozenEntities			m_frozen;
+	TPlayerTeamIdMap		m_playerteams;
+	THitListenerVec			m_hitListeners;
+	SmartScriptTable		m_scriptHitInfo;
+	SmartScriptTable		m_serverStateScript;
+	void CreateScriptHitInfo(SmartScriptTable &scriptHitInfo, const HitInfo &hitInfo);
+	template<typename P1>
+	void CallScript(IScriptTable *pScript, const char *name, const P1 &p1)
+	{
+		if (!pScript || pScript->GetValueType(name) != svtFunction)
+			return;
+		m_pScriptSystem->BeginCall(pScript, name); m_pScriptSystem->PushFuncParam(m_script);
+		m_pScriptSystem->PushFuncParam(p1);
+		m_pScriptSystem->EndCall();
+	};
 
 protected:
 	static void CmdDebugSpawns(IConsoleCmdArgs *pArgs);
@@ -1004,7 +1024,7 @@ protected:
 	static void CmdDebugTeams(IConsoleCmdArgs *pArgs);
 	static void CmdDebugObjectives(IConsoleCmdArgs *pArgs);
 
-	void CreateScriptHitInfo(SmartScriptTable &scriptHitInfo, const HitInfo &hitInfo);
+	
 	void CreateScriptExplosionInfo(SmartScriptTable &scriptExplosionInfo, const ExplosionInfo &explosionInfo);
 	void UpdateAffectedEntitiesSet(TExplosionAffectedEntities &affectedEnts, const pe_explosion *pExplosion);
 	void AddOrUpdateAffectedEntity(TExplosionAffectedEntities &affectedEnts, IEntity* pEntity, float affected);
@@ -1025,15 +1045,7 @@ protected:
 		m_pScriptSystem->BeginCall(pScript, name); m_pScriptSystem->PushFuncParam(m_script);
 		m_pScriptSystem->EndCall();
 	};
-	template<typename P1>
-	void CallScript(IScriptTable *pScript, const char *name, const P1 &p1)
-	{
-		if (!pScript || pScript->GetValueType(name) != svtFunction)
-			return;
-		m_pScriptSystem->BeginCall(pScript, name); m_pScriptSystem->PushFuncParam(m_script);
-		m_pScriptSystem->PushFuncParam(p1);
-		m_pScriptSystem->EndCall();
-	};
+	
 	template<typename P1, typename P2>
 	void CallScript(IScriptTable *pScript, const char *name, const P1 &p1, const P2 &p2)
 	{
@@ -1091,21 +1103,16 @@ protected:
 	SmartScriptTable		m_clientScript;
 	SmartScriptTable		m_serverScript;
 	SmartScriptTable		m_clientStateScript;
-	SmartScriptTable		m_serverStateScript;
 	HSCRIPTFUNCTION			m_onCollisionFunc;
 	SmartScriptTable		m_collisionTable;
 	SmartScriptTable		m_collisionTableSource;
 	SmartScriptTable		m_collisionTableTarget;
 
 	INetChannel					*m_pClientNetChannel;
-
-	std::vector<int>		m_channelIds;
-	TFrozenEntities			m_frozen;
 	
 	TTeamIdMap					m_teams;
 	TEntityTeamIdMap		m_entityteams;
 	TTeamIdEntityIdMap	m_teamdefaultspawns;
-	TPlayerTeamIdMap		m_playerteams;
 	TChannelTeamIdMap		m_channelteams;
 	int									m_teamIdGen;
 
@@ -1115,7 +1122,6 @@ protected:
 	THitTypeMap					m_hitTypes;
 	int									m_hitTypeIdGen;
 
-	SmartScriptTable		m_scriptHitInfo;
 	SmartScriptTable		m_scriptExplosionInfo;
   
   typedef std::queue<ExplosionInfo> TExplosionQueue;
@@ -1138,8 +1144,6 @@ protected:
 	TSpawnLocations			m_spectatorLocations;
 
 	int									m_currentStateId;
-
-	THitListenerVec     m_hitListeners;
 
 	CTimeValue					m_endTime;	// time the game will end. 0 for unlimited
 	CTimeValue					m_roundEndTime;	// time the round will end. 0 for unlimited
@@ -1165,6 +1169,18 @@ protected:
 	bool                m_explosionScreenFX;
 
 	CShotValidator			*m_pShotValidator;
+
+	//nCX
+	string		m_LogRoot;
+	string		m_RootPath;
+	bool		m_ResortBanSystem;//CHRIS added
+	bool		m_UseChatCensor;
+	bool		m_Connectivity;
+
+	std::vector<string>		m_VoteTypes;
+	std::vector<string>		m_NameCensorList;
+	std::vector<string>		m_Passwords;
+
 };
 
 #endif //__GAMERULES_H__

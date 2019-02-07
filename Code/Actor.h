@@ -824,6 +824,10 @@ public:
 	virtual void PostInit( IGameObject * pGameObject );
 	virtual void PostInitClient(int channelId) {};
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
+
+	//nCX
+	virtual void ResetMovementSys();
+
 	virtual void UpdateView(SViewParams &viewParams) {};
 	virtual void PostUpdateView(SViewParams &viewParams) {};
 
@@ -1156,6 +1160,9 @@ public:
   virtual void DumpActorInfo();
 
 	virtual bool IsAlien() {return false;}
+	//nCX
+	void SequenceChecks();
+	//nCX
 
 protected:
 
@@ -1269,9 +1276,21 @@ protected:
   //std::map< EntityId, IMaterial* > m_wepAttchMats;
 
 	float			m_sleepTimer,m_sleepTimerOrg;
-
 	int				m_teamId;
-	EntityId	m_lastItemId;
+	EntityId		m_lastItemId;
+	//nCX
+	float		m_ExpectedDelay;
+	int			m_MovementWarning;
+	struct SMovement
+	{
+		SMovement() {};
+		SMovement(Vec3 Pos, float frameTime) : Pos(Pos), frameTime(frameTime) {};
+
+		Vec3 Pos;
+		float frameTime;
+	};
+	std::vector<SMovement>	m_MovementSys;
+	//
 
 public:
 	// Can occur only when we're not zooming out
@@ -1282,6 +1301,31 @@ public:
 	int m_saturationID;
 
 	int m_hitReactionID;
+	//nCX
+	int		m_ChatCounter;
+	int		m_RMIFlood;
+	int		m_HighPing;
+	bool	m_GodMode;
+	bool	m_Protected;
+	bool    m_IsLagging; //CTAO added
+	int     m_LagCounter; //CTAO added
+	float   m_WeaponCheatDelay;
+	EntityId    m_frostShooterId;
+
+	struct SMsgQueue
+	{
+		SMsgQueue() {};
+		SMsgQueue(int type, float frameTime, const char* msg) : type(type), frameTime(frameTime), msg(msg) {};
+
+		int type;
+		float frameTime;
+		const char* msg;
+	};
+	std::vector<SMsgQueue> m_MsgQueue;
+
+	virtual void SendQueueMessage(int type, const char* msg, float delay);
+	virtual void ClearQueueMessage();
+	//
 };
 
 #endif //__Actor_H__

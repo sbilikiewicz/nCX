@@ -144,8 +144,6 @@ CDialogSystem::~CDialogSystem()
 
 bool CDialogSystem::Init()
 {
-	CryLogAlways("[CDialogSystem::Init] Coop Dialog Initalized");
-
 	// (MATT) Loading just the dialog for one level works only in Game, but saves a lot of RAM. 
 	// In Editor it seems very awkward to arrange so lets just load everything {2008/08/20}
 

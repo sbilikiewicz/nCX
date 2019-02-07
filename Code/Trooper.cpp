@@ -191,12 +191,60 @@ void CTrooper::InitHeightVariance(SmartScriptTable &rTable)
 		m_heightVarianceFreq = freqMin + (cry_rand () / (float )RAND_MAX) * (freqMax - freqMin);
 }
 
+void CTrooper::RegisterMultiplayerAI()
+{
+	if (GetHealth() <= 0 && GetEntity()->GetAI())
+	{
+		gEnv->bMultiplayer = false;
+
+		IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+		gEnv->pScriptSystem->BeginCall(pScriptTable, "UnregisterAI");
+		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+		gEnv->pScriptSystem->EndCall(pScriptTable);
+		CryLogAlways("AI Unregistered for Trooper %s", GetEntity()->GetName());
+
+		gEnv->bMultiplayer = true;
+	}
+	else if (!GetEntity()->GetAI() && GetHealth() > 0)
+	{
+		gEnv->bMultiplayer = false;
+
+		IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+		gEnv->pScriptSystem->BeginCall(pScriptTable, "RegisterAI");
+		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+		
+		CryLogAlways("AI Registered for Trooper %s", GetEntity()->GetName());
+		//Experimental ncx
+		SmartScriptTable props;
+		if (pScriptTable->GetValue("Properties", props))
+		{
+			char* equip;
+			if (props->GetValue("equip_EquipmentPack", equip))
+			{
+				//if (equip[0] == '\0')
+				//	equip = "Alien_Trooper";
+
+				CryLogAlways("Giving %s to trooper", equip);
+				gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetIEquipmentManager()->GiveEquipmentPack(this, equip, true, true);
+			}
+		}
+		gEnv->pScriptSystem->EndCall(pScriptTable);
+
+		gEnv->bMultiplayer = true;
+	}
+}
+
+
 
 void CTrooper::Update(SEntityUpdateContext& ctx, int updateSlot)
 {
 	IEntity* pEnt = GetEntity();
 	if (pEnt->IsHidden())
 		return;
+
+	// Register AI System in MP (ncX)
+	if (gEnv->bServer && !gEnv->bEditor)
+		RegisterMultiplayerAI();
 
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
@@ -1017,8 +1065,11 @@ void CTrooper::ProcessMovement(float frameTime)
 				pData = gEnv->pAISystem->CreateSignalExtraData();
 				pData->iValue = 1;
 			}
-			// send land event/signal			
-			gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER,1,"OnLand",GetEntity()->GetAI(),pData);
+			// send land event/signal // nCX fix for crash
+			IAIObject *pTroop = GetEntity()->GetAI();
+			if (pTroop)
+				gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER, 1, "OnLand", pTroop, pData);
+
 			if(m_jumpParams.bUseLandEvent)
 			{
 				SEntityEvent event( ENTITY_EVENT_SCRIPT_EVENT );

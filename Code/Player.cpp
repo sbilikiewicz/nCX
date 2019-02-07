@@ -974,6 +974,7 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 
 	UpdateWeaponRaising();
 
+	/* nCX moved to server timer
 	// if spectating, send health of the spectator target to our client when it changes
 	if(gEnv->bServer && gEnv->bMultiplayer && g_pGame->GetGameRules() && m_stats.spectatorMode == CActor::eASM_Follow)
 	{
@@ -1006,7 +1007,9 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 			m_stats.spectatorTarget = 0;	// else if no other players found, HUD will continue to display previous name...
 			g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
 		}
-	}
+	}*/
+
+
 
 	UpdateSounds(ctx.fFrameTime);
 }

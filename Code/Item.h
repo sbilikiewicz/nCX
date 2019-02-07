@@ -1323,10 +1323,16 @@ protected:
 	Vec3									m_serializeActivePhysics;
 	bool									m_serializeDestroyed;
 	bool                  m_serializeRigidPhysics;
+	//nCX
+	float	m_spawnTime;
+	float	m_TickTimer;
+	int		m_FireCheck;
+	bool	m_FireControl;
+	int		m_CoolDownCheck;
 
 public:
 
-	bool									m_noDrop;				//Fix reseting problem in editor
+	bool					m_noDrop;				//Fix reseting problem in editor
 	static IEntityClass*	sOffHandClass;
 	static IEntityClass*	sFistsClass;
 	static IEntityClass*	sAlienCloak;
@@ -1350,11 +1356,25 @@ public:
 	static IEntityClass*	sExplosiveGrenade;
 	static IEntityClass*	sEMPGrenade;
 	static IEntityClass*	sSmokeGrenade;
-
-	static IEntityClass*  sIncendiaryAmmo;
-
-	static IEntityClass*  sScarGrenadeClass;
-
+	static IEntityClass*	sIncendiaryAmmo;
+	static IEntityClass*	sScarGrenadeClass;
+	//nCX
+	static IEntityClass*	sMOARClass;
+	static IEntityClass*	sVehicleMOARMounted;
+	static IEntityClass*	sVehicleMOAR;
+	static IEntityClass*	sSCARClass;
+	static IEntityClass*	sFY71Class;
+	static IEntityClass*	sSMGClass;
+	static IEntityClass*	sHurricaneClass;
+	static IEntityClass*	sAsian50CalClass;
+	static IEntityClass*	sRadarKitClass;
+	static IEntityClass		*sShiTenClass;
+	static IEntityClass		*sAsianCoaxialGun;
+	static IEntityClass		*sUSCoaxialGun;
+	static IEntityClass		*sUSCoaxialGun_VTOL;
+	static IEntityClass		*sVehicleUSMachinegun;
+	static IEntityClass		*sVehicleShiTenV2;
+	static IEntityClass		*sAvengerCannon;
 };
 
 

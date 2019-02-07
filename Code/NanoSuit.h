@@ -257,6 +257,8 @@ public:
 	// listener 
 	void AddListener(INanoSuitListener* pListener);
 	void RemoveListener(INanoSuitListener* pListener);
+	float m_invulnerabilityTimeout;
+	bool m_invulnerable;
 
 private:
 	void Precache();
@@ -277,17 +279,18 @@ private:
 	// basic variables
 	float m_energy;
 	float m_lastEnergy;
+	float m_lastEnergy_nCX_Control;
 	float m_energyRechargeRate;
 	float m_healthAccError;
 	float m_healthRegenRate;
 	float m_activationTime;
-	float m_invulnerabilityTimeout;
+	
 	bool m_active;
 	bool m_bWasSprinting;
 	bool m_bSprintUnderwater;
 
 	bool m_bNightVisionEnabled;
-	bool m_invulnerable;
+	
 
 	// timing helpers
 	float m_now;

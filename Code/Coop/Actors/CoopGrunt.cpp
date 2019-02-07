@@ -243,9 +243,14 @@ void CCoopGrunt::ProcessEvent(SEntityEvent& event)
 						gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GiveItem(this, "NanoSuit", false, false, false);
 
 					if (props->GetValue("equip_EquipmentPack", equip))
-						gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetIEquipmentManager()->GiveEquipmentPack(this, equip, true, true);
-				}
+					{
+						if (equip[0] == '\0')
+							equip = "NK_Rifle";
 
+						gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetIEquipmentManager()->GiveEquipmentPack(this, equip, true, true);
+					}
+						
+				}
 				break;
 			}
 		}

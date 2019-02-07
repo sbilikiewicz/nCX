@@ -750,12 +750,44 @@ void CAlien::PrePhysicsUpdate()
 	UpdateDebugGraphs();
 }
 
+void CAlien::RegisterMultiplayerAI()
+{
+	if (GetHealth() <= 0 && GetEntity()->GetAI())
+	{
+		gEnv->bMultiplayer = false;
+
+		IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+		gEnv->pScriptSystem->BeginCall(pScriptTable, "UnregisterAI");
+		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+		gEnv->pScriptSystem->EndCall(pScriptTable);
+		CryLogAlways("AI Unregistered for Alien %s", GetEntity()->GetName());
+
+		gEnv->bMultiplayer = true;
+	}
+	else if (!GetEntity()->GetAI() && GetHealth() > 0)
+	{
+		gEnv->bMultiplayer = false;
+
+		IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+		gEnv->pScriptSystem->BeginCall(pScriptTable, "RegisterAI");
+		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+		gEnv->pScriptSystem->EndCall(pScriptTable);
+		CryLogAlways("AI Registered for Alien %s", GetEntity()->GetName());
+
+		gEnv->bMultiplayer = true;
+	}
+}
+
 void CAlien::Update(SEntityUpdateContext& ctx, int updateSlot)
 {
 	IEntity* pEnt = GetEntity();
 	if (pEnt->IsHidden())
 		return;
   
+	// Register AI System in MP
+	if (gEnv->bServer && !gEnv->bEditor)
+		RegisterMultiplayerAI();
+
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
 	CActor::Update(ctx,updateSlot);

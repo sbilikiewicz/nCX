@@ -8,5 +8,10 @@ Code/*.vcproj
 Code/*.vcxproj
 Code/*.user
 Code/*.sln
+Code/Crysis.ico
+Code/Cursor_White.cur
+Code/GameDll.vcxproj.filters
+Code/ipch
 CMakeLists.txt
+Game/Levels
 

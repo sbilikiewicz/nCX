@@ -1,15 +1,11 @@
-/*************************************************************************
-	Crytek Source File.
-	Copyright (C), Crytek Studios, 2001-2004.
-	-------------------------------------------------------------------------
-	$Id$
-	$DateTime$
-
-	-------------------------------------------------------------------------
-	History:
-		- 7:2:2006   15:38 : Created by Márcio Martins
-
-*************************************************************************/
+/**********************************************************
+             #####  ##   ##
+ ####    ## ##   ##  ## ##  Crysis nCX V3.0
+##  ##   ## ##        ###     by MrHorseDick
+##   ##  ## ##        ###       and
+##    ## ## ##   ##  ## ##        MrCtaoistrach
+##     ####  #####  ##   ##
+**********************************************************/
 #include "StdAfx.h"
 #include "ScriptBind_GameRules.h"
 #include "GameRules.h"
@@ -23,14 +19,11 @@
 #include "HUD/HUDCrosshair.h"
 #include "Menus/FlashMenuObject.h"
 #include "Menus/OptionsManager.h"
-	
 #include "IVehicleSystem.h"
 #include "IItemSystem.h"
 #include "WeaponSystem.h"
 #include "IUIDraw.h"
-
 #include "ServerSynchedStorage.h"
-
 #include "GameActions.h"
 #include "Radio.h"
 #include "SoundMoods.h"
@@ -39,14 +32,14 @@
 #include "Voting.h"
 #include "SPAnalyst.h"
 #include "IWorldQuery.h"
-
 #include <StlUtils.h>
 #include <StringUtils.h>
+#include "nCX\nCX_PCInfo.h"
+#include "nCX\nCX_Main.h"
 
 int CGameRules::s_invulnID = 0;
 int CGameRules::s_barbWireID = 0;
 
-//------------------------------------------------------------------------
 CGameRules::CGameRules()
 : m_pGameFramework(0),
 	m_pGameplayRecorder(0),
@@ -68,7 +61,7 @@ CGameRules::CGameRules()
 	m_pRadio(0),
 	m_pBattleDust(0),
 	m_pMPTutorial(0),
-  m_pVotingSystem(0),
+	m_pVotingSystem(0),
 	m_ignoreEntityNextCollision(0),
 	m_timeOfDayInitialized(false),
 	m_processingHit(0),
@@ -77,7 +70,6 @@ CGameRules::CGameRules()
 {
 }
 
-//------------------------------------------------------------------------
 CGameRules::~CGameRules()
 {
 	if (m_onCollisionFunc)
@@ -90,15 +82,15 @@ CGameRules::~CGameRules()
 	m_pGameFramework->GetIGameRulesSystem()->SetCurrentGameRules(0);
 	if(m_pGameFramework->GetIViewSystem())
 		m_pGameFramework->GetIViewSystem()->RemoveListener(this);
+
 	GetGameObject()->ReleaseActions(this);
 
 	delete m_pShotValidator;
 	delete m_pRadio;
 	delete m_pBattleDust;
-  delete m_pVotingSystem;
+	delete m_pVotingSystem;
 }
 
-//------------------------------------------------------------------------
 bool CGameRules::Init( IGameObject * pGameObject )
 {
 	SetGameObject(pGameObject);
@@ -315,8 +307,12 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 	bool server=gEnv->bServer;
 
 	if (server)
-  {
-    ProcessQueuedExplosions();
+	{
+		//nCX timer
+		nCX::Update(ctx.fCurrTime);
+		//
+
+		ProcessQueuedExplosions();
 		UpdateEntitySchedules(ctx.fFrameTime);
 
 		if (m_pShotValidator)
@@ -360,7 +356,7 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 	if(gEnv->bMultiplayer && m_pRadio)
 		m_pRadio->Update();
 
-	if (gEnv->bServer)
+	if (server)
 		GetGameObject()->ChangedNetworkState( eEA_GameServerDynamic );
 }
 
@@ -382,35 +378,56 @@ void CGameRules::ProcessEvent( SEntityEvent& event)
 	case ENTITY_EVENT_RESET:
 		if (m_pShotValidator)
 			m_pShotValidator->Reset();
+
 		m_timeOfDayInitialized = false;
 		ResetFrozen();
     
-    while (!m_queuedExplosions.empty())
-      m_queuedExplosions.pop();
+		while (!m_queuedExplosions.empty())
+			m_queuedExplosions.pop();
 
 		while (!m_queuedHits.empty())
 			m_queuedHits.pop();
+
 		m_processingHit=0;
 		
       // TODO: move this from here
 		g_pGame->GetWeaponSystem()->GetTracerManager().Reset();
 		m_respawns.clear();
 		m_removals.clear();
+		//nCX
+		nCX::InitChat();
+		m_TimerTable.clear();
 		break;
 
 	case ENTITY_EVENT_START_GAME:
+	{
 		m_timeOfDayInitialized = false;
 		g_pGame->GetWeaponSystem()->GetTracerManager().Reset();
-
-		if (gEnv->bServer && gEnv->bMultiplayer && pTOD && pTOD->GetIVal() && g_pGame->GetIGameFramework()->IsImmersiveMPEnabled())
+		//nCX
+		if (ILevelSystem *pLevel = m_pGameFramework->GetILevelSystem())
 		{
-			static ICVar* pStart = gEnv->pConsole->GetCVar("sv_timeofdaystart");
-			if (pStart)
-				gEnv->p3DEngine->GetTimeOfDay()->SetTime(pStart->GetFVal(), true);
+			bool dx10 = g_pGame->GetIGameFramework()->IsImmersiveMPEnabled();
+			if (gEnv->bServer && pTOD && pTOD->GetIVal() && dx10)
+			{
+				CryLogAlways("*LOADED %s [ %dM^3 : %d ents : DX%s ] in %.3gs", pLevel->GetCurrentLevel()->GetLevelInfo()->GetDisplayName(), gEnv->p3DEngine->GetTerrainSize(), m_pEntitySystem->GetNumEntities(), dx10 ? "10" : "9", pLevel->GetLastLevelLoadTime());
+				static ICVar* pStart = gEnv->pConsole->GetCVar("sv_timeofdaystart");
+				if (pStart)
+					gEnv->p3DEngine->GetTimeOfDay()->SetTime(pStart->GetFVal(), true);
+			}
 		}
+		//Assign onClient script ?
+		//m_pScriptSystem->GetGlobalValue("g_gameRules", m_onClientScript);
+		//m_onClientScript->GetValue("onClient", m_onClientScript);
+		
+		nCX::InitChat();
+		m_ResortBanSystem = false;
+		g_pGame->m_LowestServerPerformance = 1000;
+		g_pGame->m_HighestServerPerformance = 0;
 
+		stl::push_back_unique(m_TimerTable, GetEntityId());
+		//
 		break;
-
+	}
 	case ENTITY_EVENT_ENTER_SCRIPT_STATE:
 		m_currentStateId=event.nParam[0];
 
@@ -543,7 +560,6 @@ void CGameRules::OnResetMap()
 	}
 }
 
-//------------------------------------------------------------------------
 bool CGameRules::OnClientConnect(int channelId, bool isReset)
 {
 	if (!isReset)
@@ -563,8 +579,8 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 			playerName=pNetChannel->GetNickname();
 			if (!playerName.empty())
 				playerName=VerifyName(playerName);
-		}
-
+	}
+	//Move it to nCX later
     if(!playerName.empty())
 			CallScript(m_serverStateScript, "OnClientConnect", channelId, isReset, playerName.c_str());
     else
@@ -575,9 +591,12 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 		CallScript(m_serverStateScript, "OnClientConnect", channelId);
 	}
 
-	CActor *pActor=GetActorByChannelId(channelId);
-	if (pActor)
+	CActor *pActor = GetActorByChannelId(channelId);
+	if (pActor != 0) //Crash fix sometimes actor is 0
 	{
+		//nCX Call
+		nCX::ClientConnect(pActor, channelId, isReset);
+		//
 		//we need to pass team somehow so it will be reported correctly
 		int status[2];
 		status[0] = GetTeam(pActor->GetEntityId());
@@ -602,8 +621,9 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 	if (m_pShotValidator)
 		m_pShotValidator->Disconnected(channelId);
 
-	CActor *pActor=GetActorByChannelId(channelId);
-	//assert(pActor);
+	CActor *pActor = GetActorByChannelId(channelId);
+	if (pActor = 0)//debug
+		CryLogAlways("Actor == 0 ERROR !!");
 
 	if (!pActor || !keepClient)
 		if (g_pGame->GetServerSynchedStorage())
@@ -625,27 +645,57 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 		return;
 	}
 
-	if (IVehicle *pVehicle=pActor->GetLinkedVehicle())
+	if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
 	{
 		if (IVehicleSeat *pSeat=pVehicle->GetSeatForPassenger(pActor->GetEntityId()))
 			pSeat->Reset();
 	}
-
+	//Remove explosives on disconnect
 	if(pActor->GetActorClass() == CPlayer::GetActorClassType())
 		static_cast<CPlayer*>(pActor)->RemoveAllExplosives(0.0f);
 
-  SetTeam(0, pActor->GetEntityId());
+	EntityId playerId = pActor->GetEntityId();
+	SetTeam(0, playerId);
 
-	std::vector<int>::iterator channelit=std::find(m_channelIds.begin(), m_channelIds.end(), channelId);
-	if (channelit!=m_channelIds.end())
-		m_channelIds.erase(channelit);
+	// check this
+	//std::vector<int>::iterator channelit=std::find(m_channelIds.begin(), m_channelIds.end(), channelId);
+	//if (channelit!=m_channelIds.end())
+	//	m_channelIds.erase(channelit);
+	
+	//This better?
+	stl::find_and_erase(m_channelIds, channelId);
 
-	CallScript(m_serverStateScript, "OnClientDisconnect", channelId);
+	//nCX
+	nCX::ClientDisconnect(pActor, channelId, desc);
+	
+	//Move to nCX events
+	m_pGameplayRecorder->Event(pActor->GetEntity(), GameplayEvent(eGE_Disconnected, "", 0.0f));
+	m_pScriptSystem->BeginCall(m_serverStateScript, "OnClientDisconnect");
+	m_pScriptSystem->PushFuncParam(m_script);
+	m_pScriptSystem->PushFuncParam(channelId);
+	m_pScriptSystem->PushFuncParam(pActor->GetEntity()->GetScriptTable());
+	m_pScriptSystem->PushFuncParam((int)cause);
+	m_pScriptSystem->PushFuncParam(desc);
+	m_pScriptSystem->EndCall();
+	
+	/*if (m_PlayerCount < 2)
+	{
+	int verify = 0;
+	for (std::vector<int>::const_iterator it = m_channelIds.begin(); it != m_channelIds.end(); ++it)
+	++verify;
 
+	if (verify == 0)
+	{
+	LogToFile("Action", "Rebooting Server due to 0 players!");
+	m_pGameFramework->ExecuteCommandNextFrame("quit");
+	}
+	}*/
+	m_pActorSystem->RemoveActor(playerId);
+	m_pEntitySystem->RemoveEntity(playerId, false);
+	//
 	return;
 }
 
-//------------------------------------------------------------------------
 bool CGameRules::OnClientEnteredGame(int channelId, bool isReset)
 { 
 	CActor *pActor=GetActorByChannelId(channelId);
@@ -655,9 +705,19 @@ bool CGameRules::OnClientEnteredGame(int channelId, bool isReset)
 	if (g_pGame->GetServerSynchedStorage())
 		g_pGame->GetServerSynchedStorage()->OnClientEnteredGame(channelId);
 
-	IScriptTable *pPlayer=pActor->GetEntity()->GetScriptTable();
-	int loadingSaveGame=m_pGameFramework->IsLoadingSaveGame()?1:0;
-	CallScript(m_serverStateScript, "OnClientEnteredGame", channelId, pPlayer, isReset, loadingSaveGame);
+	/* nCX?
+	m_pScriptSystem->BeginCall(m_onClientScript, "ClSetupPlayer");
+	m_pScriptSystem->PushFuncParam(m_onClientScript);
+	m_pScriptSystem->PushFuncParam(channelId);
+	m_pScriptSystem->PushFuncParam(ScriptHandle(pActor->GetEntityId()));
+	m_pScriptSystem->EndCall();*/
+
+	m_pScriptSystem->BeginCall(m_serverStateScript, "OnClientEnteredGame");
+	m_pScriptSystem->PushFuncParam(m_script);
+	m_pScriptSystem->PushFuncParam(channelId);
+	m_pScriptSystem->PushFuncParam(pActor->GetEntity()->GetScriptTable());
+	m_pScriptSystem->PushFuncParam(isReset);
+	m_pScriptSystem->EndCall();
 
 	// don't do this on reset - have already been added to correct team!
 	if(!isReset || GetTeamCount() < 2)
@@ -666,7 +726,6 @@ bool CGameRules::OnClientEnteredGame(int channelId, bool isReset)
 	return true;
 }
 
-//------------------------------------------------------------------------
 void CGameRules::OnItemDropped(EntityId itemId, EntityId actorId)
 {
 	ScriptHandle itemIdHandle(itemId);
@@ -674,7 +733,6 @@ void CGameRules::OnItemDropped(EntityId itemId, EntityId actorId)
 	CallScript(m_serverStateScript, "OnItemDropped", itemIdHandle, actorIdHandle);
 }
 
-//------------------------------------------------------------------------
 void CGameRules::OnItemPickedUp(EntityId itemId, EntityId actorId)
 {
 	ScriptHandle itemIdHandle(itemId);
@@ -682,9 +740,7 @@ void CGameRules::OnItemPickedUp(EntityId itemId, EntityId actorId)
 	CallScript(m_serverStateScript, "OnItemPickedUp", itemIdHandle, actorIdHandle);
 }
 
-//------------------------------------------------------------------------
-void CGameRules::OnTextMessage(ETextMessageType type, const char *msg,
-															 const char *p0, const char *p1, const char *p2, const char *p3)
+void CGameRules::OnTextMessage(ETextMessageType type, const char *msg, const char *p0, const char *p1, const char *p2, const char *p3)
 {
 	switch(type)
 	{
@@ -1118,6 +1174,12 @@ void CGameRules::KillPlayer(CActor *pActor, bool dropItem, bool ragdoll, EntityI
 void CGameRules::MovePlayer(CActor *pActor, const Vec3 &pos, const Ang3 &angles)
 {
 	CActor::MoveParams params(pos, Quat(angles));
+
+	//nCX
+	pActor->ResetMovementSys();
+	//Fix for ShootPosSpoof hax detection
+	pActor->m_WeaponCheatDelay = gEnv->pTimer->GetCurrTime() + 3.0f;
+
 	pActor->GetGameObject()->InvokeRMI(CActor::ClMoveTo(), params, eRMI_ToClientChannel|eRMI_NoLocalCalls, pActor->GetChannelId());
 	pActor->GetEntity()->SetWorldTM(Matrix34::Create(Vec3(1,1,1), params.rot, params.pos));
 }

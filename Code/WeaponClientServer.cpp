@@ -15,24 +15,9 @@
 #include "Actor.h"
 #include "Game.h"
 #include "GameRules.h"
-
-/*
-#define CHECK_OWNER_REQUEST()	\
-	{ \
-		uint16 channelId=m_pGameFramework->GetGameChannelId(pNetChannel);	\
-		IActor *pOwnerActor=GetOwnerActor(); \
-		if (!pOwnerActor || pOwnerActor->GetChannelId()!=channelId) \
-		{ \
-			CryLogAlways("[gamenet] Disconnecting %s. Bogus weapon action '%s' request! %s %d!=%d (%s!=%s)", \
-			pNetChannel->GetName(), __FUNCTION__, pOwnerActor?pOwnerActor->GetEntity()->GetName():"null", \
-			pOwnerActor?pOwnerActor->GetChannelId():0, channelId,\
-			pOwnerActor?pOwnerActor->GetEntity()->GetName():"null", \
-			m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)?m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)->GetEntity()->GetName():"null"); \
-
-			return false; \
-		} \
-	} \
-*/
+#include "Player.h"
+#include <IVehicleSystem.h>
+#include "nCX/nCX_Main.h"
 
 #define CHECK_OWNER_REQUEST()	\
 	{ \
@@ -139,6 +124,7 @@ void CWeapon::RequestShoot(IEntityClass* pAmmoType, const Vec3 &pos, const Vec3 
 	{
 		if (pActor)
 			pActor->GetGameObject()->Pulse('bang');
+
 		GetGameObject()->Pulse('bang');
 
 		if (IsServerSpawn(pAmmoType) || forceExtended)
@@ -312,37 +298,47 @@ IMPLEMENT_RMI(CWeapon, SvRequestStartFire)
 	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
 	//CHECK_OWNER_REQUEST();
 	// ~Crysis Co-op
-
-	GetGameObject()->InvokeRMI(CWeapon::ClStartFire(), params, eRMI_ToOtherClients|eRMI_NoLocalCalls, 
-		m_pGameFramework->GetGameChannelId(pNetChannel));
-
-	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	IActor *pLocalActor=m_pGameFramework->GetClientActor();
-	bool isLocal = pLocalActor && pActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
-
-	if (!isLocal)
-		NetStartFire();
-
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+	{
+		if (CActor *pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)))
+		{
+			if (pActor->GetEntityId() == GetOwnerId())
+			{
+				GetGameObject()->InvokeRMI(ClStartFire(), params, eRMI_ToOtherClients | eRMI_NoLocalCalls, channelId); //0x04|0x10000
+				//nCX
+				m_BulletsOut = 0.0f;
+				m_BulletsPassed = 0.0f;
+				m_SpinupTime = gEnv->pTimer->GetCurrTime();
+				NetStartFire();
+			}
+		}
+	}
 	return true;
 }
 
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestStopFire)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
+	{
+		if (CActor *pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)))
+		{
+			if (pActor->GetEntityId() == GetOwnerId())
+			{
+				GetGameObject()->InvokeRMI(ClStopFire(), params, 0x04 | 0x10000, channelId);
+				NetStopFire();
+				//nCX reset anticheat 
+				if (m_FireControl)
+					m_FireControl = false;
 
-	GetGameObject()->InvokeRMI(CWeapon::ClStopFire(), params, eRMI_ToOtherClients|eRMI_NoLocalCalls, 
-		m_pGameFramework->GetGameChannelId(pNetChannel));
-
-	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	IActor *pLocalActor=m_pGameFramework->GetClientActor();
-	bool isLocal = pLocalActor && pActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
-
-	if (!isLocal)
-		NetStopFire();
-
+				m_CoolDownCheck = 0;
+				m_FireCheck = 0;
+				m_SpinupTime = 0.0f;
+			}
+		}
+	}
 	return true;
 }
 
@@ -350,7 +346,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestStopFire)
 IMPLEMENT_RMI(CWeapon, ClStartFire)
 {
 	NetStartFire();
-
 	return true;
 }
 
@@ -358,67 +353,181 @@ IMPLEMENT_RMI(CWeapon, ClStartFire)
 IMPLEMENT_RMI(CWeapon, ClStopFire)
 {
 	NetStopFire();
-
 	return true;
 }
 
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-
-	bool ok=true;
-	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	/*if (!pActor || pActor->GetHealth()<=0)
-		ok=false;*/
-
-	// ~Crysis Co-op
-
-	ok &= !OutOfAmmo(false);
-
-	if (ok)
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
 	{
-		if (pActor)
-			pActor->GetGameObject()->Pulse('bang');
-		GetGameObject()->Pulse('bang');
-
-		static ray_hit rh;
-
-		IEntity* pEntity = NULL;
-		if ( gEnv->pPhysicalWorld->RayWorldIntersection(params.pos, params.dir*4096.0f, ent_all & ~ent_terrain, rwi_stop_at_pierceable|rwi_ignore_back_faces, &rh, 1) )
-			pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(rh.pCollider);
-		if (pEntity)
+		if (CActor *pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)))
 		{
-			if(INetContext* pNC = gEnv->pGame->GetIGameFramework()->GetNetContext())
+			if (NULL == &params)
+				return false;
+			
+			if (OutOfAmmo(false))
 			{
-				if(pNC->IsBound(pEntity->GetId()))
-				{
-					AABB bbox; pEntity->GetWorldBounds(bbox);
-					bool hit0 = bbox.GetRadius() < 1.0f; // this (radius*2) must match the value in CompressionPolicy.xml ("hit0")
-					Vec3 hitLocal = pEntity->GetWorldTM().GetInvertedFast() * rh.pt;
-					//GetGameObject()->InvokeRMI(CWeapon::ClShootX(), ClShootXParams(pEntity->GetId(), hit0, hitLocal, params.predictionHandle),
-					//	eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
-					GetGameObject()->InvokeRMIWithDependentObject(CWeapon::ClShootX(), ClShootXParams(pEntity->GetId(), hit0, hitLocal, params.predictionHandle),
-						eRMI_ToOtherClients|eRMI_NoLocalCalls, pEntity->GetId(), m_pGameFramework->GetGameChannelId(pNetChannel));
-
-				}
+				CryLogAlways("OutOfAmmo requests shots 1");
+				return false;
 			}
-		}
-		else
-			GetGameObject()->InvokeRMI(CWeapon::ClShoot(), ClShootParams(params.hit, params.predictionHandle), 
-				eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
 
-		IActor *pLocalActor=m_pGameFramework->GetClientActor();
-		bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
+			//Idk what is this
+			pActor->GetGameObject()->Pulse('bang');
+			GetGameObject()->Pulse('bang');
 
-		if (!isLocal)
-			NetShoot(params.hit, params.predictionHandle);
+			if (pActor->GetEntityId() == GetOwnerId())
+			{
+				//Longpoke
+				float currTime = gEnv->pTimer->GetCurrTime();
+				if (params.seq == 1)
+				{
+					if (currTime - pActor->m_WeaponCheatDelay > 3.0f) //CTAO added the same here
+					{
+						nCX::CheatDetected(pActor->GetEntityId(), "Longpoke", "seq", true);
+						pActor->m_WeaponCheatDelay = currTime + 10.0f;
+					}
+					return true;
+				}
 
-		if (pActor && !isLocal && params.seq)
-		{
-			if (CGameRules *pGameRules=g_pGame->GetGameRules())
-				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
+				IEntityClass *pClass = GetEntity()->GetClass();
+
+				if (pClass == sAsian50CalClass) //CTAO added
+					pActor->m_RMIFlood = pActor->m_RMIFlood - 0.5;
+
+				if (!pActor->m_IsLagging)
+				{
+					//Shoot Pos Spoof
+					if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
+					{
+						float Treshold = 50.0f;
+						float Distance = (pActor->GetEntity()->GetWorldPos() - params.pos).len2();
+						if (Distance > 0.0f)
+							Distance = cry_sqrtf_fast(Distance);
+
+						if (Distance > Treshold)
+						{
+							if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
+							{
+								const SVehicleStatus& status = pVehicle->GetStatus();
+								if (status.speed > Treshold)
+									Treshold = status.speed;
+
+							}
+							if (currTime - pActor->m_WeaponCheatDelay > 3.0f)
+							{
+								string info;
+								nCX::CheatDetected(pActor->GetEntityId(), "Shoot Pos", info.Format("%.2fm", Distance).c_str(), false);
+								pActor->m_WeaponCheatDelay = currTime + 10.0f;
+							}
+							return true;
+						}
+					}
+
+					//RapidFire & NoRecoil
+					int currFireMode = GetCurrentFireMode();
+					if (IFireMode *pFireMode = GetFireMode(currFireMode))
+					{
+						++m_FireCheck;
+						float rate = pFireMode->GetFireRate();
+						if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
+						{
+							nCX::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
+							CryLogAlways("[AntiCheat] Rapid Fire: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
+							m_FireCheck = 0;
+							pActor->m_WeaponCheatDelay = currTime + 3.0f;
+							// temporary disabled return true;
+						}
+						if (pClass == sSCARClass || pClass == sFY71Class || pClass == sSMGClass || pClass == sHurricaneClass || (sAlienMountClass && currFireMode == 1))
+						{
+							int clip = pFireMode->GetAmmoCount();
+							if (clip == 0)
+							{
+								CryLogAlways("$4Clip is empty and still shooting!");
+							}
+							float x = abs(m_LastRecoil.x - params.dir.x);
+							float y = abs(m_LastRecoil.y - params.dir.y);
+							float z = abs(m_LastRecoil.z - params.dir.z);
+							float Average = (x + y + z) / 3;
+							// 0.0001f check this
+							if ((Average < 0.0001f) && (currFireMode < 1))
+							{
+								++m_RecoilWarning;
+								if (m_RecoilWarning == 5)
+								{
+									string info;
+									const char* type = "No Recoil";
+									if (Average > 0.00001f)
+									{
+										type = "Low Recoil";
+										info.Format("%.5f, %s", Average, pClass->GetName());
+									}
+									else
+										info.Format("%s", pClass->GetName());
+
+									nCX::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
+									m_RecoilWarning = 0;
+									return true;
+								}
+							}
+							else
+								m_RecoilWarning = 0;
+
+							m_LastRecoil = params.dir;
+						}
+						//Weapon SpinUp time Check
+						float spinUpTime = pFireMode->GetSpinUpTime();
+						if (spinUpTime > 0.01f)
+						{
+							if (currTime - m_SpinupTime < spinUpTime)
+							{
+								//g_pGame->GetGameRules()->OnCheatDetected(pActor->GetEntityId(), "Weapon Spinup", pClass->GetName(), true);
+								CryLogAlways("[AntiCheat] Weapon Spinup detected on %s : %s : SpinupTime %.4f : ShootStart %.4f : currTime %.4f : $4DIFF %.4f", pActor->GetEntity()->GetName(), pClass->GetName(), spinUpTime, m_SpinupTime, currTime, spinUpTime - (currTime - m_SpinupTime));
+								m_SpinupTime = 0.0f;
+							}
+						}
+						//Weapon Cooldown Check
+						if (pClass == sMOARClass || pClass == sVehicleMOARMounted || pClass == sAlienMountClass || pClass == sShiTenClass || pClass == sAsian50CalClass || pClass == sAsianCoaxialGun || pClass == sUSCoaxialGun || pClass == sUSCoaxialGun_VTOL || pClass == sVehicleUSMachinegun || pClass == sVehicleShiTenV2 || pClass == sAvengerCannon)
+						{
+							++m_CoolDownCheck;
+							if (((pClass == sMOARClass || pClass == sVehicleMOARMounted) && m_CoolDownCheck == 13) || ((pClass == sShiTenClass || pClass == sAsianCoaxialGun || pClass == sVehicleShiTenV2) && m_CoolDownCheck == 90) || (pClass == sUSCoaxialGun_VTOL && m_CoolDownCheck == 62))
+							{
+								string info;
+								nCX::CheatDetected(pActor->GetEntityId(), "Weapon Cooldown", pClass->GetName(), false);
+								m_FireControl = true;
+							}
+						}
+					}
+					else
+						m_FireCheck = 0;
+				}
+				//gEnv->pPhysicalWorld->AddEventClient(1, 1);
+
+				++m_BulletsOut;
+				static ray_hit rh;
+				IEntity* pEntity = NULL;
+				if (gEnv->pPhysicalWorld->RayWorldIntersection(params.pos, params.dir*4096.0f, ent_all & ~ent_terrain, rwi_stop_at_pierceable | rwi_ignore_back_faces, &rh, 1))
+					pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(rh.pCollider);
+
+				if (pEntity)
+				{
+					if (INetContext* pNC = m_pGameFramework->GetNetContext())
+					{
+						if (pNC->IsBound(pEntity->GetId()))
+						{
+							AABB bbox; pEntity->GetWorldBounds(bbox);
+							bool hit0 = bbox.GetRadius() < 1.0f;
+							Vec3 hitLocal = pEntity->GetWorldTM().GetInvertedFast() * rh.pt;
+							GetGameObject()->InvokeRMIWithDependentObject(ClShootX(), ClShootXParams(pEntity->GetId(), hit0, hitLocal, params.predictionHandle), 0x04 | 0x10000, pEntity->GetId(), channelId);
+						}
+					}
+				}
+				else
+					GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.hit, params.predictionHandle), 0x04 | 0x10000, channelId);
+
+				m_fm->NetShoot(params.hit, params.predictionHandle);
+			}
 		}
 	}
 
@@ -431,37 +540,84 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
 	//CHECK_OWNER_REQUEST();
 
-	bool ok=true;
-	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	/*if (!pActor || pActor->GetHealth()<=0)
-		ok=false;*/
-
-	// ~Crysis Co-op
-
-	ok &= !OutOfAmmo(false);
-
-	if (ok)
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
 	{
-		if (pActor)
-			pActor->GetGameObject()->Pulse('bang');
-		GetGameObject()->Pulse('bang');
-
-		GetGameObject()->InvokeRMI(CWeapon::ClShoot(), ClShootParams(params.pos+params.dir*5.0f, params.predictionHandle),
-			eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
-
-		IActor *pLocalActor=m_pGameFramework->GetClientActor();
-		bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
-
-		if (!isLocal)
-			NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
-
-		if (pActor && !isLocal && params.seq)
+		if (CActor *pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)))
 		{
-			if (CGameRules *pGameRules=g_pGame->GetGameRules())
-				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
+			if (NULL == &params)
+				return false;
+
+			if (OutOfAmmo(false))
+			{
+				CryLogAlways("OutOfAmmo requests shots 2");
+				return false;
+			}
+			//idk whats this
+			pActor->GetGameObject()->Pulse('bang');
+			GetGameObject()->Pulse('bang');
+
+			if (pActor->GetEntityId() == GetOwnerId())
+			{
+				IEntityClass *pClass = GetEntity()->GetClass();
+
+				if (!pActor->m_IsLagging)
+				{
+					//Shoot Pos Spoof
+					float Distance = (pActor->GetEntity()->GetWorldPos() - params.pos).len2();
+					if (Distance > 0.0f)
+						Distance = cry_sqrtf_fast(Distance);
+
+					float Treshold = 50.0f;
+					if (Distance > Treshold)
+					{
+						if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
+						{
+							const SVehicleStatus& status = pVehicle->GetStatus();
+							if (status.speed > Treshold)
+								Treshold = status.speed;
+						}
+					}
+					if (Distance > Treshold)
+					{
+						if (gEnv->pTimer->GetCurrTime() - pActor->m_WeaponCheatDelay > 3.0f)
+						{
+							string info;
+							nCX::CheatDetected(pActor->GetEntityId(), "ShootEx Pos", info.Format("%.2fm", Distance).c_str(), false);
+							pActor->m_WeaponCheatDelay = gEnv->pTimer->GetCurrTime() + 10.0f;
+						}
+						return true;
+					}
+					if (IFireMode *pFireMode = GetFireMode(GetCurrentFireMode()))
+					{
+						//RapidFire check
+						++m_FireCheck;
+						float rate = pFireMode->GetFireRate();
+						if (rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f)))))
+						{
+							nCX::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
+							CryLogAlways("[AntiCheat] Rapid Fire Ex: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
+							m_FireCheck = 0;
+							return true;
+						}
+					}
+					else
+						m_FireCheck = 0;
+				}
+
+				//AntiCheat passed, process shoot
+				GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.pos + params.dir*5.0f, params.predictionHandle), 0x04 | 0x10000, channelId);
+				NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
+				//Can we remove this??
+				if (CGameRules *pGameRules = g_pGame->GetGameRules())
+					pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
+
+				//if (pClass == sRocketLauncherClass)
+				//	Reload(true);//CHRIS weird workaround but it works!
+				//must be done everytime we shoot.. otherwise it will drop before reload
+			}
 		}
 	}
-
 	return true;
 }
 
@@ -520,36 +676,41 @@ IMPLEMENT_RMI(CWeapon, ClStartMeleeAttack)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestMeleeAttack)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-
-	bool ok=true;
-	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	/*if (!pActor || pActor->GetHealth()<=0)
-		ok=false;*/
-
-	// ~Crysis Co-op
-
-	if (ok)
+	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
+	if (channelId)
 	{
-		GetGameObject()->InvokeRMI(CWeapon::ClMeleeAttack(), ClMeleeAttackParams(params.wmelee, params.pos, params.dir),
-			eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
-
-		IActor *pLocalActor=m_pGameFramework->GetClientActor();
-		bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
-
-		if (!isLocal)
-			NetMeleeAttack(params.wmelee, params.pos, params.dir);
-
-		if (pActor && !isLocal && params.seq)
+		if (CActor *pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(channelId)))
 		{
-			if (CGameRules *pGameRules=g_pGame->GetGameRules())
+			if (NULL == &params)
+				return false;
+
+			if (pActor->GetEntityId() == GetOwnerId())
+			{
+				GetGameObject()->InvokeRMI(CWeapon::ClMeleeAttack(), ClMeleeAttackParams(params.wmelee, params.pos, params.dir), 0x04 | 0x10000, channelId);
+				CPlayer *pPlayer = static_cast<CPlayer *>(pActor);
+				CNanoSuit *pSuit = pPlayer->GetNanoSuit();
+				if (pSuit && !pActor->m_GodMode)
+				{
+					ENanoMode curMode = pSuit->GetMode();
+					if (curMode == NANOMODE_STRENGTH)
+						pSuit->SetSuitEnergy(pSuit->GetSuitEnergy() - 20.0f);
+					//else if (curMode == NANOMODE_CLOAK) //no cloak disable after punch
+					//	pSuit->SetSuitEnergy(0.0f);
+
+					if (pSuit->IsInvulnerable())
+						pSuit->SetInvulnerability(false);
+				}
+				//Probable melee double hit fix
+				//NetMeleeAttack(params.wmelee, params.pos, params.dir); ?
+				if (params.wmelee && m_melee)
+					m_melee->NetShootEx(params.pos, params.dir, ZERO, ZERO, 1.0f, 0);
+				else if (m_fm)
+					m_fm->NetShootEx(params.pos, params.dir, ZERO, ZERO, 1.0f, 0);
+			}
+			if (CGameRules *pGameRules = g_pGame->GetGameRules())
 				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, 0);
 		}
-
-		m_pGameplayRecorder->Event(GetOwner(), GameplayEvent(eGE_WeaponMelee, 0, 0, (void *)GetEntityId()));
 	}
-
 	return true;
 }
 

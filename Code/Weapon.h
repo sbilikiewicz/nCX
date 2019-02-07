@@ -612,6 +612,11 @@ public:
   virtual bool ApplyActorRecoil() const { return true; }
 
 	virtual void ForcePendingActions();
+	//nCX
+	float		m_BulletsPassed;
+	float		m_BulletsOut;
+	float		m_SpinupTime;
+	//nCX
 
 protected:
 	virtual bool ReadItemParams(const IItemParamsNode *params);
@@ -707,6 +712,12 @@ protected:
 
 	uint8					m_raisePose;
 	uint16					m_shootSeqN;
+	//nCX
+	std::vector<float> m_RecoilSys;
+	int			m_RecoilWarning;
+	int			m_RapidFireDetections;
+	Vec3		m_LastRecoil;
+	//nCX
 
 private:
 
