@@ -1,8 +1,0 @@
-<MetaData>
-   <MiniMap Filename="Tarmac.dds" startX="707.252930" startY="249.320435" endX="3107.252930" endY="2649.320313" mapRadius="200"/>
-   <Gamerules MP1="PowerStruggle"/>
-   <LoadingScreens screen1="Tarmac_Loading.dds"/>
-   <HeaderText text="Tarmac"/>
-   <DescriptionText text="@Loading_screen_info_tarmac"/>
-   <Display Name="Tarmac"/>
-</MetaData>

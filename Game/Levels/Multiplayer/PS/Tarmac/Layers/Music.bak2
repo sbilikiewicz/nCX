@@ -1,7 +1,0 @@
-<ObjectLayer>
- <Layer Name="Music" GUID="{1F86CA35-13A0-41E6-9BBC-92742DCC63D0}" Hidden="1" Frozen="1" External="1" Exportable="1">
-  <LayerObjects>
-   <Object Type="Prefab" Layer="Music" Id="{62BED9B1-18E8-44C5-AB1B-C6B0F02C78D9}" Name="Music1" Pos="1858.5,1565,224.25" ColorRGB="56575" MatLayersMask="0" MergeGeom="0" PrefabGUID="{C9EC5F9A-D761-48EC-ADF8-735E548D817D}" PrefabName="music_mp.music.music_all_mp_maps"/>
-  </LayerObjects>
- </Layer>
-</ObjectLayer>
