@@ -42,8 +42,6 @@ void CCoopScout::RegisterMultiplayerAI()
 		gEnv->pScriptSystem->BeginCall(pScriptTable, "UnregisterAI");
 		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
 		gEnv->pScriptSystem->EndCall(pScriptTable);
-		CryLogAlways("AI Unregistered for Scout %s", GetEntity()->GetName());
-
 		gEnv->bMultiplayer = true;
 	}
 	else if (!GetEntity()->GetAI() && GetHealth() > 0)
@@ -54,8 +52,6 @@ void CCoopScout::RegisterMultiplayerAI()
 		gEnv->pScriptSystem->BeginCall(pScriptTable, "RegisterAI");
 		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
 		gEnv->pScriptSystem->EndCall(pScriptTable);
-		CryLogAlways("AI Registered for Scout %s", GetEntity()->GetName());
-
 		gEnv->bMultiplayer = true;
 	}
 }

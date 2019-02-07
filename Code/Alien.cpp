@@ -1757,7 +1757,6 @@ void CAlien::Kill()
 		m_pTurnSound->Stop(ESoundStopMode_EventFade);
 		m_pTurnSound = NULL;
 	}
-
 }
 
 void CAlien::Revive(bool fromInit)

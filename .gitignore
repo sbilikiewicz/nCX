@@ -1,6 +1,8 @@
 Bin32
+Bin64
 BinTemp
 Code/*.sdf
+Code/*.opensdf
 Code/*.ncb
 Code/*.rc
 Code/*.suo
