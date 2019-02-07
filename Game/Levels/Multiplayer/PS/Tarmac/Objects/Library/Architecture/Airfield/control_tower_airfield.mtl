@@ -1,0 +1,202 @@
+<Material MtlFlags="256">
+ <SubMaterials>
+  <Material Name="concrete_wall" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_concrete" Diffuse="0.83137262,0.83137262,0.83137262" Specular="0.047058828,0.047058828,0.047058828" Emissive="0,0,0" Shininess="50" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/air_control_tower/act_concrete.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Detail" File="textures/detail/detail_concrete.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="walk" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_metal_thick" Diffuse="0.36078432,0.36078432,0.36078432" Specular="0.5529412,0.5529412,0.5529412" Emissive="0,0,0" Shininess="5" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/air_control_tower/diamand_plate.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Normalmap" File="objects/library/architecture/airfield/air_control_tower/diamand_plate_ddn.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="glass" MtlFlags="2176" Shader="Glass" GenMask="268436498" SurfaceType="mat_glass" Diffuse="1,1,1" Specular="1.0506729,1.0506729,1.0506729" Emissive="0,0,0" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/multiplayer/vehicle_factory/window_glass.tif" Filter="7">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/multiplayer/vehicle_factory/window_glass_spec.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Environment" File="textures/cubemaps/frosty2.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams TintAmount="1" RefrBumpScale="0.1" ReflectionAmount="0.25" FresnelBias="0.2" FresnelScale="1" BackLightScale="1" FilterColor="1,1,1"/>
+  </Material>
+  <Material Name="stairs" MtlFlags="128" Shader="Illum" GenMask="268435472" SurfaceType="mat_concrete" Diffuse="0.44705886,0.44705886,0.44705886" Specular="0.11764707,0.11764707,0.11764707" Emissive="0,0,0" Shininess="3" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/harbour/control_center//harbor_control_center_main_ceiling.dds">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/harbour/control_center/harbor_control_center_main_ceiling_spec.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="proxy" MtlFlags="1152" Shader="Nodraw" GenMask="0" SurfaceType="mat_concrete" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures />
+  </Material>
+  <Material Name="barriers" MtlFlags="128" Shader="Metal" GenMask="268435456" SurfaceType="mat_metal_smooth" Diffuse="0.34509805,0.34509805,0.34509805" Specular="0.15058826,0.19764708,0.1537255" Emissive="0,0,0" Shininess="2" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/terminal/support1.dds">
+     <TexMod />
+    </Texture>
+    <Texture Map="Detail" File="textures/detail/detail_metal.dds">
+     <TexMod TileU="5" TileV="5"/>
+    </Texture>
+   </Textures>
+   <PublicParams SpecularMultiplier="0.26899999" Glossiness="0.75"/>
+  </Material>
+  <Material Name="base" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_concrete" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/control_tower_airfield/control_tower_wall_base.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="pipe" MtlFlags="128" Shader="Illum" GenMask="268435472" SurfaceType="mat_metal_pipe" Diffuse="0.26666668,0.26666668,0.26666668" Specular="0.15686275,0.15686275,0.15686275" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/control_tower_airfield/control_tower_pipe.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/airfield/control_tower_airfield/control_tower_pipe.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="carpet_blue" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_fabric" Diffuse="0.50196081,0.50196081,0.50196081" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/terminal/carpet_blue.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="pillars" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_metal_thick" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0.14117648,0.14117648,0.14117648" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/control_tower_airfield/control_tower_pillars.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="metal_roof_skirt" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_metal" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="Objects/Library/Architecture/Multiplayer/headquarter/metaltrim_clean.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="electricity_box" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_metal" Diffuse="0.58431375,0.58431375,0.58431375" Specular="0.28627452,0.28627452,0.28627452" Emissive="0,0,0" Shininess="15" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="Objects/Library/Architecture/Aircraftcarrier/props/electrical_boxes/ebox_big1.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="teto" MtlFlags="128" Shader="Illum" GenMask="268435472" SurfaceType="mat_gravel" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0.12156864,0.12156864,0.12156864" Emissive="0,0,0" Shininess="8" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/sidewalk/ground_concr.dds">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/sidewalk/ground_concr_spec.dds">
+     <TexMod />
+    </Texture>
+    <Texture Map="Normalmap" File="objects/library/architecture/airfield/control_tower_airfield/ground_concr_ddn.dds" Filter="7">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="control_tower_misc" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_metal" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0.32156864,0.32156864,0.32156864" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/control_tower_airfield/control_tower_misc.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="basement_window_frame" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_glass" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="Objects/Library/Architecture/Airfield/airfield_park_lot_building//airfield_park_lot_building_window.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="wall_inner" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_concrete" Diffuse="0.4784314,0.4784314,0.4784314" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="Objects/Library/architecture/airfield/terminal/wallpanel3.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="metal" MtlFlags="128" Shader="Illum" GenMask="268435472" SurfaceType="mat_metal" Diffuse="0.4666667,0.4784314,0.52549022" Specular="0.5866667,0.5866667,0.5866667" Emissive="0,0,0" Shininess="8" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/terminal/shinymetal.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/airfield/control_tower_airfield/metal_bright.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Detail" File="textures/detail/detail_metal.dds">
+     <TexMod TileU="2" TileV="2"/>
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="control_tower_wall" MtlFlags="128" Shader="Illum" GenMask="268435472" SurfaceType="mat_concrete" Diffuse="0.70980394,0.70980394,0.70980394" Specular="0.18431373,0.18431373,0.18431373" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/glm_house/glm_house_wall.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Specular" File="objects/library/architecture/airfield/glm_house/glm_house_wall_spec.tif">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="decal" MtlFlags="128" Shader="Illum" GenMask="301989888" SurfaceType="" Diffuse="0.72156864,0.58039218,0.58431375" Specular="0.53725493,0.53725493,0.53725493" Emissive="0,0,0" Shininess="10" Opacity="0.634">
+   <Textures>
+    <Texture Map="Diffuse" File="textures/decal/dirty_rust/decal_dirt_011_cut.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="concrete_wall_darker" MtlFlags="128" Shader="Illum" GenMask="268435456" SurfaceType="mat_concrete" Diffuse="0.33333334,0.33333334,0.33333334" Specular="0.047058828,0.047058828,0.047058828" Emissive="0,0,0" Shininess="50" Opacity="1">
+   <Textures>
+    <Texture Map="Diffuse" File="objects/library/architecture/airfield/air_control_tower/act_concrete.tif">
+     <TexMod />
+    </Texture>
+    <Texture Map="Detail" File="textures/detail/detail_concrete.dds">
+     <TexMod />
+    </Texture>
+   </Textures>
+   <PublicParams AmbientMultiplier="1"/>
+  </Material>
+  <Material Name="proxy_railing" MtlFlags="1152" Shader="Nodraw" GenMask="0" SurfaceType="mat_metal_thick" Diffuse="0.49803925,0.49803925,0.49803925" Specular="0,0,0" Emissive="0,0,0" Shininess="10" Opacity="1">
+   <Textures />
+  </Material>
+ </SubMaterials>
+ <PublicParams AmbientMultiplier="1"/>
+</Material>

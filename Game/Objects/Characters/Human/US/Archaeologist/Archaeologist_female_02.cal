@@ -1,0 +1,5 @@
+#filepath = animations\human\male
+
+//---  Mr.Smith's magical Event-Database (don't touch, very dangerous)-Steve was here! 
+$AnimEventDatabase = animations\human\male\Male_EventDataBase.animevents
+$Include = objects\characters\human\GlobalHuman.cal

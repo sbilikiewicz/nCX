@@ -1,0 +1,325 @@
+<ObjectLayer>
+ <Layer Name="Sound" GUID="{DD583E48-B7FC-44F3-B970-8E2FAB809FF3}" Hidden="1" Frozen="1" External="1" Exportable="1">
+  <LayerObjects>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{DF1DEA01-283C-4687-A33D-7F15CD5B34AF}" Name="RandomSoundVolume4" Pos="1813.5435,1674.2922,185.70749" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" MaxWaitTime="11" MinWaitTime="6" soundName="Sounds/environment:random_oneshots_outdoor_no_battle:random_inland_no_battle" bRandomPosition="1" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{A19C1709-8B2A-410B-8928-EA4785708BF2}" Name="RandomSoundVolume3" Pos="1810.6407,1712.8124,185.70749" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" MaxWaitTime="19" MinWaitTime="9" soundName="Sounds/environment:random_oneshots_outdoor_no_battle:random_inland_close_beach_no_battle" bRandomPosition="1" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{E10CE50B-5994-4734-85DE-8F2557BD1B04}" Name="ReverbVolume12" Pos="2072.9524,1327.3174,137.6553" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="Forest"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{8751BD11-D2E8-47E2-8FB2-ACCBD17A2298}" Name="AmbientVolume factory6" Pos="2094.0415,1117.7423,217.791" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_base_03" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{42C2F416-36A3-4FD9-8DE0-7C0BF7AD263D}" Name="AmbientVolume51" Pos="2069.3474,1337.3578,138.1283" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural:ambience_jungle_inside_very_early_morning" OuterRadius="10" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{DAF14418-2D63-411B-9803-9546286AA02B}" Name="ReverbVolume base us 1" Pos="1455.75,1808.38,171.76401" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="mpcamp"/>
+   </Object>
+   <Object Type="AreaBox" Layer="Sound" Id="{356C8E27-C9C8-43E3-A4A9-F688E015F948}" Name="AreaBox factory 5" Pos="2145.0515,1063.923,115.75043" Rotate="1,0,0,-1.7229468e-007" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Width="70" Length="100" Height="100" GroupId="1" Priority="20" ObstructRoof="0" ObstructFloor="0" Filled="1" EntityClass="AreaBox" BoxMin="-35,-50,0" BoxMax="35,50,100">
+    <Entities>
+     <Entity Id="{8751BD11-D2E8-47E2-8FB2-ACCBD17A2298}"/>
+     <Entity Id="{D8C6656C-2644-44AA-B436-1F72DFBE5F63}"/>
+     <Entity Id="{C14873FE-2A05-4595-ACB7-2812285CE100}"/>
+    </Entities>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{667A9A29-A1A5-4338-9121-9480BB56936C}" Name="ReverbVolume factory 2" Pos="1893.9,1860.3,202.64799" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="City"/>
+   </Object>
+   <Object Type="AreaBox" Layer="Sound" Id="{07A1F63C-2D20-4B30-AD56-58B38626B63D}" Name="AreaBox factory 1" Pos="1940.0553,1816.1606,116.015" Rotate="0.99144489,0,0,0.13052602" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Width="90" Length="160" Height="100" GroupId="1" Priority="20" ObstructRoof="0" ObstructFloor="0" Filled="1" EntityClass="AreaBox" BoxMin="-45,-80,0" BoxMax="45,80,100">
+    <Entities>
+     <Entity Id="{7F11777D-7623-4BC2-B4AE-8F8882DBADFC}"/>
+     <Entity Id="{667A9A29-A1A5-4338-9121-9480BB56936C}"/>
+     <Entity Id="{D8C6656C-2644-44AA-B436-1F72DFBE5F63}"/>
+    </Entities>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{2B20E33D-0494-4D54-9907-9CBC92E98C6B}" Name="ReverbVolume factory 4" Pos="1634.408,1881.7397,202.64799" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="City"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{8527AA3E-3149-449A-B36B-6A9DC9A20F28}" Name="ReverbVolume11" Pos="2098.4807,1282.9888,136.89639" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="Forest"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{5DFAB340-7534-4A1F-9C88-57EAD2D459D0}" Name="ReverbVolume14" Pos="1804.5665,1694.7893,190.06577" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="Plain"/>
+   </Object>
+   <Object Type="AreaBox" Layer="Sound" Id="{46A34044-80AB-4483-8EE2-839CE9A842E8}" Name="AreaBox factory 3" Pos="1868.3754,986.10779,103.51662" Rotate="0.99144489,0,0,0.13052602" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Width="85" Length="145" Height="125" GroupId="1" Priority="20" ObstructRoof="0" ObstructFloor="0" Filled="1" EntityClass="AreaBox" BoxMin="-42.5,-72.5,0" BoxMax="42.5,72.5,125">
+    <Entities>
+     <Entity Id="{39490C87-4BF2-408D-A146-C2BD3A1CE695}"/>
+     <Entity Id="{3FEA8456-319B-4199-B619-C0870F6D1185}"/>
+     <Entity Id="{D8C6656C-2644-44AA-B436-1F72DFBE5F63}"/>
+    </Entities>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{66090E4F-2123-41ED-867C-72384ECDB2EC}" Name="ReverbVolume factory 6" Pos="1916.2498,1530.074,202.64799" Rotate="0.99254614,0,0,0.12186935" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="City"/>
+   </Object>
+   <Object Type="AreaBox" Layer="Sound" Id="{E8D79454-534A-422B-AD20-49D8674E18AD}" Name="AreaBox factory 6" Pos="1970.894,1472.7858,115.75043" Rotate="0.99144489,0,0,0.13052601" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Width="50" Length="75" Height="100" GroupId="1" Priority="20" ObstructRoof="0" ObstructFloor="0" Filled="1" EntityClass="AreaBox" BoxMin="-25,-37.5,0" BoxMax="25,37.5,100">
+    <Entities>
+     <Entity Id="{C2D1C473-5E8F-480A-9C5C-25E49336E7AF}"/>
+     <Entity Id="{D8C6656C-2644-44AA-B436-1F72DFBE5F63}"/>
+     <Entity Id="{66090E4F-2123-41ED-867C-72384ECDB2EC}"/>
+    </Entities>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{3FEA8456-319B-4199-B619-C0870F6D1185}" Name="ReverbVolume factory 3" Pos="1881.1173,1036.8909,202.64799" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="City"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{16A26258-2AB6-410B-9A5A-3C567297A5DE}" Name="ReverbVolume13" Pos="1974.2937,1577.9708,137.85727" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="Forest"/>
+   </Object>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{2392C05C-8220-4C29-A6DB-300036BEDB0B}" Name="RandomSoundVolume pa kor 3" Pos="2276.4539,887.57996,153.18285" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="1" bIgnoreObstruction="1" bLogBattleValue="0" MaxWaitTime="40" MinWaitTime="20" soundName="Sounds/environment:random_oneshots_industrial:pa_korean_stereo_3d" bRandomPosition="0" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{40D8565E-AA93-4052-B5CD-DE548116986D}" Name="ReverbVolume15" Pos="1231.2371,2107.5396,201.2103" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="CarrierDeck"/>
+   </Object>
+   <Object Type="Shape" Layer="Sound" Id="{4DF23564-8789-437D-A49F-961758575EAD}" Name="Shape ocean 5" Pos="2382.8618,835.42401,90.341301" ColorRGB="16763904" Width="0" Height="140" AreaId="0" GroupId="1" Priority="10" Closed="1" ObstructRoof="0" ObstructFloor="0" DisplayFilled="1" EntityClass="AreaShape">
+    <Points>
+     <Point Pos="0,0,0"/>
+     <Point Pos="2.0256348,137.64984,-0.70730591"/>
+     <Point Pos="-39.512451,138.19629,-0.74847412"/>
+     <Point Pos="-40.294922,158.62299,-0.51529694"/>
+     <Point Pos="-163.43262,160.78571,-0.60150146"/>
+     <Point Pos="-190.35815,298.00043,-0.57292938"/>
+     <Point Pos="-227.17358,334.23969,-0.64672089"/>
+     <Point Pos="-229.37549,363.36176,-0.53029633"/>
+     <Point Pos="-270.41504,466.4212,-0.52687836"/>
+     <Point Pos="-366.41907,592.58356,-0.42864227"/>
+     <Point Pos="-392.06396,692.784,-0.57741547"/>
+     <Point Pos="-378.09473,904.1861,-0.47103119"/>
+     <Point Pos="-233.50415,1043.0781,-0.65956879"/>
+     <Point Pos="-97.342773,934.99371,-0.82224274"/>
+     <Point Pos="59.067383,920.78119,0.10717773"/>
+     <Point Pos="-9.3078613,1136.7251,-0.00017547607"/>
+     <Point Pos="10.138184,1220.2058,-0.065391541"/>
+     <Point Pos="-60.155273,1258.9243,0.11486816"/>
+     <Point Pos="-181.98145,1251.7092,0.16168976"/>
+     <Point Pos="-225.00684,1226.114,0.24726105"/>
+     <Point Pos="-312.12524,1221.8799,0.2730484"/>
+     <Point Pos="-433.04492,1169.3865,1.2157593"/>
+     <Point Pos="-479.93286,1104.677,1.5678177"/>
+     <Point Pos="-577.75598,1069.7336,2.7718277"/>
+     <Point Pos="-679.22498,1115.6731,2.350563"/>
+     <Point Pos="-732.4668,1197.2378,1.5195923"/>
+     <Point Pos="-918.74976,2787.165,8.22192"/>
+     <Point Pos="1130.2423,1787.415,2.6601601"/>
+     <Point Pos="1437.0422,554.5329,-0.48486301"/>
+     <Point Pos="945.77826,-1324.895,-1.70798"/>
+     <Point Pos="-956.13074,-1498.6851,-1.82477"/>
+     <Point Pos="-2390.2278,-327.90009,-1.53662"/>
+     <Point Pos="-2363.2979,1754.8149,-1.60701"/>
+     <Point Pos="-922.46271,2786.9351,-0.108154"/>
+     <Point Pos="-737.60095,1195.4382,0.9519043"/>
+     <Point Pos="-802.18457,1173.1558,1.0435181"/>
+     <Point Pos="-796.48059,1096.1804,1.2033691"/>
+     <Point Pos="-862.4292,1092.8635,1.1913528"/>
+     <Point Pos="-895.47693,1122.0496,1.4275208"/>
+     <Point Pos="-1070.4601,1118.9094,2.1068726"/>
+     <Point Pos="-1074.7616,1063.8811,2.2511902"/>
+     <Point Pos="-1031.5531,997.42963,2.3369827"/>
+     <Point Pos="-931.02991,956.05756,2.4008789"/>
+     <Point Pos="-968.28784,803.19012,2.5884171"/>
+     <Point Pos="-939.29163,702.65839,2.6257706"/>
+     <Point Pos="-878.43677,662.13751,3.0344162"/>
+     <Point Pos="-756.73853,685.96698,3.0583878"/>
+     <Point Pos="-632.54382,634.1015,3.0180435"/>
+     <Point Pos="-602.59448,377.89838,1.6127396"/>
+     <Point Pos="-539.28992,227.11554,2.2023621"/>
+     <Point Pos="-578.6488,214.71051,1.6830368"/>
+     <Point Pos="-537.66614,67.338745,1.5885086"/>
+     <Point Pos="-453.29089,89.884216,1.1944275"/>
+     <Point Pos="-375.42615,-10.838501,1.1793823"/>
+     <Point Pos="-310.23511,-39.544189,1.1048584"/>
+     <Point Pos="-256.06519,-82.921753,1.1017227"/>
+     <Point Pos="-189.46313,-56.849243,0.65975952"/>
+     <Point Pos="-152.40771,1.3275146,0.7674942"/>
+    </Points>
+    <Entities>
+     <Entity Id="{A52E3BD4-E144-41DD-9D42-8529E273D3C1}"/>
+     <Entity Id="{40D8565E-AA93-4052-B5CD-DE548116986D}"/>
+     <Entity Id="{3D6C7AB0-9E14-4C08-975B-58DFFF16EACF}"/>
+     <Entity Id="{1A2BB4A2-EFFB-4C67-B751-A3D5764C9DF4}"/>
+    </Entities>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{00967D71-BCAB-499A-82B3-DEEDF5B834F8}" Name="AmbientVolume factory5" Pos="1642.64,1875.8199,217.791" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_base_03" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{C2D1C473-5E8F-480A-9C5C-25E49336E7AF}" Name="AmbientVolume factory7" Pos="1924.4818,1524.1542,217.791" Rotate="0.99254614,0,0,0.12186935" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_base_03" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{92AF7F79-41CD-447B-8524-7899DDEA6613}" Name="AmbientVolume generic 5" Pos="1809.96,1684.79,199.58299" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural_no_battle:amb_jungle_dist_01e" OuterRadius="25" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{7F11777D-7623-4BC2-B4AE-8F8882DBADFC}" Name="AreaBox factory 1" Pos="1889.59,1860.3,217.791" ColorRGB="16711680" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_base_031" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{E5F4907D-F286-4800-BD1B-810C8F3B1F2B}" Name="AmbientVolume50" Pos="2094.8757,1293.0292,137.36981" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural:ambience_jungle_inside_very_early_morning" OuterRadius="10" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AreaSphere" Layer="Sound" Id="{39436081-63EC-4D05-BEB8-48D6A8EF7071}" Name="AreaSphere3" Pos="1663.3718,1642.8518,131.31203" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Radius="140" GroupId="1" Priority="10" Filled="1" EntityClass="AreaSphere">
+    <Entities>
+     <Entity Id="{D92A1AD1-0179-4A05-99A0-CC6012AD7D7B}"/>
+     <Entity Id="{1435CAAE-7D36-4B3F-BFB8-5856D4E54DBC}"/>
+    </Entities>
+   </Object>
+   <Object Type="AreaSphere" Layer="Sound" Id="{AC2A5082-1A9B-4B24-B47A-E1EB8AAFC9A2}" Name="AreaSphere1" Pos="2051.1902,1270.6182,136.72696" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Radius="35" GroupId="1" Priority="10" Filled="1" EntityClass="AreaSphere">
+    <Entities>
+     <Entity Id="{E5F4907D-F286-4800-BD1B-810C8F3B1F2B}"/>
+     <Entity Id="{8527AA3E-3149-449A-B36B-6A9DC9A20F28}"/>
+    </Entities>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{39490C87-4BF2-408D-A146-C2BD3A1CE695}" Name="AreaBox factory 4" Pos="1876.8073,1036.8909,217.791" ColorRGB="16711680" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_base_031" OuterRadius="10" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="Shape" Layer="Sound" Id="{75442F8A-8871-47AD-A933-926777C45FDD}" Name="Shape base us 6" Pos="1506.8125,1866.9066,92.195801" ColorRGB="16763904" Width="0" Height="100" AreaId="0" GroupId="1" Priority="10" Closed="1" ObstructRoof="0" ObstructFloor="0" DisplayFilled="1" EntityClass="AreaShape">
+    <Points>
+     <Point Pos="0,0,0"/>
+     <Point Pos="0.92272949,-75.680176,0"/>
+     <Point Pos="-92.48877,-75.363647,-0.026321411"/>
+     <Point Pos="-92.834595,-31.141113,0.09324646"/>
+     <Point Pos="-155.89856,-32.660156,-0.085464478"/>
+     <Point Pos="-195.85901,33.413086,-0.0055999756"/>
+     <Point Pos="-192.30188,85.584473,0"/>
+     <Point Pos="-22.254272,88.719604,0.45343018"/>
+     <Point Pos="-22.403198,64.503418,0.77674866"/>
+     <Point Pos="12.056641,60.19873,0.74014282"/>
+     <Point Pos="11.079102,-0.3572998,0.070465088"/>
+    </Points>
+    <Entities>
+     <Entity Id="{5E6908D4-038E-4307-92DC-8E155CB73119}"/>
+     <Entity Id="{DAF14418-2D63-411B-9803-9546286AA02B}"/>
+     <Entity Id="{09A45EA9-D8A0-4761-A2BC-C84D00316E12}"/>
+    </Entities>
+   </Object>
+   <Object Type="AreaSphere" Layer="Sound" Id="{5D76828C-9B03-49EE-966E-A65FB18491F9}" Name="AreaSphere4" Pos="1963.9915,1652.6501,122.34935" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Radius="55" GroupId="1" Priority="10" Filled="1" EntityClass="AreaSphere">
+    <Entities>
+     <Entity Id="{E7D0D68D-10A9-4B32-A63B-2338D956B19C}"/>
+     <Entity Id="{16A26258-2AB6-410B-9A5A-3C567297A5DE}"/>
+    </Entities>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{E7D0D68D-10A9-4B32-A63B-2338D956B19C}" Name="AmbientVolume52" Pos="1970.6887,1588.0112,139.01215" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural:ambience_jungle_inside_very_early_morning" OuterRadius="10" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AreaSphere" Layer="Sound" Id="{ED3CB299-3C5D-43C5-9D4F-9F98F4663A26}" Name="AreaSphere2" Pos="2027.8323,1356.7714,138.46156" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Radius="35" GroupId="1" Priority="10" Filled="1" EntityClass="AreaSphere">
+    <Entities>
+     <Entity Id="{E10CE50B-5994-4734-85DE-8F2557BD1B04}"/>
+     <Entity Id="{42C2F416-36A3-4FD9-8DE0-7C0BF7AD263D}"/>
+    </Entities>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{64C900A0-5B07-41E5-A1DF-E431CD45833E}" Name="AmbientVolume base kor 4" Pos="2309.3301,852.57001,172.69901" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_harbour_03" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{1A2BB4A2-EFFB-4C67-B751-A3D5764C9DF4}" Name="RandomSoundVolume2" Pos="1170.4117,2035.8007,222.10104" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" MaxWaitTime="17" MinWaitTime="9" soundName="Sounds/environment:random_oneshots_outdoor_battle_sensitive:random_ocean_day_sensitive" bRandomPosition="1" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{E4D47EA4-A14C-4044-8D54-1D2BC912FE11}" Name="ReverbVolume base us 2" Pos="2321.74,839.68903,176.752" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="City"/>
+   </Object>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{09A45EA9-D8A0-4761-A2BC-C84D00316E12}" Name="RandomSoundVolume pa us 1" Pos="1410.2543,1880.7786,152.36549" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" MaxWaitTime="40" MinWaitTime="20" soundName="Sounds/environment:random_oneshots_industrial:pa_speech_normal_3d" bRandomPosition="0" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{1435CAAE-7D36-4B3F-BFB8-5856D4E54DBC}" Name="ReverbVolume10" Pos="1741.739,1563.799,170.76109" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="2" reverbpresetReverbPreset="Forest"/>
+   </Object>
+   <Object Type="RandomSoundVolume" Layer="Sound" Id="{3D6C7AB0-9E14-4C08-975B-58DFFF16EACF}" Name="RandomSoundVolume1" Pos="1199.0613,2036.6548,189.92174" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="RandomSoundVolume">
+    <Properties DiscRadius="10" bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" MaxWaitTime="21" MinWaitTime="12" soundName="Sounds/environment:random_oneshots_outdoor_no_battle:random_ocean_no_battle" bRandomPosition="1" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="Shape" Layer="Sound" Id="{8A0129C4-542C-460A-9ADB-694BB42D97F1}" Name="Shape generic7" Pos="1799.597,1900.0812,116.48488" ColorRGB="16763904" Width="0" Height="125" AreaId="0" GroupId="1" Priority="10" Closed="1" ObstructRoof="0" ObstructFloor="0" DisplayFilled="1" EntityClass="AreaShape">
+    <Points>
+     <Point Pos="0,0,0"/>
+     <Point Pos="106.14001,37.279663,0.02015686"/>
+     <Point Pos="152.37183,100.67004,0.15786743"/>
+     <Point Pos="274.25891,154.25574,0.11891174"/>
+     <Point Pos="355.84119,157.76355,0.20518494"/>
+     <Point Pos="403.98474,186.21375,0.21046448"/>
+     <Point Pos="522.00159,193.43762,-0.29048157"/>
+     <Point Pos="591.98303,154.22961,-0.38095093"/>
+     <Point Pos="571.42883,75.360962,-1.2654724"/>
+     <Point Pos="641.68665,-143.6543,-1.2949677"/>
+     <Point Pos="486.57971,-128.31592,-1.4839325"/>
+     <Point Pos="347.93591,-16.888428,-1.4634628"/>
+     <Point Pos="203.06812,-159.11865,-1.4870758"/>
+     <Point Pos="188.99036,-376.34631,-1.3613281"/>
+     <Point Pos="214.04504,-472.03052,-0.16874695"/>
+     <Point Pos="310.62,-599.07214,0.028091431"/>
+     <Point Pos="351.61292,-699.10913,-0.089263916"/>
+     <Point Pos="354.776,-730.90955,0.023590088"/>
+     <Point Pos="391.09094,-767.09009,0.062576294"/>
+     <Point Pos="419.95911,-913.10529,0.050079346"/>
+     <Point Pos="419.4679,-925.09845,0.46702576"/>
+     <Point Pos="399.20471,-925.19464,0.5531311"/>
+     <Point Pos="398.28455,-1059.3628,0.37069702"/>
+     <Point Pos="429.3656,-1063.2584,0.32373047"/>
+     <Point Pos="393.9093,-1120.7961,0.24409485"/>
+     <Point Pos="329.73987,-1145.9156,0.068267822"/>
+     <Point Pos="275.04358,-1102.7909,0.33761597"/>
+     <Point Pos="207.96912,-1074.1429,0.33021545"/>
+     <Point Pos="130.16284,-973.28516,0.76191711"/>
+     <Point Pos="94.088989,-830.61267,0.44294739"/>
+     <Point Pos="48.052979,-841.94409,0.80592346"/>
+     <Point Pos="-16.674438,-689.3783,0.015197754"/>
+     <Point Pos="-45.210571,-423.25671,0.38069153"/>
+     <Point Pos="-169.01123,-373.12317,0.49488831"/>
+     <Point Pos="-297.29785,-399.9834,0.53330994"/>
+     <Point Pos="-355.54321,-361.03845,0.47647095"/>
+     <Point Pos="-384.51782,-260.26636,0.46733093"/>
+     <Point Pos="-347.16187,-111.75232,0.4841156"/>
+     <Point Pos="-290.96228,-112.35498,0.52999878"/>
+     <Point Pos="-292.13391,-34.174927,0.36280823"/>
+     <Point Pos="-280.65466,-34.958252,0.36346436"/>
+     <Point Pos="-278.98364,27.580566,0.17771912"/>
+     <Point Pos="-211.22559,31.464478,0.14437866"/>
+     <Point Pos="-216.62976,108.14075,0.438797"/>
+     <Point Pos="-150.97717,129.60767,0.46310425"/>
+     <Point Pos="-98.498535,48.714111,0.20854187"/>
+    </Points>
+    <Entities>
+     <Entity Id="{92AF7F79-41CD-447B-8524-7899DDEA6613}"/>
+     <Entity Id="{5DFAB340-7534-4A1F-9C88-57EAD2D459D0}"/>
+     <Entity Id="{DF1DEA01-283C-4687-A33D-7F15CD5B34AF}"/>
+     <Entity Id="{A19C1709-8B2A-410B-8928-EA4785708BF2}"/>
+    </Entities>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{D92A1AD1-0179-4A05-99A0-CC6012AD7D7B}" Name="AmbientVolume49" Pos="1733.8428,1553.399,167.84373" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural:ambience_jungle_inside_very_early_morning" OuterRadius="25" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{5E6908D4-038E-4307-92DC-8E155CB73119}" Name="AmbientVolume base us 3" Pos="1450.12,1795.3199,161.039" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_industrial:ambience_harbour_03" OuterRadius="20" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AmbientVolume" Layer="Sound" Id="{A52E3BD4-E144-41DD-9D42-8529E273D3C1}" Name="AmbientVolume ocean 1" Pos="1227.13,2065.53,165.636" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="0" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="AmbientVolume">
+    <Properties bEnabled="1" bIgnoreCulling="0" bIgnoreObstruction="0" bLogBattleValue="0" soundName="Sounds/environment:amb_natural:ambience_beach_2" OuterRadius="30" bSensitiveToBattle="0"/>
+   </Object>
+   <Object Type="AreaBox" Layer="Sound" Id="{BC8FB3E9-10C1-491B-8423-E86DDDA6933B}" Name="AreaBox factory 2" Pos="1693.65,1822.0006,115.75043" Rotate="1,0,0,-1.7229468e-007" ColorRGB="16711680" MatLayersMask="0" AreaId="-1" FadeInZone="0" Width="80" Length="100" Height="100" GroupId="1" Priority="20" ObstructRoof="0" ObstructFloor="0" Filled="1" EntityClass="AreaBox" BoxMin="-40,-50,0" BoxMax="40,50,100">
+    <Entities>
+     <Entity Id="{00967D71-BCAB-499A-82B3-DEEDF5B834F8}"/>
+     <Entity Id="{D8C6656C-2644-44AA-B436-1F72DFBE5F63}"/>
+     <Entity Id="{2B20E33D-0494-4D54-9907-9CBC92E98C6B}"/>
+    </Entities>
+   </Object>
+   <Object Type="Shape" Layer="Sound" Id="{E10176F9-B039-488E-9A4E-4452BEC2B3D3}" Name="Shape base kor  7" Pos="2383.4539,969.61505,97.183899" ColorRGB="16763904" Width="0" Height="125" AreaId="0" GroupId="1" Priority="20" Closed="1" ObstructRoof="0" ObstructFloor="0" DisplayFilled="1" EntityClass="AreaShape">
+    <Points>
+     <Point Pos="0,0,0"/>
+     <Point Pos="-1.9309082,-131.90308,0"/>
+     <Point Pos="-123.44263,-131.68915,0.20622253"/>
+     <Point Pos="-183.43896,-127.48035,0.099456787"/>
+     <Point Pos="-183.46558,4.7184448,-0.54499817"/>
+     <Point Pos="-163.32544,4.927063,-0.5940094"/>
+     <Point Pos="-163.58032,16.957642,-0.25042725"/>
+     <Point Pos="-119.25415,17.963684,0.3706665"/>
+     <Point Pos="-101.95532,24.914368,0.16033936"/>
+     <Point Pos="-41.395752,23.34021,0.20045471"/>
+     <Point Pos="-41.274414,2.9645386,0.19795227"/>
+    </Points>
+    <Entities>
+     <Entity Id="{64C900A0-5B07-41E5-A1DF-E431CD45833E}"/>
+     <Entity Id="{2392C05C-8220-4C29-A6DB-300036BEDB0B}"/>
+     <Entity Id="{E4D47EA4-A14C-4044-8D54-1D2BC912FE11}"/>
+    </Entities>
+   </Object>
+   <Object Type="ReverbVolume" Layer="Sound" Id="{C14873FE-2A05-4595-ACB7-2812285CE100}" Name="ReverbVolume factory 5" Pos="2085.8096,1123.6621,202.64799" ColorRGB="65535" MatLayersMask="0" OutdoorOnly="0" CastShadow="1" MotionBlurMultiplier="1" LodRatio="100" ViewDistRatio="100" HiddenInGame="0" RecvWind="0" EntityClass="ReverbVolume">
+    <Properties bEnabled="1" bFullEffectWhenInside="1" OuterRadius="10" reverbpresetReverbPreset="City"/>
+   </Object>
+  </LayerObjects>
+ </Layer>
+</ObjectLayer>
