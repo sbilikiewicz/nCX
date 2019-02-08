@@ -11,7 +11,7 @@
 #include "Game.h"
 #include "GameRules.h"
 #include "nCX_PCInfo.h"
-#include "Coop\CoopSystem.h"
+#include "nCX_AI.h"
 #include <IAISystem.h>
 #include <ILevelSystem.h>
 
@@ -103,7 +103,7 @@ void nCX::Init_nCX(){
 		LoadChatCommands();
 
 		//Init AI
-		if (CCoopSystem::GetInstance()->Initialize())
+		if (nCX_AI::GetInstance()->Initialize())
 			CryLogAlways("[$6nCX$5] : AI system initialized");
 		else
 			CryLogAlways("[$6nCX$5] : Failed to initiate AI system!");

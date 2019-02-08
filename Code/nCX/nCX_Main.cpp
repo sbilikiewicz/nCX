@@ -442,6 +442,27 @@ void nCX::TickTimer()
 			else
 				++fit;
 		}
+		//Scan vehicles to register them with AI system
+		//TODO: move this to all vehicle spawn functions
+		IVehicleIteratorPtr iter = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->CreateVehicleIterator();
+		while (IVehicle* pVehicle = iter->Next())
+		{
+			if (IEntity *pEntity = pVehicle->GetEntity())
+			{
+				if (!pEntity->GetAI())
+				{
+					gEnv->bMultiplayer = false;
+					IScriptTable* pScriptTable = pEntity->GetScriptTable();
+					if (pScriptTable)
+					{
+						gEnv->pScriptSystem->BeginCall(pScriptTable, "RegisterVehicleAI");
+						gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+						gEnv->pScriptSystem->EndCall(pScriptTable);
+					}
+					gEnv->bMultiplayer = true;
+				}
+			}
+		}
 
 		//UpdateEntitySchedules
 		//UpdateEntitySchedules();

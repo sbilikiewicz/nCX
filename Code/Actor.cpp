@@ -1511,9 +1511,11 @@ void CActor::CreateScriptEvent(const char *event,float value,const char *str)
 		pScriptTable->GetValue("ScriptEvent", scriptEvent);
 
 		if (scriptEvent)
-			Script::Call(gEnv->pScriptSystem,scriptEvent,pScriptTable,event,value,str);
-
-		gEnv->pScriptSystem->ReleaseFunc(scriptEvent);
+		{
+			Script::Call(gEnv->pScriptSystem, scriptEvent, pScriptTable, event, value, str);
+			//MrTusk fix Added this under check to prevent crashes
+			gEnv->pScriptSystem->ReleaseFunc(scriptEvent);
+		}
 	}
 }
 

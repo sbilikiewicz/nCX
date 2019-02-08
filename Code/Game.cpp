@@ -45,7 +45,7 @@
 
 //nCX
 #include "nCX\nCX_Main.h"
-#include "Coop/CoopSystem.h"
+#include "nCX\nCX_AI.h"
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -370,9 +370,8 @@ bool CGame::CompleteInit()
 		}
 	}
 
-	//Crysis Co-op
-	CCoopSystem::GetInstance()->CompleteInit();
-	//~Crysis Co-op
+	//nCX AI System
+	nCX_AI::GetInstance()->CompleteInit();
 
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::CompleteInit");
@@ -511,7 +510,7 @@ string CGame::InitMapReloading()
 
 void CGame::Shutdown()
 {
-	CCoopSystem::GetInstance()->Shutdown();
+	nCX_AI::GetInstance()->Shutdown();
 	if (m_pPlayerProfileManager)
 	{
 		m_pPlayerProfileManager->LogoutUser(m_pPlayerProfileManager->GetCurrentUser());
@@ -535,7 +534,7 @@ const char *CGame::GetName()
 
 void CGame::OnPostUpdate(float fDeltaTime)
 {
-	CCoopSystem::GetInstance()->Update(fDeltaTime);
+	nCX_AI::GetInstance()->Update(fDeltaTime);
 }
 
 void CGame::OnSaveGame(ISaveGame* pSaveGame)

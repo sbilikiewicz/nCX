@@ -31,8 +31,8 @@ History:
 #include "HUD/HUDPowerStruggle.h"
 #include "HUD/HUDScopes.h"
 
-#include "Coop/Actors/CoopPlayer.h"
-#include "Coop/Actors/CoopGrunt.h"
+#include "nCX/Actors/AI_Player.h"
+#include "nCX/Actors/AI_Grunt.h"
 
 #define RANDOM() ((((float)cry_rand()/(float)RAND_MAX)*2.0f)-1.0f)
 
@@ -141,12 +141,11 @@ CHUDRadar::CHUDRadar()
 	m_pCarCiv				= pEntityClassRegistry->FindClass( "Civ_car1" );
 	m_pParachute		= pEntityClassRegistry->FindClass( "Parachute" );
 
-	// Crysis Co-op
-	m_pCoopGrunt            = pEntityClassRegistry->FindClass("CoopGrunt");
-	m_pCivilian            = pEntityClassRegistry->FindClass("Civilian");
-	m_pCoopScout			= pEntityClassRegistry->FindClass( "CoopScout" );
-	m_pCoopTrooper			= pEntityClassRegistry->FindClass("CoopTrooper");
-	// ~Crysis Co-op
+	// nCX
+	m_pAI_Grunt				= pEntityClassRegistry->FindClass("AI_Grunt");
+	m_pCivilian				= pEntityClassRegistry->FindClass("Civilian");
+	m_pAI_Scout				= pEntityClassRegistry->FindClass( "AI_Scout" );
+	m_pAI_Trooper			= pEntityClassRegistry->FindClass("AI_Trooper");
 
 	assert ( m_pLTVA && m_pLTVUS && m_pTankA && m_pTankUS && m_pWarrior && m_pHunter && m_pAlien && m_pScout && m_pGrunt && m_pHeli && m_pVTOL && m_pAAA && m_pTruck && m_pAPCUS && m_pAPCA && m_pBoatCiv && m_pHover && m_pBoatUS && m_pBoatA && m_pCarCiv && m_pParachute);
 }
@@ -853,7 +852,7 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 				else
 					friendly = EEnemy;
 
-				CCoopGrunt* pGrunt = static_cast<CCoopGrunt*>(tempActor);
+				AI_Grunt* pGrunt = static_cast<AI_Grunt*>(tempActor);
 
 				int iAlertnessState = 0;
 
@@ -976,7 +975,7 @@ void CHUDRadar::UpdateCompassStealth(CActor *pActor, float fDeltaTime)
 	float fStealthValueStatic = 0;
 
 	//Crysis Co-op
-	CCoopPlayer* pPlayer = static_cast<CCoopPlayer*>(pActor);
+	AI_Player* pPlayer = static_cast<AI_Player*>(pActor);
 	if (pPlayer)
 	{
 		fStealthValue = pPlayer->GetDetectionValue() * 100.0f;
@@ -2529,13 +2528,13 @@ FlashRadarType CHUDRadar::ChooseType(IEntity* pEntity, bool radarOnly)
 	FlashRadarType returnType = ELTV;
 
     // Crysis Co-op
-    if (pCls == m_pCoopGrunt)
+    if (pCls == m_pAI_Grunt)
         returnType = EPlayer;
 	else if (pCls == m_pCivilian)
 		returnType = EPlayer;
-	else if (pCls == m_pCoopScout)
+	else if (pCls == m_pAI_Scout)
 		returnType = EHeli;
-	else if (pCls == m_pCoopTrooper)
+	else if (pCls == m_pAI_Trooper)
 		returnType = EPlayer;
     // ~Crysis Co-op
 	else if(pCls == m_pPlayerClass || pCls == m_pGrunt)

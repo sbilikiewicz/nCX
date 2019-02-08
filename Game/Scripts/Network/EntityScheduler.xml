@@ -6,10 +6,9 @@
 	<Class name="PowerStruggle" policy="rule"/>
 	<!-- actors -->
 	<Class name="Player" policy="dude" own="own"/>
-    <Class name="CoopScout" policy="dude" own="own"/>
-    <Class name="CoopGrunt" policy="dude" own="own"/>
-    <Class name="Trooper" policy="dude" own="own"/>
-    <Class name="CoopScout" policy="dude" own="own"/>
+    <Class name="AI_Scout" policy="dude" own="own"/>
+    <Class name="AI_Grunt" policy="dude" own="own"/>
+    <Class name="AI_Trooper" policy="dude" own="own"/>
 	<!-- weapons -->
 	<Class name="AlienMount" policy="gun"/>
 	<Class name="AutoTurret" policy="gun"/>
@@ -69,6 +68,7 @@
 	<Class name="RadarKit" policy="gun"/>
     <Class name="ScoutMOAC" policy="gun"/>
     <Class name="ScoutSingularity" policy="gun"/>
+    <Class name="FastLightMOAC" policy="gun"/>
     <Class name="ScoutSearchBeam" policy="gun"/>
     <Class name="AIGrenades" policy="gun"/>
     <Class name="AIFlashbangs" policy="gun"/>

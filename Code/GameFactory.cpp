@@ -28,14 +28,14 @@
 //#include "Observer.h"
 #include "Shark.h"
 
-//Crysis Co-op
-#include "Coop\Actors\CoopPlayer.h"
-#include "Coop\Actors\CoopGrunt.h"
-#include "Coop\Actors\CoopScout.h"
-//#include "Coop\Actors\CoopTrooper.h"
+//AI Implementation
+#include "nCX\Actors\AI_Player.h"
+#include "nCX\Actors\AI_Grunt.h"
+#include "nCX\Actors\AI_Scout.h"
+#include "nCX\Actors\AI_Trooper.h"
 
-#include "Coop\Entities\EventSynchronizer.h"
-#include "Coop\Entities\DialogSynchronizer.h"
+//#include "Coop\Entities\EventSynchronizer.h"
+//#include "Coop\Entities\DialogSynchronizer.h"
 //#include "Coop\Entities\HudSynchronizer.h"
 //#include "Coop\Entities\SequenceSynchronizer.h"
 //~Crysis Co-op
@@ -142,15 +142,15 @@ void InitGameFactory(IGameFramework *pFramework)
 
   //Crysis Co-op
   //REGISTER_FACTORY(pFramework, "Player", CPlayer, false);
-  REGISTER_FACTORY(pFramework, "Player", CCoopPlayer, false);
+  REGISTER_FACTORY(pFramework, "Player", AI_Player, false);
   //~Crysis Co-op
   REGISTER_FACTORY(pFramework, "Grunt", CPlayer, true);
   REGISTER_FACTORY(pFramework, "Civilian", CPlayer, true);
 
   // Crysis Co-op
-  REGISTER_FACTORY(pFramework, "CoopGrunt", CCoopGrunt, true);
-  REGISTER_FACTORY(pFramework, "Aliens/CoopScout", CCoopScout, true);
-  //REGISTER_FACTORY(pFramework, "Aliens/CoopTrooper", CCoopTrooper, true);
+  REGISTER_FACTORY(pFramework, "AI_Grunt", AI_Grunt, true);
+  REGISTER_FACTORY(pFramework, "Aliens/AI_Scout", AI_Scout, true);
+  REGISTER_FACTORY(pFramework, "Aliens/AI_Trooper", AI_Trooper, true);
   //~Crysis Co-op
 
   // Items
@@ -219,8 +219,8 @@ void InitGameFactory(IGameFramework *pFramework)
 
 	// Crysis Co-op
 	//REGISTER_GAME_OBJECT(pFramework, SequenceSynchronizer, "Scripts/Entities/Coop/SequenceSynchronizer.lua");
-	REGISTER_GAME_OBJECT(pFramework, EventSynchronizer, "Scripts/Entities/Coop/EventSynchronizer.lua");
-	REGISTER_GAME_OBJECT(pFramework, DialogSynchronizer, "Scripts/Entities/Coop/DialogSynchronizer.lua");
+	//REGISTER_GAME_OBJECT(pFramework, EventSynchronizer, "Scripts/Entities/Coop/EventSynchronizer.lua");
+	//REGISTER_GAME_OBJECT(pFramework, DialogSynchronizer, "Scripts/Entities/Coop/DialogSynchronizer.lua");
 	//REGISTER_GAME_OBJECT(pFramework, HUDSynchronizer, "Scripts/Entities/Coop/HUDSynchronizer.lua");
 	//~Crysis Co-op
 
@@ -239,8 +239,8 @@ void InitGameFactory(IGameFramework *pFramework)
 	REGISTER_FACTORY(pFramework, "GameRules", CGameRules, false);
 
 	// Crysis Co-op
-	pFramework->GetIGameRulesSystem()->RegisterGameRules("Coop", "GameRules");
-	pFramework->GetIGameRulesSystem()->AddGameRulesLevelLocation("Coop", "multiplayer/coop/");
+	//pFramework->GetIGameRulesSystem()->RegisterGameRules("Coop", "GameRules");
+	//pFramework->GetIGameRulesSystem()->AddGameRulesLevelLocation("Coop", "multiplayer/coop/");
 	// ~Crysis Co-op
 
 	REGISTER_GAME_OBJECT_EXTENSION(pFramework, ScriptControlledPhysics);

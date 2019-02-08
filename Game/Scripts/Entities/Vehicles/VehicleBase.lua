@@ -1,51 +1,39 @@
 --------------------------------------------------------------------------
 --	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2004.
+-- 	Copyright (C), Crytek Studios.
 --------------------------------------------------------------------------
---	$Id$
---	$DateTime$
 --	Description: Common code for all/most of the vehicle implementations
 --  
 --------------------------------------------------------------------------
 --  History:
---  - 30/11/2004   15:36 : Created by Mathieu Pinard
---
+--  - 11/2004       : Created by Mathieu Pinard
+--  - 02/2019       : Edited and optimized by MrTusk
 --------------------------------------------------------------------------
-
 Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/Entities/Vehicles/VehicleSeat.lua");
 
-
-VehicleBase =
-{  
-	State =
-	{
+VehicleBase = {  
+	State = {
 		pos = {},		
 		Carriage = {},		
 		aiDriver = nil,
 	},
-	
 	Seats = {},
 	AI = {},
-
 	Client = {},
 	Server = {},
-	
 	Hit = {},	
 }
 
---------------------------------------------------------------------------
 function IsAnyPassenger(seats)
 	for i,seat in pairs(seats) do	  	  
 		if (seat:GetPassengerId()) then		  
 			return true;
 		end
 	end
-	
 	return false;
 end
 
---------------------------------------------------------------------------
 function VehicleBase:HasDriver()
 	for i,seat in pairs(self.Seats) do
 		if (seat.isDriver) then
@@ -54,11 +42,9 @@ function VehicleBase:HasDriver()
 			end
 		end
 	end
-
 	return false;
 end
 
---------------------------------------------------------------------------
 function VehicleBase:GetDriverId()
 	for i,seat in pairs(self.Seats) do
 		if (seat.isDriver) then
@@ -69,17 +55,14 @@ function VehicleBase:GetDriverId()
 	return nil;
 end
 
---------------------------------------------------------------------------
 function VehicleBase:GetLastDriverId()
 	local driverId = self:GetDriverId();
 	if(not driverId) then
 		return self.lastDriverId;
 	end
-
 	return nil;
 end
 
---------------------------------------------------------------------------
 function VehicleBase:ClearLastDriverId()
 	-- don't clear if we've got a new driver
 	if(not self:HasDriver()) then
@@ -87,26 +70,19 @@ function VehicleBase:ClearLastDriverId()
 	end
 end
 
---------------------------------------------------------------------------
 function GetNextAvailableSeat(seats)
 	for i,seat in pairs(seats) do
 		if (not seat:GetPassengerId()) then
 			return i;
 		end
-	end
-	
+	end	
 	return -1;
 end
 
---------------------------------------------------------------------------
-function VehicleBase:ApplyMaterial(strMat, bIncludeCharacters)	  
-  --Log("VehicleBase: setting material "..strMat.." on "..self:GetName());
-  
+function VehicleBase:ApplyMaterial(strMat, bIncludeCharacters)  
   Log("VehicleBase:ApplyMaterial is deprecated!");
-  --self.vehicle:SetSlotMaterial(self.id, -1, strMat, bIncludeCharacters);
 end
 
---------------------------------------------------------------------------
 function VehicleBase:InitSeats()
   if (self.Seats) then
     for i,seat in pairs(self.Seats) do
@@ -116,23 +92,18 @@ function VehicleBase:InitSeats()
   end
 end
 
---------------------------------------------------------------------------
 function VehicleBase:InitVehicleBase()
 	self:OnPropertyChange();
 end
 
---------------------------------------------------------------------------
 function VehicleBase:OnPropertyChange()	
 	if (self.OnPropertyChangeExtra) then		
 		self:OnPropertyChangeExtra();
 	end
 end
 
---------------------------------------------------------------------------
 function VehicleBase:MountEntity(a_className, transformTable, propertiesTable) -- integrate this with other child entities asap
-  --Log("Attaching a "..a_className.." at "..self:GetName().."..");
-  
-  local spawnParams = {};
+    local spawnParams = {};
 	spawnParams.class = a_className;
 	spawnParams.name = self:GetName().."_"..a_className.."_mount"; -- todo: multiple names
 	spawnParams.scale = 1;
@@ -975,8 +946,12 @@ function VehicleBase:OnActorSitDown(seatId, passengerId)
 	end
 end
 --------------------------------------------------------------------------
-function VehicleBase:ForceCoopAI()
-	AI.RegisterWithAI(self.id, self.AIType, self.Properties, self.PropertiesInstance, self.AIMovementAbility);
+function VehicleBase:RegisterVehicleAI()
+	local AIType = self.AIType;
+    if (AIType == nil) then
+        AIType = 0;
+    end
+    AI.RegisterWithAI(self.id, self.AIType, self.Properties, self.PropertiesInstance, self.AIMovementAbility);
 end
 --------------------------------------------------------------------------
 function VehicleBase:OnActorChangeSeat(passengerId, exiting)
@@ -1063,7 +1038,7 @@ function VehicleBase:OnActorStandUp(passengerId, exiting)
 		end
 		
 		-- for MP record the last player driver, and the time they exited
-		if(seat.isDriver and g_gameRules and g_gameRules:IsMultiplayer()) then
+		if(seat.isDriver) then
 			self.lastDriverId = passengerId;
 			self:SetTimer(PLAYEREXIT_TIMER, PLAYEREXIT_TIMEOUT);
 		end

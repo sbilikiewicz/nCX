@@ -19,7 +19,8 @@
 #endif
 
 #include <vector>
-
+//MrTusk fix
+#include <functional>
 /**
  * Grabbing & throwing/dropping typically occurs in 3 phases:
  *

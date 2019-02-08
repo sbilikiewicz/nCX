@@ -127,7 +127,7 @@ function AdvancedDoor:OnReset()
 	if(self.locked==1)then
 		AI.ModifySmartObjectStates( self.id, "Locked" );
 	end;
-	self:CheckInitalAngle();]]
+	self:CheckInitalAngle();
 end;
 
 function AdvancedDoor:CheckInitalAngle()

@@ -215,14 +215,13 @@ function Player:PhysicalizeActor()
 	--BasicActor.PhysicalizeActor(self);
 end
 
-function Player:CoopForceAI()
+function Player:RegisterAI()
 	AI.RegisterWithAI(self.id, AIOBJECT_PLAYER, self.Properties, self.PropertiesInstance);
 end
 
-function Player:CoopRemoveAI()
+function Player:UnRegisterAI()
 	AI.RegisterWithAI(self.id, 0, self.Properties, self.PropertiesInstance);
 end
-
 
 
 function Player:SetModel(model, arms, frozen, fp3p)
