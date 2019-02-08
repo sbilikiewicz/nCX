@@ -1,80 +1,63 @@
 --------------------------------------------------------------------------
 --	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2005.
+-- 	Copyright (C), Crytek Studios.
 --------------------------------------------------------------------------
---	$Id$
---	$DateTime$
 --	Description: Mission Objective
 --  
 --------------------------------------------------------------------------
 --  History:
---  - 10:5:2005 : Created by Filippo De Luca
---
+--  - 5/2005    :   Created by Filippo De Luca
+--  - 2/2019    :   Modified and optimized by MrTusk
 --------------------------------------------------------------------------
 
-Door = 
-{
-	Properties = 
-	{
+Door = {
+	Properties = {
 		soclasses_SmartObjectClass = "Door",
-
 		fileModel = "Objects/library/furnishings/doors/toiletstall_door_local.cgf",
-		
-		Sounds = 
-		{
-			soundSoundOnMove 				= "sounds/doors/wooddooropen.wav",
-			soundSoundOnStop 				= "",
+		Sounds = {
+			soundSoundOnMove 		= "sounds/doors/wooddooropen.wav",
+			soundSoundOnStop 		= "",
 			soundSoundOnStopClosed 	= "",
-			fVolume = 200,
-			fRange = 50,
+			fVolume                 = 200,
+			fRange                  = 50,
 		},		
-		Rotation = 
-		{
+		Rotation = {
 			fSpeed 					= 200.0,
-			fAcceleration 	= 500.0,
-			fStopTime 			= 0.125,
+			fAcceleration 	        = 500.0,
+			fStopTime 			    = 0.125,
 			fRange 					= 90,
 			sAxis 					= "z",
-			bRelativeToUser = 1,
-			sFrontAxis			= "y",
+			bRelativeToUser         = 1,
+			sFrontAxis			    = "y",
 		},
-		Slide = 
-		{
+		Slide = {
 			fSpeed	 				= 2.0,
-			fAcceleration 	= 3.0,
+			fAcceleration 	        = 3.0,
 			fStopTime				= 0.5,
 			fRange	 				= 0,
-			sAxis		 				= "x",
+			sAxis		 			= "x",
 		},
 		fUseDistance = 2.5,
 		bLocked = 0,
 		bSquashPlayers = 0,
 		bActivatePortal = 0,
-  },
-  	
-	PhysParams = 
-	{ 
-		mass = 0,
+    },
+	PhysParams = { 
+		mass    = 0,
 		density = 0,
 	},
-	
 	sounds = {},
-	
 	Server = {},
 	Client = {},
 }
-
-DoorVars =
-{
-	goalAngle = {x=0,y=0,z=0},
-	currAngle = {x=0,y=0,z=0},
-	modelAngle = {x=0,y=0,z=0},
-	
-	goalPos = {x=0,y=0,z=0},
-	currPos = {x=0,y=0,z=0},
-	modelPos = {x=0,y=0,z=0},
-	
-	locked = false,
+DoorVars = {
+	goalAngle  = { x = 0, y = 0, z = 0 },
+	currAngle  = { x = 0, y = 0, z = 0 },
+	modelAngle = { x = 0, y = 0, z = 0 },
+	goalPos    = { x = 0, y = 0, z = 0 },
+	currPos    = { x = 0, y = 0, z = 0 },
+	modelPos   = { x = 0, y = 0, z = 0 },
+	locked     = false,
 }
 
 function CreateDoor(door)
@@ -82,10 +65,8 @@ function CreateDoor(door)
 end
 
 DOOR_TOGGLE = 0;
-DOOR_OPEN = 1;
-DOOR_CLOSE = 2;
-
-
+DOOR_OPEN   = 1;
+DOOR_CLOSE  = 2;
 
 Net.Expose {
 	Class = Door,
@@ -100,21 +81,16 @@ Net.Expose {
 	},
 };
 
-
 function Door:CanShatter()
 	return false;
 end
 
-
-
-----------------------------------------------------------------------------------------------------
 function Door:OnPreFreeze(freeze, vapor)
 	if (freeze) then
 		return false; -- don't allow freezing
 	end
 end
 
--------------------------------------------------------
 function Door:OnLoad(table)
 	self.rotationUpdate = table.rotationUpdate
 	self.slideUpdate = table.slideUpdate
@@ -127,7 +103,6 @@ function Door:OnLoad(table)
 	self.locked = table.locked 
 end
 
--------------------------------------------------------
 function Door:OnSave(table)
 	table.rotationUpdate = self.rotationUpdate
 	table.slideUpdate = self.slideUpdate
@@ -156,23 +131,11 @@ function Door:OnSpawn()
 	
 	self.isServer=CryAction.IsServer();
 	self.isClient=CryAction.IsClient();
-
 	self:Reset(1);
 end
 
 function Door:OnDestroy()
 end
-
---function Door.Server:OnInit()
-	--self.bNeedReload = 1;
-	--self:Reset();
---end
-
---function Door.Client:OnInit()
-	--self.bNeedReload = 1;
-	--self:Reset();
---end
-
 
 function Door:DoPhysicalize()
 	if (self.currModel ~= self.Properties.fileModel) then
@@ -181,7 +144,6 @@ function Door:DoPhysicalize()
 		self:Physicalize(0,PE_RIGID,self.PhysParams);
 		CryAction.ActivateExtensionForGameObject(self.id, "ScriptControlledPhysics", true);			
 	end
-	
 	if (tonumber(self.Properties.bSquashPlayers)==0) then
 		self:SetPhysicParams(PHYSICPARAM_FLAGS, {flags_mask=pef_cannot_squash_players, flags=pef_cannot_squash_players});
 	end
@@ -196,15 +158,11 @@ function Door:ResetAction()
 end
 
 function Door:Reset(onSpawn)
-	--Log( "Door:Reset" );
-
 	if (self.bNeedReload and self.bNeedReload == 0) then
 	  -- Skip Reloads when not neccesarry.
 		do return end;
 	end
 	self.bNeedReload = 0;
-	
-	--Log( "Door:Reset Reload" );
 	
 	if (onSpawn) then
 		CreateDoor(self);
@@ -227,18 +185,15 @@ function Door:Reset(onSpawn)
 
 	CopyVector(self.currAngle,self.modelAngle);
 	CopyVector(self.goalAngle,self.modelAngle);
-	
 	CopyVector(self.currPos,self.modelPos);
 	CopyVector(self.goalPos,self.modelPos);
 
 	if (self.portal) then
 		System.ActivatePortal(self:GetWorldPos(), 0, self.id);
 	end
-	--Log("Door: DeActivatePortal in Reset! "..self:GetName());
 
 	self:UpdateRotation(0);
 	self:UpdateSlide(0);
-		
 	self:AwakePhysics(1);
 	
 	self.locked = self.Properties.bLocked~=0;
@@ -260,7 +215,6 @@ function Door:Reset(onSpawn)
 		self.frontAxis.y=-self.frontAxis.y;
 		self.frontAxis.z=-self.frontAxis.z;
 	end
-	
 
 	if AI then
 		if ( self.locked == true ) then

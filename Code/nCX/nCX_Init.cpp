@@ -15,7 +15,6 @@
 #include <IAISystem.h>
 #include <ILevelSystem.h>
 
-
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -85,7 +84,12 @@ void nCX::Init_nCX(){
 		if (pCVar){
 			CryLogAlways("[$6nCX$5] : Server Frame Rate       %d", pCVar->GetIVal());
 		}
-		
+        
+        ICVar *pAICVar = gEnv->pConsole->GetCVar("ai_UpdateInterval");
+        int AIUpdateInterval = pAICVar->GetIVal();
+        if (pAICVar)
+            CryLogAlways("[$6nCX$5] : AI Update Interval       %d", pAICVar->GetIVal());
+            
 		CryLogAlways("[$6nCX$5] : Levels in system        %d", gEnv->pGame->GetIGameFramework()->GetILevelSystem()->GetLevelCount());
 
 		string CurrMOD = gEnv->pCryPak->GetModDir();

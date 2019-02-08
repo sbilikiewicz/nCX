@@ -136,8 +136,12 @@ void CCoopTrooper::ProcessEvent(SEntityEvent& event)
 				{
 					char* equip;
 					if (props->GetValue("equip_EquipmentPack", equip))
+					{
+						if (equip[0] == '\0')
+							equip = "Alien_Scout_Gunner"; //Change this to fastlightmoac
+
 						gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetIEquipmentManager()->GiveEquipmentPack(this, equip, true, true);
-				}
+					}
 
 				break;
 			}

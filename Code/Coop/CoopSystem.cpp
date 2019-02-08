@@ -34,16 +34,16 @@ bool CCoopSystem::Initialize()
 	
 	CCoopCutsceneSystem::GetInstance()->Register();
 
-	IScriptSystem *pSS = gEnv->pScriptSystem;
+	/*IScriptSystem *pSS = gEnv->pScriptSystem;
 	if (pSS->ExecuteFile("Scripts/Coop/AI.lua", true, true))
 	{
 		pSS->BeginCall("Init");
 		pSS->EndCall();
-	}
+	}*/
 
 	ICVar* pAIUpdateAlways = gEnv->pConsole->GetCVar("ai_UpdateAllAlways");
 	ICVar* pCheatCvar = gEnv->pConsole->GetCVar("sv_cheatprotection");
-	ICVar* pGameRules = gEnv->pConsole->GetCVar("sv_gamerules");
+	//ICVar* pGameRules = gEnv->pConsole->GetCVar("sv_gamerules");
 
 	if (pAIUpdateAlways)
 		pAIUpdateAlways->ForceSet("1");
@@ -51,8 +51,8 @@ bool CCoopSystem::Initialize()
 	if (pCheatCvar)
 		pCheatCvar->ForceSet("0");
 
-	if (pGameRules)
-		pGameRules->ForceSet("coop");
+	//if (pGameRules)
+	//	pGameRules->ForceSet("coop");
 
 	m_pDialogSystem = new CDialogSystem();
 	m_pDialogSystem->Init();
@@ -69,12 +69,12 @@ void CCoopSystem::CompleteInit()
 //	Shuts down the CCoopSystem instance.
 void CCoopSystem::Shutdown()
 {
-	IScriptSystem *pSS = gEnv->pScriptSystem;
+	/*IScriptSystem *pSS = gEnv->pScriptSystem;
 	if (pSS->ExecuteFile("Scripts/Coop/AI.lua", true, true))
 	{
 		pSS->BeginCall("Shutdown");
 		pSS->EndCall();
-	}
+	}*/
 
 	CCoopCutsceneSystem::GetInstance()->Unregister();
 
@@ -109,37 +109,38 @@ void CCoopSystem::Update(float fFrameTime)
 		gEnv->bMultiplayer = true;
 	}*/
 
-	/* Registers vehicles into the AI system
-	if (gEnv->bServer)
+	// Registers vehicles into the AI system
+	IVehicleIteratorPtr iter = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->CreateVehicleIterator();
+	while (IVehicle* pVehicle = iter->Next())
 	{
-		IVehicleIteratorPtr iter = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->CreateVehicleIterator();
-		while (IVehicle* pVehicle = iter->Next())
+		if(IEntity *pEntity = pVehicle->GetEntity())
 		{
-			if(IEntity *pEntity = pVehicle->GetEntity())
+			if (!pEntity->GetAI())
 			{
-				if (!pEntity->GetAI())
+				gEnv->bMultiplayer = false;
+				///MrTusk removed cause couldnt find this in lua and this crashed server
+				/*HSCRIPTFUNCTION scriptFunction(0);
+				IScriptSystem*	pIScriptSystem = gEnv->pScriptSystem;
+				if (IScriptTable* pScriptTable = pEntity->GetScriptTable())
 				{
-					gEnv->bMultiplayer = false;
-					gEnv->pAISystem->Re
-					///nCX removed cause couldnt find this in lua and this crashed server
-					HSCRIPTFUNCTION scriptFunction(0);
-					IScriptSystem*	pIScriptSystem = gEnv->pScriptSystem;
-					if (IScriptTable* pScriptTable = pEntity->GetScriptTable())
+					if (pScriptTable->GetValue("ForceCoopAI", scriptFunction))
 					{
-						if (pScriptTable->GetValue("ForceCoopAI", scriptFunction))
-						{
-							Script::Call(pIScriptSystem, scriptFunction, pScriptTable, false);
-							pIScriptSystem->ReleaseFunc(scriptFunction);
-						}
+						Script::Call(pIScriptSystem, scriptFunction, pScriptTable, false);
+						pIScriptSystem->ReleaseFunc(scriptFunction);
 					}
-
-
-					gEnv->bMultiplayer = true;
-				}
+				}*/
+                
+                IScriptTable* pScriptTable = pEntity->GetScriptTable();
+                if (pScriptTable)
+                {
+            		gEnv->pScriptSystem->BeginCall(pScriptTable, "RegisterAI");
+            		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
+            		gEnv->pScriptSystem->EndCall(pScriptTable);
+                }
+				gEnv->bMultiplayer = true;
 			}
 		}
-	}*/
-
+	}
 	//Not using right now
 	//CCoopCutsceneSystem::GetInstance()->Update(fFrameTime);
 }

@@ -1,15 +1,14 @@
 --------------------------------------------------------------------------
 --	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2006.
+-- 	Copyright (C), Crytek Studios
 --------------------------------------------------------------------------
---	$Id$
---	$DateTime$
+--
 --	Description: Improved door class for more interaction
 --  
 --------------------------------------------------------------------------
 --  History:
---  - 7/2006     : Created by Sascha Gundlach
---
+--  - 7/2006    :   Created by Sascha Gundlach
+--  - 2/2019    :   Modified and optimized by MrTusk
 --------------------------------------------------------------------------
 
 AdvancedDoor = 
@@ -21,66 +20,61 @@ AdvancedDoor =
 	},
 	Properties=
 	{
-		soclasses_SmartObjectClass = "Door",
-		fileModel 					= "objects/library/architecture/village/house_small_a_door_breakable.cgf",
-		ModelSubObject			= "main",
-		fileModelDestroyed	= "",
-		DestroyedSubObject	= "remain",
-		fHealth = 100,
-		Mass = 50,
-		bUsePortal = 1,
+		soclasses_SmartObjectClass    = "Door",
+		fileModel                     = "objects/library/architecture/village/house_small_a_door_breakable.cgf",
+		ModelSubObject                = "main",
+		fileModelDestroyed            = "",
+		DestroyedSubObject            = "remain",
+		fHealth                       = 100,
+		Mass                          = 50,
+		bUsePortal                    = 1,
 		Limits = {
-		  fUseDistance = 2,
-		  OpeningRange = 90,
-		  MaxForce = 0,
-			MaxBend = 0,
-			Damping = 0,
-			fSpeed = 1,
-			fAutoCloseTime = 0,
-			bOpenFromFront = 1,
-			bOpenFromBack = 1,
-			InitialAngle = 0,
-			bIsBreachable = 1,
+            fUseDistance     = 2,
+            OpeningRange     = 90,
+            MaxForce         = 0,
+            MaxBend          = 0,
+			Damping          = 0,
+			fSpeed           = 1,
+			fAutoCloseTime   = 0,
+			bOpenFromFront   = 1,
+			bOpenFromBack    = 1,
+			InitialAngle     = 0,
+			bIsBreachable    = 1,
 		},
-		Breakage =
-		{
-			fLifeTime = 10,
-			fExplodeImpulse = 0,
-			bSurfaceEffects = 1,
+		Breakage = {
+			fLifeTime        = 10,
+			fExplodeImpulse  = 0,
+			bSurfaceEffects  = 1,
 		},
-		Destruction =	{
-			bExplode				= 1,
-			Effect					= "explosions.rocket.wood",
-			EffectScale			= 0.2,
-			Radius					= 1,
-			Pressure				= 12,
-			Damage					= 0,
-			Decal						= "",
-			Direction				= {x=0, y=0.0, z=-1},
+		Destruction = {
+			bExplode     = 1,
+			Effect       = "explosions.rocket.wood",
+			EffectScale  = 0.2,
+			Radius       = 1,
+			Pressure     = 12,
+			Damage       = 0,
+			Decal        = "",
+			Direction    = { x = 0, y = 0.0, z = -1 },
 		},
-		Vulnerability	=
-		{
-			fDamageTreshold = 0,
-			bExplosion = 1,
-			bCollision = 1,
-			bMelee		 = 1,
-			bBullet		 = 1,
-			bOther	   = 1,
+		Vulnerability = {
+			fDamageTreshold  = 0,
+			bExplosion       = 1,
+			bCollision       = 1,
+			bMelee           = 1,
+			bBullet          = 1,
+			bOther           = 1,
 		},
 		Sound = {
-			soundOpenSound = "Sounds/environment:doors:door_wood_1_open",
-			soundCloseSound = "Sounds/environment:doors:door_wood_1_close",
-			soundLockedSound = "Sounds/environment:doors:door_wood_rattle",
+			soundOpenSound    = "Sounds/environment:doors:door_wood_1_open",
+			soundCloseSound   = "Sounds/environment:doors:door_wood_1_close",
+			soundLockedSound  = "Sounds/environment:doors:door_wood_rattle",
 		}
 	},
-	LastHit =
-	{
-		impulse = {x=0,y=0,z=0},
-		pos = {x=0,y=0,z=0},
+	LastHit = {
+		impulse  = { x = 0, y = 0, z = 0 },
+		pos      = { x = 0, y = 0, z = 0 },
 	},
-		
-	Editor=
-	{
+	Editor = {
 		Icon="Door.bmp",
 		ShowBounds = 1,
 	},
@@ -102,11 +96,9 @@ function AdvancedDoor:OnReset()
  		self:LoadSubObject(1,props.fileModel,props.DestroyedSubObject);
  	end;
 	
-	
 	--Limit range to reasonable values
 	self.openingrange=props.Limits.OpeningRange;
 	self.openingrange=clamp(props.Limits.OpeningRange,-175,175);
-	
 	self:GetAngles(self.rad);
 	self:GetAngles(self.initialrot);
 	self:GetPos(self.initialpos);
@@ -115,11 +107,10 @@ function AdvancedDoor:OnReset()
 	self:UpdateImpulsePos();
 	self:SetCurrentSlot(0);
 	
-	-- Crysis Co-op :: Removed to fix reconfigure error
-	--[[self:PhysicalizeThis(0,0);
+	-- MrTusk : Removed to fix reconfigure error
+	--self:PhysicalizeThis(0,0);
 	self:EnablePhysics(true);
 	self:AwakePhysics(0);
-	
 	self:Activate(0);
 	self.bUpdate=0;
 	self.lasttime=0;
@@ -128,7 +119,6 @@ function AdvancedDoor:OnReset()
 	self.lockbroken=0;
 	self.openpercentage=0;
 	self.health=props.fHealth;
-	
 	self.locked=self.PropertiesInstance.bLocked;
 		
 	if(self.Properties.bUsePortal==0)then
@@ -137,9 +127,7 @@ function AdvancedDoor:OnReset()
 	if(self.locked==1)then
 		AI.ModifySmartObjectStates( self.id, "Locked" );
 	end;
-	
 	self:CheckInitalAngle();]]
-	
 end;
 
 function AdvancedDoor:CheckInitalAngle()
@@ -346,7 +334,7 @@ function AdvancedDoor.Server:OnInit()
 		bResting = 1,
 		Density = -1,
 		Mass = 100,
-     Buoyancy=
+        Buoyancy =
 		{
 			water_density = 1000,
 			water_damping = 0,
@@ -445,7 +433,7 @@ function AdvancedDoor.Client:OnHit(hit, remote)
 	
 	--Change
 	self:AddImpulse(-1, hit.pos, hit.dir, 20, 1);
-	
+	System.LogAlways("AdvancedDoor.Client:OnHit : AddImpulse");
 end
 
 function AdvancedDoor:Event_ConstraintBroken(sender)
@@ -657,6 +645,7 @@ function AdvancedDoor:OpenDoor(user,idx)
 	
 	self:UpdateImpulsePos();
 	self:AddImpulse(-1,self.impulsepos,self.impulsedir,force,1);
+    System.LogAlways("AdvancedDoor:OpenDoor : AddImpulse");
 end;
 
 function AdvancedDoor:Close(user,idx)
@@ -695,6 +684,7 @@ function AdvancedDoor:Close(user,idx)
 	force=force*self.Properties.Limits.fSpeed;
 	self:UpdateImpulsePos();
 	self:AddImpulse(-1,self.impulsepos,self.impulsedir,force,1);
+    System.LogAlways("AdvancedDoor:Close : AddImpulse");
 end;
 
 
