@@ -1,6 +1,7 @@
 Bin32
 Bin64
 BinTemp
+*.lnk
 Code/*.sdf
 Code/*.opensdf
 Code/*.ncb
