@@ -34,13 +34,6 @@
 #include "nCX\Actors\AI_Scout.h"
 #include "nCX\Actors\AI_Trooper.h"
 
-//#include "Coop\Entities\EventSynchronizer.h"
-//#include "Coop\Entities\DialogSynchronizer.h"
-//#include "Coop\Entities\HudSynchronizer.h"
-//#include "Coop\Entities\SequenceSynchronizer.h"
-//~Crysis Co-op
-
-//
 #include "Item.h"
 #include "Weapon.h"
 #include "VehicleWeapon.h"
@@ -217,13 +210,6 @@ void InitGameFactory(IGameFramework *pFramework)
 	REGISTER_FACTORY(pFramework, "Aliens/Trooper", CTrooper, true);
 #endif
 
-	// Crysis Co-op
-	//REGISTER_GAME_OBJECT(pFramework, SequenceSynchronizer, "Scripts/Entities/Coop/SequenceSynchronizer.lua");
-	//REGISTER_GAME_OBJECT(pFramework, EventSynchronizer, "Scripts/Entities/Coop/EventSynchronizer.lua");
-	//REGISTER_GAME_OBJECT(pFramework, DialogSynchronizer, "Scripts/Entities/Coop/DialogSynchronizer.lua");
-	//REGISTER_GAME_OBJECT(pFramework, HUDSynchronizer, "Scripts/Entities/Coop/HUDSynchronizer.lua");
-	//~Crysis Co-op
-
 	// Custom GameObjects
 	REGISTER_GAME_OBJECT(pFramework, Tornado, "Scripts/Entities/Environment/Tornado.lua");
 	REGISTER_GAME_OBJECT(pFramework, Shake, "Scripts/Entities/Environment/Shake.lua");
@@ -237,11 +223,6 @@ void InitGameFactory(IGameFramework *pFramework)
 
 	//GameRules
 	REGISTER_FACTORY(pFramework, "GameRules", CGameRules, false);
-
-	// Crysis Co-op
-	//pFramework->GetIGameRulesSystem()->RegisterGameRules("Coop", "GameRules");
-	//pFramework->GetIGameRulesSystem()->AddGameRulesLevelLocation("Coop", "multiplayer/coop/");
-	// ~Crysis Co-op
 
 	REGISTER_GAME_OBJECT_EXTENSION(pFramework, ScriptControlledPhysics);
 

@@ -611,10 +611,8 @@ void CHUDRadar::Update(float fDeltaTime)
 
 void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &playerViewMtxInverted, int &numOfValues, ArrayFillHelper<double, FVAT_Double, NUM_ARRAY_FILL_HELPER_SIZE> *entityValues)
 {
-	float fCos	= cosf(m_fTime); 
+	float fCos = cosf(m_fTime);
 	float lowerBoundX = m_fX - fRadarSizeOverTwo;	//used for flash radar position computation
-
-	const char* gameRulesName = g_pGame->GetGameRules()->GetEntity()->GetClass()->GetName();
 
 	//****************************************************************************
 	//singleplayer squadmates are now 100% design controlled, see "SetTeamMate"
@@ -622,7 +620,7 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 	//we get the player's team mates for team-based MP
 	CGameRules *pGameRules = static_cast<CGameRules*>(gEnv->pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules());
 	int clientTeam = pGameRules->GetTeam(pActor->GetEntityId());
-	if(gEnv->bMultiplayer)
+	if (gEnv->bMultiplayer)
 	{
 		m_teamMates.clear();
 		pGameRules->GetTeamPlayers(clientTeam, m_teamMates);
@@ -633,15 +631,15 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 	bool inVehicle = false;
 	bool inAAA = false;
 	float aaaDamage = 0.0f;
-	if(IVehicle *pVehicle = pActor->GetLinkedVehicle())
+	if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
 	{
 		fRadius *= 2.0f;
 		inVehicle = true;
 
-		if(pVehicle->GetEntity()->GetClass() == m_pAAA)
+		if (pVehicle->GetEntity()->GetClass() == m_pAAA)
 		{
 			inAAA = true;
-			if(IVehicleComponent *pAAARadar = pVehicle->GetComponent("radar"))
+			if (IVehicleComponent *pAAARadar = pVehicle->GetComponent("radar"))
 			{
 				aaaDamage = pAAARadar->GetDamageRatio();
 				m_flashRadar->Invoke("setDamage", aaaDamage);
@@ -651,24 +649,24 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 
 	//*********************************CHECKED FOUND ENTITIES*********************
 	int amount = m_entitiesInProximity.size();
-	for(int i = 0; i < amount; ++i)
+	for (int i = 0; i < amount; ++i)
 	{
 		EntityId id = m_entitiesInProximity[i];
 		IEntity *pEntity = gEnv->pEntitySystem->GetEntity(id);
 
-		if(pEntity)
+		if (pEntity)
 		{
 			//reasons (not) to go on ... *******************************************************************
-			if(IsEntityTagged(id))
+			if (IsEntityTagged(id))
 				continue;
 
 			//is it a corpse ?
 			IActor* tempActor = m_pActorSystem->GetActor(pEntity->GetId());
-			if(tempActor && !(tempActor->GetHealth() > 0))
+			if (tempActor && !(tempActor->GetHealth() > 0))
 				continue;
 
 			//is it the player ?
-			if(pActor->GetEntityId() == id)
+			if (pActor->GetEntityId() == id)
 				continue;
 
 			//lets find out whether this entity belongs on the radar
@@ -678,51 +676,46 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 			bool unknownEnemyActor = false;
 			bool airPlaneInAAA = false;
 
-			if(inAAA)	//check whether it's an unknown, flying airplane when you are in an AAA (show all airplanes > 3m over ground)
+			if (inAAA)	//check whether it's an unknown, flying airplane when you are in an AAA (show all airplanes > 3m over ground)
 			{
 				FlashRadarType eType = ChooseType(pEntity);
-				if(eType == EHeli)
+				if (eType == EHeli)
 				{
 					Vec3 pos = pEntity->GetPos();
-					if(pos.z - gEnv->p3DEngine->GetTerrainZ((int)pos.x, (int)pos.y) > 5.0f)
+					if (pos.z - gEnv->p3DEngine->GetTerrainZ((int)pos.x, (int)pos.y) > 5.0f)
 					{
 						IVehicle *pAirplane = m_pVehicleSystem->GetVehicle(pEntity->GetId());
-						if(pAirplane && pAirplane->IsPlayerDriving(false) && pAirplane->GetAltitude() > 2.5f) //GetAltitude also checks game brushes
+						if (pAirplane && pAirplane->IsPlayerDriving(false) && pAirplane->GetAltitude() > 2.5f) //GetAltitude also checks game brushes
 							airPlaneInAAA = isOnRadar = true;
 					}
 				}
 			}
 
 			//is it a team mate in multiplayer or is it a squad mate in singleplayer ?
-			if(!isOnRadar && stl::find(m_teamMates, id))
+			if (!isOnRadar && stl::find(m_teamMates, id))
 				isOnRadar = mate = true;
-
-			// Crysis Co-op
-			if (strcmp(gameRulesName,"Coop") == 0 && pActor && pActor->IsPlayer())
-				isOnRadar = mate = true;
-			//~Crysis Co-op
 
 			//has the object been scanned already?
-			if(!isOnRadar && IsOnRadar(id, 0, m_entitiesOnRadar.size()-1))
+			if (!isOnRadar && IsOnRadar(id, 0, m_entitiesOnRadar.size() - 1))
 				isOnRadar = true;
 
-			if(!isOnRadar)	//check whether it's an aggressive (non-vehicle) AI (in possible proximity),
+			if (!isOnRadar)	//check whether it's an aggressive (non-vehicle) AI (in possible proximity),
 				//which is not yet on the radar
 			{
 				IAIObject *pTemp = pEntity->GetAI();
-				if(pTemp && AIOBJECT_VEHICLE != pTemp->GetAIType() && pTemp->IsHostile(pActor->GetEntity()->GetAI(),false))
+				if (pTemp && AIOBJECT_VEHICLE != pTemp->GetAIType() && pTemp->IsHostile(pActor->GetEntity()->GetAI(), false))
 				{
 					isOnRadar = true;
 					unknownEnemyObject = true;
 				}
-				else if(tempActor && gEnv->bMultiplayer)	//not teammate, not AI -> enemy!?
+				else if (tempActor && gEnv->bMultiplayer)	//not teammate, not AI -> enemy!?
 				{
 					isOnRadar = true;
 					unknownEnemyActor = true;
 				}
 			}
 
-			if(!isOnRadar)
+			if (!isOnRadar)
 				continue;
 
 			//**********************************************************************************************
@@ -732,26 +725,26 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 
 			//distance check********************************************************************************
 
-			if(fabsf(vTransformed.z) > 500.0f)
+			if (fabsf(vTransformed.z) > 500.0f)
 				continue;
 			vTransformed.z = 0;
 
 			float sizeScale = GetRadarSize(pEntity, pActor);
-			float scaledX = (vTransformed.x/fRadius)*fEntityMaxDistance;
-			float scaledY = (vTransformed.y/fRadius)*fEntityMaxDistance;
+			float scaledX = (vTransformed.x / fRadius)*fEntityMaxDistance;
+			float scaledY = (vTransformed.y / fRadius)*fEntityMaxDistance;
 
 			float fX = m_fX + scaledX;
 			float fY = m_fY - scaledY;
 
-			float distSq = scaledX*scaledX+scaledY*scaledY;
+			float distSq = scaledX*scaledX + scaledY*scaledY;
 
-			if(distSq < fEntityMaxDistance*fEntityMaxDistance*3.0f)
-			{	
+			if (distSq < fEntityMaxDistance*fEntityMaxDistance*3.0f)
+			{
 				//these entities are near enough to check them against the border
 				Vec2 intersection;
-				if(!RadarBounds_Inside(Vec2(fX, fY), intersection))
+				if (!RadarBounds_Inside(Vec2(fX, fY), intersection))
 				{
-					if(airPlaneInAAA && !(aaaDamage == 1.0f || aaaDamage > RANDOM()))	// AAA can see airplanes over far distances
+					if (airPlaneInAAA && !(aaaDamage == 1.0f || aaaDamage > RANDOM()))	// AAA can see airplanes over far distances
 					{
 						fX = intersection.x;
 						fY = intersection.y;
@@ -764,19 +757,19 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 				continue;
 
 			float fAngle = pActor->GetAngles().z - pEntity->GetWorldAngles().z;
-			float fAlpha	= 0.85f;
+			float fAlpha = 0.85f;
 
 			//faction***************************************************************************************
 
 			//AI Object
 			IAIObject *pAIObject = pEntity->GetAI();
-			int friendly = mate?EFriend:ENeutral;
+			int friendly = mate ? EFriend : ENeutral;
 			bool checkDriver = false;
-			if(pAIObject)
+			if (pAIObject)
 			{
-				if(AIOBJECT_VEHICLE == pAIObject->GetAIType())	//switch to vehicle texture ?
+				if (AIOBJECT_VEHICLE == pAIObject->GetAIType())	//switch to vehicle texture ?
 				{
-					if(IVehicle* pVehicle = m_pVehicleSystem->GetVehicle(id))
+					if (IVehicle* pVehicle = m_pVehicleSystem->GetVehicle(id))
 					{
 						if (IVehicleSeat* pSeat = pVehicle->GetSeatById(1))
 						{
@@ -784,7 +777,7 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 							{
 								EntityId driverId = pSeat->GetPassenger();
 								IEntity *temp = gEnv->pEntitySystem->GetEntity(driverId);
-								if(temp && temp->GetAI())
+								if (temp && temp->GetAI())
 								{
 									pAIObject = temp->GetAI(); //check the driver instead of the vehicle
 									checkDriver = true;
@@ -794,34 +787,34 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 					}
 				}
 
-				if((unknownEnemyObject || pAIObject->IsHostile(pActor->GetEntity()->GetAI(),false)) && (checkDriver || AIOBJECT_VEHICLE != pAIObject->GetAIType()))
+				if ((unknownEnemyObject || pAIObject->IsHostile(pActor->GetEntity()->GetAI(), false)) && (checkDriver || AIOBJECT_VEHICLE != pAIObject->GetAIType()))
 				{
 					friendly = EEnemy;
 
 					IUnknownProxy *pUnknownProxy = pAIObject->GetProxy();
-					if(pUnknownProxy)
+					if (pUnknownProxy)
 					{
 						int iAlertnessState = pUnknownProxy->GetAlertnessState();
 
-						if(unknownEnemyObject) //check whether the object is near enough and alerted
+						if (unknownEnemyObject) //check whether the object is near enough and alerted
 						{
-							if(iAlertnessState < 1)
+							if (iAlertnessState < 1)
 								continue;
-							if(distSq > 225.0f)
+							if (distSq > 225.0f)
 								continue;
-							else if(distSq > 25.0f)
+							else if (distSq > 25.0f)
 								fAlpha -= 0.5f - ((225.0f - distSq) * 0.0025f); //fade out with distance
 
-							if(tempActor && g_pGameCVars->g_difficultyLevel < 4) //new rule : once aggroing the player, enemies get added permanently
+							if (tempActor && g_pGameCVars->g_difficultyLevel < 4) //new rule : once aggroing the player, enemies get added permanently
 								AddToRadar(id);
 						}
 
-						if(1 == iAlertnessState)
+						if (1 == iAlertnessState)
 						{
 							fAlpha = 0.65f + fCos * 0.35f;
 							friendly = EAggressor;
 						}
-						else if(2 == iAlertnessState)
+						else if (2 == iAlertnessState)
 						{
 							fAlpha = 0.65f + fCos * 0.35f;
 							friendly = ESelf;
@@ -830,104 +823,63 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 					else
 						continue;
 				}
-				else if(gEnv->bMultiplayer)
+				else if (gEnv->bMultiplayer)
 				{
-					if(mate)
+					if (mate)
 						friendly = EFriend;
 					else
 						friendly = EEnemy;
 				}
 				else
 				{
-					if(checkDriver || mate)	//probably the own player
+					if (checkDriver || mate)	//probably the own player
 						friendly = EFriend;
 					else
 						friendly = ENeutral;
 				}
-			}// ~ if pAIObject // Crysis Co-op
-			else if (strcmp(gameRulesName, "Coop") == 0/* && !gEnv->bServer*/)
+			}
+			else if (gEnv->bMultiplayer)	//treats factions in multiplayer
 			{
-				if(mate)
-					friendly = EFriend;
-				else
-					friendly = EEnemy;
-
-				AI_Grunt* pGrunt = static_cast<AI_Grunt*>(tempActor);
-
-				int iAlertnessState = 0;
-
-				if (pGrunt)
-					iAlertnessState = pGrunt->GetAlertnessState();
-
-				if(unknownEnemyObject) //check whether the object is near enough and alerted
-				{
-					if(iAlertnessState < 1)
-						continue;
-					if(distSq > 225.0f)
-						continue;
-					else if(distSq > 25.0f)
-						fAlpha -= 0.5f - ((225.0f - distSq) * 0.0025f); //fade out with distance
-
-					if(tempActor && g_pGameCVars->g_difficultyLevel < 4) //new rule : once aggroing the player, enemies get added permanently
-						AddToRadar(id);
-				}
-
-				if(1 == iAlertnessState)
-				{
-					fAlpha = 0.65f + fCos * 0.35f;
-					friendly = EAggressor;
-				}
-				else if(2 == iAlertnessState)
-				{
-					fAlpha = 0.65f + fCos * 0.35f;
-					friendly = ESelf;
-				}
-				else
-					continue;
-					
-			} // ~Crysis Co-op
-			else if(gEnv->bMultiplayer)	//treats factions in multiplayer
-			{
-				if(tempActor)
+				if (tempActor)
 				{
 					bool scannedEnemy = false;
-					if(!mate && !unknownEnemyActor) //probably MP scanned enemy
+					if (!mate && !unknownEnemyActor) //probably MP scanned enemy
 					{
 						friendly = EEnemy;
 						scannedEnemy = true;
 					}
 
-					if(unknownEnemyActor || scannedEnemy)	//unknown or known enemy in MP !?
+					if (unknownEnemyActor || scannedEnemy)	//unknown or known enemy in MP !?
 					{
-						CPlayer *pPlayer=0;
-						if (static_cast<CActor *>(tempActor)->GetActorClass()==CPlayer::GetActorClassType())
-							pPlayer=static_cast<CPlayer *>(tempActor);
+						CPlayer *pPlayer = 0;
+						if (static_cast<CActor *>(tempActor)->GetActorClass() == CPlayer::GetActorClassType())
+							pPlayer = static_cast<CPlayer *>(tempActor);
 
-						if (pPlayer && !(pPlayer->GetNanoSuit() && pPlayer->GetNanoSuit()->GetCloak()->GetState()!=0))
+						if (pPlayer && !(pPlayer->GetNanoSuit() && pPlayer->GetNanoSuit()->GetCloak()->GetState() != 0))
 						{
 							float length = vTransformed.GetLength();
-							if(length < 20.0f)
+							if (length < 20.0f)
 							{
-								if(length < 0.1f)
+								if (length < 0.1f)
 									length = 0.1f;
 								const int cLenThres = (int)(100.0f / length);
-								if(m_iMultiplayerEnemyNear < cLenThres)
+								if (m_iMultiplayerEnemyNear < cLenThres)
 									m_iMultiplayerEnemyNear = cLenThres;
 							}
 						}
 					}
-					if(!scannedEnemy && !mate)
+					if (!scannedEnemy && !mate)
 						continue;
 				}
 				else
 				{
 					IVehicle *pVehicle = m_pVehicleSystem->GetVehicle(pEntity->GetId());
-					if(pVehicle && !pVehicle->GetDriver())
+					if (pVehicle && !pVehicle->GetDriver())
 					{
 						int team = g_pGame->GetGameRules()->GetTeam(pEntity->GetId());
-						if(team == 0)
+						if (team == 0)
 							friendly = ENeutral;
-						else if(team == clientTeam)
+						else if (team == clientTeam)
 							friendly = EFriend;
 						else
 							friendly = EEnemy;
@@ -941,25 +893,14 @@ void CHUDRadar::UpdateRadarEntities(CActor *pActor, float &fRadius, Matrix34 &pl
 			//**********************************************************************************************
 
 			//requested by Sten : teammates should be more transparent
-			
-			//Crysis Co-op :: players should be more visible than AI allies
-			//if(mate)
-				//fAlpha *= 0.50f;
-			if(mate)
-			{
-				if (pActor->IsPlayer())
-					fAlpha = 1.f;
-				else
-					fAlpha *= 0.50f;
-			}
-
-			//~Crysis Co-op
+			if (mate)
+				fAlpha *= 0.50f;
 
 			//draw entity
 			float lowerBoundY = m_fY - fRadarSizeOverTwo;
 			float dimX = (m_fX + fRadarSizeOverTwo) - lowerBoundX;
 			float dimY = (m_fY + fRadarSizeOverTwo) - lowerBoundY;
-			numOfValues += ::FillUpDoubleArray(entityValues, pEntity->GetId(), ChooseType(pEntity, true), (fX - lowerBoundX) / dimX, (fY - lowerBoundY) / dimY, 180.0f+RAD2DEG(fAngle), friendly, sizeScale*25.0f, fAlpha*100.0f);
+			numOfValues += ::FillUpDoubleArray(entityValues, pEntity->GetId(), ChooseType(pEntity, true), (fX - lowerBoundX) / dimX, (fY - lowerBoundY) / dimY, 180.0f + RAD2DEG(fAngle), friendly, sizeScale*25.0f, fAlpha*100.0f);
 		}
 	}
 }
@@ -1062,13 +1003,8 @@ void CHUDRadar::UpdateCompassStealth(CActor *pActor, float fDeltaTime)
 		m_fLastFov = fFov;
 	}
 
-	//Crysis Co-op
-	//if(gEnv->bMultiplayer)	//shows the player coordinates in MP
-	const char* gameRulesName = g_pGame->GetGameRules()->GetEntity()->GetClass()->GetName();
-
-	if(gEnv->bMultiplayer && strcmp(gameRulesName, "Coop") != 0)	//shows the player coordinates in MP ( but not in coop )
+	if(gEnv->bMultiplayer)	//shows the player coordinates in MP
 	{
-		//~Crysis Co-op
 		float fX, fY;
 		fX = fY = -1;
 		GetPosOnMap(pPlayerEntity, fX, fY);
@@ -2164,11 +2100,8 @@ void CHUDRadar::RenderMapOverlay()
 		}
 	}
 
-	//.. and mission objectives
-	//Crysis Co-op
 	const char* gameRulesName = g_pGame->GetGameRules()->GetEntity()->GetClass()->GetName();
-	if(!gEnv->bMultiplayer || strcmp(gameRulesName, "Coop") == 0)
-	//~Crysis Co-op
+	if(!gEnv->bMultiplayer)
 	{
 		std::map<EntityId, RadarObjective>::const_iterator it = m_missionObjectives.begin();
 		std::map<EntityId, RadarObjective>::const_iterator end = m_missionObjectives.end();
@@ -2183,7 +2116,6 @@ void CHUDRadar::RenderMapOverlay()
 			}
 		}
 	}
-
 
 	ComputePositioning(vPlayerPos, &entityValues);
 

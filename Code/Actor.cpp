@@ -3307,11 +3307,6 @@ IMPLEMENT_RMI(CActor, ClPlayReadabilitySound)
 	{
 		int sFlags = FLAG_SOUND_DEFAULT_3D | FLAG_SOUND_START_PAUSED | FLAG_SOUND_VOICE;
 		int soundID = pSoundProxy->PlaySoundEx(params.sSoundEventName, Vec3(ZERO), FORWARD_DIRECTION, sFlags, 1.0f, 2.0f, 5.0f, eSoundSemantic_Dialog);
-	
-		if (soundID == INVALID_SOUNDID) 
-		{
-			CryLogAlways("[Coop] Sound:PlaySound - Can't play sound");
-		}
 
 		ISound* pSound = gEnv->pSoundSystem->GetSound( soundID );
 		if (pSound)

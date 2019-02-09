@@ -219,10 +219,9 @@ function Player:RegisterAI()
 	AI.RegisterWithAI(self.id, AIOBJECT_PLAYER, self.Properties, self.PropertiesInstance);
 end
 
-function Player:UnRegisterAI()
+function Player:UnregisterAI()
 	AI.RegisterWithAI(self.id, 0, self.Properties, self.PropertiesInstance);
 end
-
 
 function Player:SetModel(model, arms, frozen, fp3p)
 	if (model) then

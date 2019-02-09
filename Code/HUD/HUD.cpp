@@ -765,9 +765,7 @@ void CHUD::GameRulesSet(const char* name)
 
   if(gEnv->bMultiplayer)
   {
-    if(!stricmp(name, "Coop"))
-		gameRules = EHUD_COOP;
-    else if(!stricmp(name, "InstantAction"))
+    if(!stricmp(name, "InstantAction"))
       gameRules = EHUD_INSTANTACTION;
     else if(!stricmp(name, "PowerStruggle"))
       gameRules = EHUD_POWERSTRUGGLE;
@@ -1465,11 +1463,6 @@ void CHUD::HandleFSCommand(const char *szCommand,const char *szArgs)
 	}
 	else if(!strcmp(szCommand, "Autojoin"))
 	{
-		if (m_currentGameRules == EHUD_COOP)
-		{
-			gEnv->pConsole->ExecuteString("join_game");
-		}
-
 		if (CGameRules *pGameRules=g_pGame->GetGameRules())
 		{
 			int lt=0;
@@ -2610,7 +2603,7 @@ void CHUD::ShowObjectives(bool bShow)
 	}
 
 	//Crysis Co-op
-	if(!gEnv->bMultiplayer || m_currentGameRules == EHUD_COOP)
+	if(!gEnv->bMultiplayer)
 		ShowPDA(bShow, false);
 	//~Crysis Co-op
 }
@@ -4433,7 +4426,7 @@ void CHUD::UpdateObjective(CHUDMissionObjective *pObjective)
 		m_pHUDRadar->UpdateMissionObjective(pObjective->GetTrackedEntity(), active, pObjective->GetMapLabel(), pObjective->IsSecondary());
 	}
 
-	if(!gEnv->bMultiplayer || m_currentGameRules == EHUD_POWERSTRUGGLE || m_currentGameRules == EHUD_COOP) //in multiplayer the objectives are set in the miniMap only
+	if(!gEnv->bMultiplayer || m_currentGameRules == EHUD_POWERSTRUGGLE) //in multiplayer the objectives are set in the miniMap only
 	{
 		m_animObjectivesTab.Invoke("resetObjectives");
 		THUDObjectiveList::iterator it = m_hudObjectivesList.begin();
@@ -4846,45 +4839,6 @@ void CHUD::LoadGameRulesHUD(bool load)
       m_animObjectivesTab.Unload();
 //      m_animTargetter.Unload();
     }
-    break;
-  case EHUD_COOP:
-	  if (load)
-	  {
-		  if(!m_animObjectivesTab.IsLoaded())
-		  {
-			  m_animObjectivesTab.Load("Libs/UI/HUD_MissionObjectives.gfx", eFD_Left, eFAF_Visible);
-			  m_animObjectivesTab.Invoke("showObjectives", "noAnim");
-			  m_animObjectivesTab.SetVisible(false);
-		  }
-		  if (m_animHexIcons.IsLoaded())
-		  {
-			  m_animHexIcons.Unload();
-		  }
-
-		  if (!m_animHexIcons.IsLoaded())
-		  {
-			  m_animHexIcons.Load("Libs/UI/HUD_SP_HexIcons.gfx", eFD_Left, eFAF_Visible);
-		  }
-		  if(!m_animChat.IsLoaded())
-		  {
-			m_animChat.Load("Libs/UI/HUD_ChatSystem.gfx", eFD_Left);
-					if(m_pHUDTextChat)
-						m_pHUDTextChat->Init(&m_animChat);
-		  }
-		  if(!m_animVoiceChat.IsLoaded())
-			m_animVoiceChat.Load("Libs/UI/HUD_MultiPlayer_VoiceChat.gfx", eFD_Right, eFAF_ThisHandler);
-		  if(!m_animBattleLog.IsLoaded())
-			m_animBattleLog.Load("Libs/UI/HUD_MP_Log.gfx", eFD_Left);
-	  }
-	  else
-	  {
-		  m_animObjectivesTab.Unload();
-				if(m_pHUDTextChat)
-					m_pHUDTextChat->Init(0);
-		  m_animChat.Unload();
-		  m_animVoiceChat.Unload();
-		  m_animBattleLog.Unload();
-	  }
     break;
   case EHUD_INSTANTACTION:
     if(load)
