@@ -1,13 +1,10 @@
-//#ifndef _CoopSystem_H_
-//#define _CoopSystem_H_
-
 #include <ILevelSystem.h>
 
 class nCX_AI
 	: public ILevelSystemListener
 {
 private:
-	// Static CCoopSystem class instance forward declaration.
+	// Static class instance forward declaration.
 	static nCX_AI s_instance;
 
 	nCX_AI();
@@ -45,8 +42,14 @@ public:
 	virtual void OnLoadingProgress(ILevelInfo *pLevel, int progressAmount) { };
 	// ~ILevelSystemListener
 
+
+	static void ReSpawn(IEntity *pEntity) { nCX_AI ai; ai.ReSpawnEntity(pEntity); };
+
 private:
-	int					m_nInitialized;
+	
+	void ReSpawnEntity(IEntity *pEntity);
+	
+	int	m_nInitialized;
 
 	IEntityClass* m_pEntityClassPlayer;
 	IEntityClass* m_pEntityClassGrunt;
@@ -55,8 +58,4 @@ private:
 	IEntityClass* m_pEntityClassTrooper;
 	IEntityClass* m_pEntityClassHunter;
 
-private:
-
 };
-
-//#endif // _CoopSystem_H_

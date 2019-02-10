@@ -104,3 +104,17 @@ void nCX_AI::OnLoadingComplete(ILevel *pLevel)
 	gEnv->pAISystem->Reset(IAISystem::RESET_ENTER_GAME);
 	gEnv->bMultiplayer = true;
 }
+
+void nCX_AI::ReSpawnEntity(IEntity *pEntity)
+{
+	SEntitySpawnParams spawnParams;
+	spawnParams.pArchetype = pEntity->GetArchetype();
+	spawnParams.sName = pEntity->GetName();
+	spawnParams.vPosition = pEntity->GetPos(); //Temporary - change it to first spawn pos
+	spawnParams.vPosition.z = spawnParams.vPosition.z + 100;
+	spawnParams.qRotation = pEntity->GetRotation();
+	spawnParams.nFlags = pEntity->GetFlags();// ENTITY_FLAG_SPAWNED | ENTITY_FLAG_NET_PRESENT | ENTITY_FLAG_CASTSHADOW;
+	//After filling params remove dead entity and respawn it
+	gEnv->pEntitySystem->RemoveEntity(pEntity->GetId(), false);
+	gEnv->pEntitySystem->SpawnEntity(spawnParams);
+}

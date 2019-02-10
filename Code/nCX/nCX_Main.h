@@ -19,13 +19,13 @@ public:
 	//Event overrides
 	static void ClientConnect(CActor *pActor, int channelId, bool reset) { nCX con; con.OnClientConnect(pActor, channelId, reset); };
 	static void ClientDisconnect(CActor *pActor, int channelId, const char *desc) { nCX dcon; dcon.OnClientDisconnect(pActor, channelId, desc); };
-	static void CheatDetected(EntityId entityId, const char* cheat, const char* info, bool sure) { nCX ch; ch.OnCheatDetected(entityId, cheat, info, sure); };
 	static bool ChatMessage(int channelId, int sourceId, int type, string msg) { nCX chat; return chat.OnChatMessage(channelId, sourceId, type, msg); };
 	static bool RadioMessage(int channelId, int sourceId, int msg) { nCX chat; return chat.OnRadioMessage(channelId, sourceId, msg); };
 	static void TeamChange(int channelId, int entityId, int teamId) { nCX team; return team.OnChangeTeam(channelId, entityId, teamId); };
 	static void ChangeSpectatorMode(int channelId, int entityId, int targetId, int mode, bool resetAll) { nCX spec; spec.OnChangeSpectatorMode(channelId, entityId, targetId, mode, resetAll); };
 	static void SimpleHit(int channelId, int shooterId, int targetId, int type, float value, int weaponId) { nCX hit;  hit.OnSimpleHit(channelId, shooterId, targetId, type, value, weaponId); }
 	static void Hit(HitInfo params, int channelId) { nCX hi; hi.OnHit(params, channelId); };
+	static void LogFile(const char* which, const char* msg) { nCX log; log.LogToFile(which, msg); };
 	//Functions
 	string					CensorCheck(string msg);
 	virtual void			MsgFromChatEntity(int ent, int channelId, const char *msg);
@@ -36,10 +36,9 @@ public:
 	virtual void			GetCountry(int channelId, string &country, string &shortc);
 	virtual const char*		GetPort(int channelId);
 	virtual const char*		GetHostName(int channelId);
-	virtual void			OnCheatDetected(EntityId entityId, const char* cheat, const char* info, bool sure);
 	virtual bool			BanPlayer(int channelId, int time, const char* Reason, const char* BannedBy);
 	virtual bool			UnbanPlayer(int index, const char* UnbannedBy);
-	virtual bool			LogToFile(const char* which, const char* msg, bool console = false);
+	virtual bool			LogToFile(const char* which, const char* msg);
 	virtual void			LogToConsole(const char* msg, int channelId = 0, bool toOther = false);
 	virtual void			SaveBanList(const char* line = "");
 	virtual void			ClientPacket(int channelId, const char* msg);

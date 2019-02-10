@@ -251,11 +251,8 @@ bool nCX::UnbanPlayer(int index, const char* UnbannedBy)
 
 }
 
-bool nCX::LogToFile(const char* which, const char* msg, bool console)
+bool nCX::LogToFile(const char* which, const char* msg)
 {
-	if (console)
-		CryLogAlways("[Umbra %s] %s", which, msg);
-
 	string file;
 	FILE * pLog = fopen(file.Format("%s%s.log", m_LogRoot.c_str(), which).c_str(), "a");
 	if (pLog != NULL)

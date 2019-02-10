@@ -8,6 +8,7 @@
 **********************************************************/
 #include "StdAfx.h"
 #include "nCX_Main.h"
+#include "nCX_AntiCheat.h"
 #include "GameRules.h"
 #include "GameCvars.h"
 #include "Weapon.h"
@@ -37,7 +38,7 @@ bool nCX::OnChatMessage(int channelId, int sourceId, int type, string msg)
 			EntityId entId = pActor->GetEntityId();
 			if (sourceId == 0)
 			{
-				OnCheatDetected(entId, "Chat Manipulation", "SourceId == 0", true);
+				nCX_Anticheat::CheatDetected(entId, "Chat Manipulation", "SourceId == 0", true);
 				return true;
 			}
 
@@ -47,7 +48,7 @@ bool nCX::OnChatMessage(int channelId, int sourceId, int type, string msg)
 
 			if (channelId != pSource->GetChannelId())
 			{
-				OnCheatDetected(entId, "RMI Manipulation", "RMI:CGameRules:SvRequestChatMessage", true);
+				nCX_Anticheat::CheatDetected(entId, "RMI Manipulation", "RMI:CGameRules:SvRequestChatMessage", true);
 				return true;
 			}
 
@@ -190,7 +191,7 @@ bool nCX::OnChatMessage(int channelId, int sourceId, int type, string msg)
 			{
 					   //Client can't send msg directly to other client so it's some kind of manipulation, ban him hard:)
 					   string info;
-					   OnCheatDetected(entId, "Chat Manipulation", info.Format("%d", type).c_str(), true);
+					   nCX_Anticheat::CheatDetected(entId, "Chat Manipulation", info.Format("%d", type).c_str(), true);
 			}
 				break;
 			}
@@ -207,7 +208,7 @@ bool nCX::OnRadioMessage(int channelId, int sourceId, int msg)
 		{
 			if (sourceId == 0)
 			{
-				OnCheatDetected(pActor->GetEntityId(), "RMI Manipulation", "0", true);
+				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Manipulation", "0", true);
 				return true;
 			}
 
@@ -217,7 +218,7 @@ bool nCX::OnRadioMessage(int channelId, int sourceId, int msg)
 
 			if (channelId != pSource->GetChannelId())
 			{
-				OnCheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestRadioMessage", true);
+				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestRadioMessage", true);
 				return true;
 			}
 
@@ -263,7 +264,7 @@ void nCX::OnChangeTeam(int channelId, int entityId, int teamId)
 
 		if (channelId != pTarget->GetChannelId() || !pRules->GetTeamName(teamId))
 		{
-			OnCheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestChangeTeam", true);
+			nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestChangeTeam", true);
 			return;
 		}
 		pRules->ChangeTeam(pActor, teamId);
@@ -281,7 +282,7 @@ void nCX::OnChangeSpectatorMode(int channelId, int entityId, int targetId, int m
 
 		if (channelId != pActor->GetChannelId() || mode > 3)
 		{
-			OnCheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestSpectatorMode", true);
+			nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestSpectatorMode", true);
 			return;
 		}
 		pRules->ChangeSpectatorMode(pActor, mode, targetId, resetAll);
@@ -300,7 +301,7 @@ void nCX::OnSimpleHit(int channelId, int shooterId, int targetId, int type, floa
 
 		if (channelId != pShooter->GetChannelId())
 		{
-			OnCheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestSimpleHit", true);
+			nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Manipulation", "RMI:CGameRules:SvRequestSimpleHit", true);
 			return;
 		}
 		switch (type)
@@ -337,7 +338,7 @@ void nCX::OnSimpleHit(int channelId, int shooterId, int targetId, int type, floa
 										IEntityClass *pClass = pItem->GetEntity()->GetClass();
 										if (pClass != CItem::sAlienMountClass && pClass != CItem::sMOARClass && pClass != CItem::sVehicleMOARMounted && pClass != CItem::sVehicleMOAR)
 										{
-											OnCheatDetected(pActor->GetEntityId(), "Freeze", pClass->GetName(), true);
+											nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Freeze", pClass->GetName(), true);
 											return;
 										}
 										//Teamfire check
@@ -359,7 +360,7 @@ void nCX::OnSimpleHit(int channelId, int shooterId, int targetId, int type, floa
 									else
 									{
 										string info;
-										OnCheatDetected(pActor->GetEntityId(), "Freeze", info.Format("BeamRange = %.1f, Distance = %.1f", beamRange, distance).c_str(), true);
+										nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Freeze", info.Format("BeamRange = %.1f, Distance = %.1f", beamRange, distance).c_str(), true);
 									}
 								}
 							}
@@ -370,7 +371,7 @@ void nCX::OnSimpleHit(int channelId, int shooterId, int targetId, int type, floa
 		default:
 		{
 				   string info;
-				   OnCheatDetected(pActor->GetEntityId(), "SimpleHit Manipulation", info.Format("%d", type).c_str(), true);
+				   nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "SimpleHit Manipulation", info.Format("%d", type).c_str(), true);
 		}
 			break;
 		}
@@ -382,47 +383,5 @@ void nCX::OnHit(HitInfo params, int channelId)
 	if (CGameRules *pRules = g_pGame->GetGameRules())
 	{
 		pRules->ServerHit(params);
-	}
-}
-
-void nCX::OnCheatDetected(EntityId entityId, const char* cheat, const char* info, bool sure)
-{
-	ICVar *pCVar = gEnv->pConsole->GetCVar("time_scale");
-	int scale = pCVar->GetFVal();
-	if (scale == 1.0f)
-	{
-		if (CActor *pActor = g_pGame->GetGameRules()->GetActorByEntityId(entityId))
-		{
-			bool lagging = pActor->m_IsLagging;
-			if (lagging && !sure && cheat != "RMI Flood")
-				return;
-
-			string msg;
-			msg.Format("Detected %s for player %s : %s", cheat, pActor->GetEntity()->GetName(), info);
-			if (!sure)
-			{
-				string status;
-				int ping = 0;
-				g_pGame->GetSynchedStorage()->GetEntityValue(entityId, 103, ping);
-				if (lagging)
-					status.Format(" (%d | HighLatency %d)", g_pGame->m_ServerPerformance, ping);
-				else
-					status.Format(" (%d | Ping %d)", g_pGame->m_ServerPerformance, ping);
-
-				msg.append(status.c_str());
-			}
-			LogToFile("Action", msg.c_str());
-			/*if (IScriptSystem *pScript = gEnv->pScriptSystem) //Lua
-			{
-s				pScript->BeginCall(m_nCXLuaTab, "CheatControl");
-				pScript->PushFuncParam(m_nCXLuaTab);
-				pScript->PushFuncParam(pActor->GetEntity()->GetScriptTable());
-				pScript->PushFuncParam(cheat);
-				pScript->PushFuncParam(info);
-				pScript->PushFuncParam(lagging);
-				pScript->PushFuncParam(sure);
-				pScript->EndCall();
-			}*/
-		}
 	}
 }

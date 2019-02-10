@@ -41,6 +41,10 @@ void AI_Trooper::RegisterMultiplayerAI()
 		gEnv->pScriptSystem->PushFuncParam(pScriptTable);
 		gEnv->pScriptSystem->EndCall(pScriptTable);
 		gEnv->bMultiplayer = true;
+		//Respawn AI!
+		CryLogAlways("ReSpawning dead %s", GetEntity()->GetName());
+		nCX_AI::ReSpawn(GetEntity());
+
 	}
 	else if (!GetEntity()->GetAI() && GetHealth() > 0)
 	{

@@ -17,7 +17,7 @@
 #include "GameRules.h"
 #include "Player.h"
 #include <IVehicleSystem.h>
-#include "nCX/nCX_Main.h"
+#include "nCX/nCX_Anticheat.h"
 
 #define CHECK_OWNER_REQUEST()	\
 	{ \
@@ -385,7 +385,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 				{
 					if (currTime - pActor->m_WeaponCheatDelay > 3.0f) //CTAO added the same here
 					{
-						nCX::CheatDetected(pActor->GetEntityId(), "Longpoke", "seq", true);
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Longpoke", "seq", true);
 						pActor->m_WeaponCheatDelay = currTime + 10.0f;
 					}
 					return true;
@@ -401,6 +401,8 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 					//Shoot Pos Spoof
 					if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
 					{
+						nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime);
+						
 						float Treshold = 50.0f;
 						float Distance = (pActor->GetEntity()->GetWorldPos() - params.pos).len2();
 						if (Distance > 0.0f)
@@ -418,7 +420,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 							if (currTime - pActor->m_WeaponCheatDelay > 3.0f)
 							{
 								string info;
-								nCX::CheatDetected(pActor->GetEntityId(), "Shoot Pos", info.Format("%.2fm", Distance).c_str(), false);
+								nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Shoot Pos", info.Format("%.2fm", Distance).c_str(), false);
 								pActor->m_WeaponCheatDelay = currTime + 10.0f;
 							}
 							return true;
@@ -433,7 +435,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 						float rate = pFireMode->GetFireRate();
 						if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
 						{
-							nCX::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
+							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
 							CryLogAlways("[AntiCheat] Rapid Fire: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
 							m_FireCheck = 0;
 							pActor->m_WeaponCheatDelay = currTime + 3.0f;
@@ -466,7 +468,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 									else
 										info.Format("%s", pClass->GetName());
 
-									nCX::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
+									nCX_Anticheat::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
 									m_RecoilWarning = 0;
 									return true;
 								}
@@ -494,7 +496,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 							if (((pClass == sMOARClass || pClass == sVehicleMOARMounted) && m_CoolDownCheck == 13) || ((pClass == sShiTenClass || pClass == sAsianCoaxialGun || pClass == sVehicleShiTenV2) && m_CoolDownCheck == 90) || (pClass == sUSCoaxialGun_VTOL && m_CoolDownCheck == 62))
 							{
 								string info;
-								nCX::CheatDetected(pActor->GetEntityId(), "Weapon Cooldown", pClass->GetName(), false);
+								nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Cooldown", pClass->GetName(), false);
 								m_FireControl = true;
 							}
 						}
@@ -583,7 +585,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 						if (gEnv->pTimer->GetCurrTime() - pActor->m_WeaponCheatDelay > 3.0f)
 						{
 							string info;
-							nCX::CheatDetected(pActor->GetEntityId(), "ShootEx Pos", info.Format("%.2fm", Distance).c_str(), false);
+							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "ShootEx Pos", info.Format("%.2fm", Distance).c_str(), false);
 							pActor->m_WeaponCheatDelay = gEnv->pTimer->GetCurrTime() + 10.0f;
 						}
 						return true;
@@ -595,7 +597,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 						float rate = pFireMode->GetFireRate();
 						if (rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f)))))
 						{
-							nCX::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
+							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
 							CryLogAlways("[AntiCheat] Rapid Fire Ex: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
 							m_FireCheck = 0;
 							return true;
