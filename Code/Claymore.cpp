@@ -1,16 +1,15 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2007.
--------------------------------------------------------------------------
-$Id:$
-$DateTime$
-Description:  Claymore mine implementation
--------------------------------------------------------------------------
-History:
-- 07:2:2007   12:34 : Created by Steve Humphreys
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Charge.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 02/2007   :   Created by Steve Humphreys
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
-
 #include "StdAfx.h"
 #include "Claymore.h"
 #include "Game.h"
@@ -19,11 +18,9 @@ History:
 #include "HUD/HUD.h"
 #include "Item.h"
 #include "Player.h"
-
 #include "IEntityProxy.h"
 #include "IRenderAuxGeom.h"
 
-//------------------------------------------------------------------------
 CClaymore::CClaymore()
 : m_triggerDirection(0, 0, 0)
 , m_triggerAngle(0.0f)
@@ -35,7 +32,6 @@ CClaymore::CClaymore()
 {
 }
 
-//------------------------------------------------------------------------
 CClaymore::~CClaymore()
 {
 	if(gEnv->bMultiplayer && gEnv->bServer)

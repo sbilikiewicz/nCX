@@ -1,12 +1,15 @@
-----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------
 --  Crytek Source File.
---  Copyright (C), Crytek Studios, 2001-2004.
-----------------------------------------------------------------------------------------------------
---  Description: Common functions for actors (players, AIs..)
-----------------------------------------------------------------------------------------------------
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  BasicActor.lua
+--  Common functions for actors (players, AIs..)
+----------------------------------------------------------------------
 --  History:
---  20:10:2004 : Created by Filippo De Luca
-----------------------------------------------------------------------------------------------------
+--  10/2004  :  Created by Filippo De Luca
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
 
 HOSTAGE_UNTIE = 5;
 
@@ -971,15 +974,14 @@ function BasicActor:GetSelfCollisionMult(collider, hit)
 		-- static geometry -> use self collision damping
 		return self.selfCollisionDamageMult or 1;  
 	end
-
 	if(collider and collider.vehicle) then
-		if(g_gameRules:IsMultiplayer()) then
-			return self.vehicleCollisionDamageMultMP or 1;
-		else
+		--sbilikiewicz : use same mult for all games
+        --if(g_gameRules:IsMultiplayer()) then
+		--	return self.vehicleCollisionDamageMultMP or 1;
+		--else
 			return self.vehicleCollisionDamageMult or 1;
-		end
+		--end
 	end
-
 	return self.entityCollisionDamageMult or 1;
 end
 

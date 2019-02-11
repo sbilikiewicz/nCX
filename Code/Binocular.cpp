@@ -1,22 +1,20 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 18:12:2005   14:01 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Binocular.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 12/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "Binocular.h"
 #include "GameActions.h"
-
 #include <IActorSystem.h>
 #include <IMovementController.h>
-
 #include "Game.h"
 #include "HUD/HUD.h"
 #include "HUD/HUDScopes.h"

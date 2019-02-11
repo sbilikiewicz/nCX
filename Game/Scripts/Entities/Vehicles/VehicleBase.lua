@@ -1,14 +1,15 @@
---------------------------------------------------------------------------
---	Crytek Source File.
--- 	Copyright (C), Crytek Studios.
---------------------------------------------------------------------------
---	Description: Common code for all/most of the vehicle implementations
---  
---------------------------------------------------------------------------
+----------------------------------------------------------------------
+--  Crytek Source File.
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  VehicleBase.lua
+--  Common code for most of the vehicle implementations
+----------------------------------------------------------------------
 --  History:
---  - 11/2004       : Created by Mathieu Pinard
---  - 02/2019       : Edited and optimized by MrTusk
---------------------------------------------------------------------------
+--  11/2004  :  Created by Mathieu Pinard
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
 Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/Entities/Vehicles/VehicleSeat.lua");
 
@@ -80,7 +81,8 @@ function GetNextAvailableSeat(seats)
 end
 
 function VehicleBase:ApplyMaterial(strMat, bIncludeCharacters)  
-  Log("VehicleBase:ApplyMaterial is deprecated!");
+-- sbilikiewicz commented
+--  Log("VehicleBase:ApplyMaterial is deprecated!");
 end
 
 function VehicleBase:InitSeats()
@@ -188,8 +190,8 @@ function VehicleBase:MountEntity(a_className, transformTable, propertiesTable) -
 		  useText = transformTable.useText,
 		};		
 		
-	else
-		Log("Couldn't spawn the child entity attachment");
+	--else sbilikiewicz removed
+	--	Log("Couldn't spawn the child entity attachment");
 	end
 
 	return spawnedEntity
@@ -211,10 +213,8 @@ end
 --------------------------------------------------------------------------
 function VehicleBase:DestroyVehicleBase()	
 	--Log("DestroyVehicleBase()");
-
 	--self:DestroyMountedWeapons();	
 	self:DestroyCarriage();
-	
 	if (self.DestroyAI) then
 	  self:DestroyAI();
 	end		
@@ -223,7 +223,8 @@ end
 --------------------------------------------------------------------------
 function VehicleBase:GetExitPos(seatId)
 	if (self.Seats[seatId] == nil) then
-		Log("VehicleBase:GetExitPos(seatId) - Invalid seat id: "..tostring(seatId))
+		--sbilikiewicz removed
+        --Log("VehicleBase:GetExitPos(seatId) - Invalid seat id: "..tostring(seatId))
 		return;
 	end 
 
@@ -243,10 +244,10 @@ end
 --------------------------------------------------------------------------
 function VehicleBase:GetSeatPos(seatId)
 	if (seatId == -1) then
-		Log("Error: VehicleBase:GetSeatPos(seatId) - seatId -1 is invalid");
+		--sbilikiewicz removed
+        --Log("Error: VehicleBase:GetSeatPos(seatId) - seatId -1 is invalid");
 		return {x=0, y=0, z=0,};
 	else
-		
 		local helper = self.Seats[seatId].enterHelper;
 		local pos;
 		if (self.vehicle:HasHelper(helper)) then		  
@@ -254,9 +255,6 @@ function VehicleBase:GetSeatPos(seatId)
 		else		  
 		  pos = self:GetHelperPos(helper, HELPER_WORLD);		  
 		end
-		
-		--Log("GetSeatPos: "..helper..": "..Vec2Str(pos));
-	  
 		return pos;
 	end
 end
@@ -596,13 +594,11 @@ end
 
 --------------------------------------------------------------------------
 function VehicleBase:EnterVehicle(passengerId, seatId, isAnimationEnabled)
-	--Log("VehicleBase:EnterVehicle() - playerId = %s, seatId = %s", tostring(passengerId), tostring(seatId));
 	return self.vehicle:EnterVehicle(passengerId, seatId, isAnimationEnabled);
 end
 
 --------------------------------------------------------------------------
 function VehicleBase:LeaveVehicle(passengerId, fastLeave)
-	--Log("VehicleBase:LeaveVehicle() - "..tostring(passengerId));
 	if AI then AI.Signal(SIGNALFILTER_SENDER,0,"exited_vehicle",passengerId) end;
 	return self.vehicle:ExitVehicle(passengerId);
 end
@@ -755,24 +751,19 @@ end
 
 --------------------------------------------------------------------------
 function VehicleBase:LoadXML()
-  
   -- this loads the entity table from xml
-        
   local dataTable = VehicleSystem.LoadXML(self.class);
-  
   if (dataTable) then      
     -- only seats needed
     if (dataTable.Seats) then
       self.Seats = new(dataTable.Seats);    
     end
-  else
-    Log("[VehicleBase:LoadXML] dataTable nil!");
+  --else --sbilikiewicz removed
+  --  Log("[VehicleBase:LoadXML] dataTable nil!");
     return false;
   end    
-  
   return true;  
 end
-
 
 ----------------------------------------------------------------------------------------------------
 function VehicleBase:GetFrozenSlot()
@@ -803,7 +794,13 @@ function VehicleBase.Server:OnHit(hit)
 		direction.y = -direction.y;
 		direction.z = -direction.z;
 	end
-	
+    --sbilikiewicz Debug
+    if (AI) then
+	    System.LogAlways("VehicleBase.Server:OnHit AI exists !");
+    else
+        System.LogAlways("VehicleBase.Server:OnHit AI doesnt exist !");
+    end
+    
 	-- SP only
 	if(g_localActorId and self:GetSeat(g_localActorId)) then
 		HUD.DamageIndicator(hit.weaponId, hit.shooterId, direction, true);
@@ -845,27 +842,25 @@ end
 
 --------------------------------------------------------------------------
 function VehicleBase:OnActorRequestToSit(seatId, passengerId)
-	--Log("VehicleBase:OnActorRequestToSit() - seatId=%s, passengerId=%s", tostring(seatId), tostring(passengerId));
 end
 
 --------------------------------------------------------------------------
 function VehicleBase:OnActorRequestToSitCancelled(seatId, passengerId)
-	--Log("VehicleBase:OnActorRequestToSitCancelled() - seatId=%s, passengerId=%s", tostring(seatId), tostring(passengerId));
 end
 
 --------------------------------------------------------------------------
 function VehicleBase:OnActorSitDown(seatId, passengerId)
-	--Log("VehicleBase:OnActorSitDown() seatId=%s, passengerId=%s", tostring(seatId), tostring(passengerId));
-	
 	local passenger = System.GetEntity(passengerId);
 	if (not passenger) then
-		Log("Error: entity for player id <%s> could not be found. %s", tostring(passengerId));
+		--sbilikiewicz removed
+        --Log("Error: entity for player id <%s> could not be found. %s", tostring(passengerId));
 		return;
 	end
 	
 	local seat = self.Seats[seatId];
 	if (not seat) then
-		Log("Error: entity for player id <%s> could not be found!", tostring(passengerId));
+		--sbilikiewicz removed
+        --Log("Error: entity for player id <%s> could not be found!", tostring(passengerId));
 		return;
 	end
 	
@@ -956,10 +951,12 @@ end
 --------------------------------------------------------------------------
 function VehicleBase:OnActorChangeSeat(passengerId, exiting)
 	-- ai specific
-	Log("ai changed a seat");
+	--sbilikiewicz removed
+    --Log("ai changed a seat");
 	local seat = self:GetSeat(passengerId);
 	if (not seat) then
-		Log("Error: VehicleBase:OnActorChangeSeat() could not find passenger id %s on the vehicle", tostring(passengerId));
+		--sbilikiewicz removed
+        --Log("Error: VehicleBase:OnActorChangeSeat() could not find passenger id %s on the vehicle", tostring(passengerId));
 		return;
 	end
 
@@ -993,11 +990,10 @@ end
 
 --------------------------------------------------------------------------
 function VehicleBase:OnActorStandUp(passengerId, exiting)
-	--Log("VehicleBase:OnActorStandUp() - passengerId=%s", tostring(passengerId));
-	
 	local seat = self:GetSeat(passengerId);
 	if (not seat) then
-		Log("Error: VehicleBase:OnActorStandUp() could not find passenger id %s on the vehicle", tostring(passengerId));
+		--sbilikiewicz removed
+        --Log("Error: VehicleBase:OnActorStandUp() could not find passenger id %s on the vehicle", tostring(passengerId));
 		return;
 	end
 	
@@ -1099,23 +1095,16 @@ end
 
 --------------------------------------------------------------------------
 function VehicleBase:GetSelfCollisionMult(collider, hit)  
-  
   local mult = 1;
-  
   mult = self.vehicle:GetSelfCollisionMult(hit.velocity, hit.normal, hit.partId or -1, hit.target_id or NULL_ENTITY);
-  
   return mult;
 end
 
 --------------------------------------------------------------------------
 function VehicleBase:GetForeignCollisionMult(entity, hit)  
-  
   local mult = 1;
-  
   if (entity.vehicle) then 
-   
     -- vehicle/vehicle collision
-    
     local mass = self:GetMass()    
     local entityMass = entity:GetMass();
     local speedSq = vecLenSq(hit.target_velocity);
@@ -1125,11 +1114,11 @@ function VehicleBase:GetForeignCollisionMult(entity, hit)
       -- reduce damage for collisions with large mass ratios, to avoid instant-killing
       local ratio = 1 + (0.35*__min(10, mass/entityMass))*(__min(1, speedSq/sqr(10)));
       mult = 1/ratio;
-      
-  	  local debug = g_gameRules and g_gameRules.game:DebugCollisionDamage() or 0;
-  	  if ((mult < 0.99 and debug > 0) or debug > 2) then
-  	    Log("vehicle/vehicle (%s <- %s), coll, mult: %.2f", entity:GetName(), self:GetName(), mult);
-  	  end  	 	  
+      --sbilikiewicz removed
+  	  --local debug = g_gameRules and g_gameRules.game:DebugCollisionDamage() or 0;
+  	  --if ((mult < 0.99 and debug > 0) or debug > 2) then
+  	  --  Log("vehicle/vehicle (%s <- %s), coll, mult: %.2f", entity:GetName(), self:GetName(), mult);
+  	  --end  	 	  
   	end
 	  
 	elseif (entity.actor) then

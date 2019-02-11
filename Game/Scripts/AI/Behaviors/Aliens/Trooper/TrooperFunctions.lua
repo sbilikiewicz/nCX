@@ -1,24 +1,21 @@
---------------------------------------------------------------------------
---	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2004.
---------------------------------------------------------------------------
---	$Id$
---	$DateTime$
---	Description: Trooper AI general functions
---  
---------------------------------------------------------------------------
+----------------------------------------------------------------------
+--  Crytek Source File.
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  TrooperFunctions.lua
+--  Trooper AI general functions
+----------------------------------------------------------------------
 --  History:
---  - 28/4/2007     : Created by Luciano Morpurgo
---  - 07/02/2018    : MrTusk edited
---------------------------------------------------------------------------
+--  04/2004  :  Created by Luciano Morpurgo
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
 
 TROOPER_JUMP_SWITCH_POSITION = 1;
 TROOPER_JUMP_FIRE = 2;
 TROOPER_JUMP_HITBACK = 3;
 TROOPER_JUMP_MELEE = 4;
-
 TROOPER_SAFE_DISTANCE = 15;
-
 TROOPER_DODGE_SIDE_LONG = 0;
 TROOPER_DODGE_SIDE_SHORT = 1;
 TROOPER_DODGE_FORWARD = 2;
@@ -1293,7 +1290,7 @@ function Trooper_ReevaluateShooterTarget(entity,shooter)
 			elseif(shooter == entity.AI.LastEnemyDamaging) then 
 				probability = 100;
 			else	
-				probability = (50-distance*2)+50;--MrTusk
+				probability = (50-distance*2)+50;--sbilikiewicz
 			end			
 			--AI.LogEvent(entity:GetName().." probability = "..probability);
 			if(random(1,100) <= probability ) then 
@@ -1320,7 +1317,7 @@ function Trooper_SetConversation(entity,reset,delay)
 			entity:SetTimer(TROOPER_CONVERSATION_REQUEST_TIMER,delay);
 			--entity:SetTimer(TROOPER_CONVERSATION_CHECK_TIMER,delay+1500);
 		else
-			--MrTusk commented due to no g_localActor in mp
+			--sbilikiewicz commented due to no g_localActor in mp
             --local dist = entity:GetDistance(g_localActor.id);
 			--if(dist and (dist >5  and dist<25)) then 
 				if(not delay) then 

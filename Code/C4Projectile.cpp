@@ -1,17 +1,16 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2007.
--------------------------------------------------------------------------
-$Id:$
-$DateTime$
-Description:  
--------------------------------------------------------------------------
-History:
-- 08:06:2007   : Created by Benito G.R.
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  C4.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 06/2007   :   Benito G.R.
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
-
 #include "C4Projectile.h"
 #include "Player.h"
 #include "GameRules.h"

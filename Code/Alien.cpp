@@ -1,14 +1,14 @@
 /*************************************************************************
   Crytek Source File.
-  Copyright (C), Crytek Studios, 2001-2004.
+  Copyright (C), Crytek Studios.
  -------------------------------------------------------------------------
-  $Id$
-  $DateTime$
-  
+  Alien.cpp
  -------------------------------------------------------------------------
   History:
-  - 6:12:2004: Created by Filippo De Luca
-
+  - 10/2004   :   Created by Filippo De Luca
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "Game.h"
@@ -17,7 +17,6 @@
 #include "GameUtils.h"
 #include "GameActions.h"
 #include "IDebrisMgr.h"
-
 #include <IViewSystem.h>
 #include <IItemSystem.h>
 #include <IPhysics.h>
@@ -26,12 +25,8 @@
 #include <IRenderAuxGeom.h>
 #include <IEffectSystem.h>
 #include <ISound.h>
-
 #include <IDebugHistory.h>
-
 #include "CompatibilityAlienMovementController.h"
-
-// ----------------------------------------------------------------------
 
 CDebrisSpawner::CDebrisSpawner() : m_pAlien (0)
 {

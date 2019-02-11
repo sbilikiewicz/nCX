@@ -1,14 +1,14 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 18:12:2005   14:01 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Alien.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 12/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "AmmoPickup.h"
@@ -21,9 +21,9 @@ History:
 #include <ISound.h>
 
 #define EXPLOSIVE_GRENADE 0
-#define SMOKE_GRENADE			1
-#define FLASHBANG_GRENADE	2
-#define EMP_GRENADE				3
+#define SMOKE_GRENADE	  1
+#define FLASHBANG_GRENADE 2
+#define EMP_GRENADE		  3
 
 //------------------------------------------------------------------------
 void CAmmoPickup::PostInit( IGameObject * pGameObject )

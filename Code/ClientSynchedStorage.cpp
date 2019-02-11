@@ -1,33 +1,28 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2006.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 5:7:2006   16:01 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Charge.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 07/2006   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "ClientSynchedStorage.h"
 #include "ServerSynchedStorage.h"
 
-
-//------------------------------------------------------------------------
 void CClientSynchedStorage::DefineProtocol(IProtocolBuilder *pBuilder)
 {
 	pBuilder->AddMessageSink(this, CServerSynchedStorage::GetProtocolDef(), CClientSynchedStorage::GetProtocolDef());
 }
 
-//------------------------------------------------------------------------
 NET_IMPLEMENT_IMMEDIATE_MESSAGE(CClientSynchedStorage, ResetMsg, eNRT_ReliableOrdered, eMPF_BlocksStateChange)
 {
 	CCryMutex::CLock lock(m_mutex);
-
 	Reset();
-
 	return true;
 }
 

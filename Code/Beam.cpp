@@ -1,14 +1,14 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 19:12:2005   12:10 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Beam.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 12/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "Beam.h"
@@ -19,8 +19,6 @@ History:
 #include <ISound.h>
 #include <IEntitySystem.h>
 
-
-//------------------------------------------------------------------------
 CBeam::CBeam()
 :	m_effectId(0),
 	m_fireLoopId(INVALID_SOUNDID),

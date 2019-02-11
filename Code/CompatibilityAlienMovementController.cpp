@@ -1,7 +1,15 @@
-// -------------------------------------------------------------------------
-// Crytek Source File.
-// Copyright (C) Crytek GmbH, 2001-2008.
-// -------------------------------------------------------------------------
+/*************************************************************************
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Charge.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 2008      :   Created by Crytek
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
+*************************************************************************/
 #include "StdAfx.h"
 #include "CompatibilityAlienMovementController.h"
 #include "Alien.h"

@@ -1,14 +1,14 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 11:9:2005   15:00 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Charge.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 09/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "Charge.h"
@@ -16,9 +16,6 @@ History:
 #include "Weapon.h"
 #include "Projectile.h"
 
-
-
-//------------------------------------------------------------------------
 CCharge::CCharge()
 : m_charged(0)
 , m_chId(0)
@@ -27,12 +24,10 @@ CCharge::CCharge()
 {
 }
 
-//------------------------------------------------------------------------
 CCharge::~CCharge()
 {
 }
 
-//----------------------------------------"--------------------------------
 void CCharge::Update(float frameTime, uint frameId)
 {
 	if (m_charging)
@@ -55,7 +50,6 @@ void CCharge::Update(float frameTime, uint frameId)
 				}
 			}
 		}
-
 		m_pWeapon->RequireUpdate(eIUS_FireMode);
 	}
 	else
@@ -69,7 +63,6 @@ void CCharge::Update(float frameTime, uint frameId)
 			CSingle::Update(frameTime, frameId);
 		}
 	}
-
 	// update spinup effect
 	if (m_chTimer>0.0f)
 	{
@@ -80,12 +73,10 @@ void CCharge::Update(float frameTime, uint frameId)
 			if (m_chId)
 				ChargeEffect(false);
 		}
-
 		m_pWeapon->RequireUpdate(eIUS_FireMode);
 	}
 }
 
-//------------------------------------------------------------------------
 void CCharge::ResetParams(const struct IItemParamsNode *params)
 {
 	CAutomatic::ResetParams(params);
@@ -99,7 +90,6 @@ void CCharge::ResetParams(const struct IItemParamsNode *params)
 	m_chargeeffect.Reset(effect);
 }
 
-//------------------------------------------------------------------------
 void CCharge::PatchParams(const struct IItemParamsNode *patch)
 {
 	CAutomatic::PatchParams(patch);
@@ -113,7 +103,6 @@ void CCharge::PatchParams(const struct IItemParamsNode *patch)
 	m_chargeeffect.Reset(effect, false);
 }
 
-//------------------------------------------------------------------------
 void CCharge::Activate(bool activate)
 {
 	CAutomatic::Activate(activate);
@@ -125,7 +114,6 @@ void CCharge::Activate(bool activate)
 	m_chargeTimer=0.0;
 }
 
-//------------------------------------------------------------------------
 void CCharge::StopFire()
 {
 	if (m_chargeparams.shoot_on_stop)
@@ -143,7 +131,6 @@ void CCharge::StopFire()
 	CAutomatic::StopFire();
 }
 
-//------------------------------------------------------------------------
 bool CCharge::Shoot(bool resetAnimation, bool autoreload /* =true */, bool noSound /* =false */)
 {
 	m_autoreload = autoreload;
@@ -160,11 +147,9 @@ bool CCharge::Shoot(bool resetAnimation, bool autoreload /* =true */, bool noSou
 		ChargedShoot();
 
 	m_pWeapon->RequireUpdate(eIUS_FireMode);
-
 	return true;
 }
 
-//------------------------------------------------------------------------
 void CCharge::ChargedShoot()
 {
 	CAutomatic::Shoot(true, m_autoreload);
@@ -175,7 +160,6 @@ void CCharge::ChargedShoot()
 		StopFire();
 }
 
-//------------------------------------------------------------------------
 void CCharge::ChargeEffect(bool attach)
 {
 	m_pWeapon->AttachEffect(0, m_chId, false);

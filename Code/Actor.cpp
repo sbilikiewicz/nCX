@@ -1,15 +1,15 @@
 /*************************************************************************
   Crytek Source File.
-  Copyright (C), Crytek Studios, 2001-2004.
+  Copyright (C), Crytek Studios.
  -------------------------------------------------------------------------
-  $Id$
-  $DateTime$
-  
+  Actor.cpp
  -------------------------------------------------------------------------
   History:
-  - 7:10:2004   14:48 : Created by Márcio Martins
-												taken over by Filippo De Luca
-
+  - 10/2004   :   Created by Márcio Martins
+				  Taken over by Filippo De Luca
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include <StringUtils.h>
@@ -35,14 +35,13 @@
 #include "OffHand.h"
 #include "IAgent.h"
 #include "IPlayerInput.h"
-
 #include "IFacialAnimation.h"
 
-IItemSystem *CActor::m_pItemSystem=0;
-IGameFramework	*CActor::m_pGameFramework=0;
-IGameplayRecorder	*CActor::m_pGameplayRecorder=0;
+IItemSystem         *CActor::m_pItemSystem = 0;
+IGameFramework	    *CActor::m_pGameFramework = 0;
+IGameplayRecorder	*CActor::m_pGameplayRecorder = 0;
 
-SStanceInfo CActor::m_defaultStance;
+SStanceInfo         CActor::m_defaultStance;
 
 //FIXME:
 #define REUSE_VECTOR(table, name, value)	\
@@ -4019,60 +4018,6 @@ IMPLEMENT_RMI(CActor, ClStopUse)
 	return true;
 }
 
-//------------------------------------------------------------------------
-void CActor::DumpActorInfo()
-{
-  IEntity* pEntity = GetEntity();
-
-  CryLog("ActorInfo for %s", pEntity->GetName());
-  CryLog("=====================================");
-  
-  Vec3 pos = pEntity->GetWorldPos();
-  CryLog("Entity Pos: %.f %.f %.f", pos.x, pos.y, pos.z);
-  CryLog("Active: %i", pEntity->IsActive());
-  CryLog("Hidden: %i", pEntity->IsHidden());
-  CryLog("Invisible: %i", pEntity->IsInvisible());  
-  CryLog("Profile: %i", m_currentPhysProfile);
-  CryLog("Health: %i", GetHealth());  
-  CryLog("Frozen: %.2f", GetFrozenAmount());
-  
-  if (IPhysicalEntity* pPhysics = pEntity->GetPhysics())
-  { 
-    CryLog("Physics type: %i", pPhysics->GetType());
-    
-    pe_status_pos pos;
-    if (pPhysics->GetStatus(&pos))
-    {
-      CryLog("Physics pos: %.f %.f %.f", pos.pos.x, pos.pos.y, pos.pos.z);
-    }
-
-    pe_status_dynamics dyn;
-    if (pPhysics->GetStatus(&dyn))
-    {   
-      CryLog("Mass: %.1f", dyn.mass);
-      CryLog("Vel: %.2f %.2f %.2f", dyn.v.x, dyn.v.y, dyn.v.z);
-    } 
-  }  
-
-  if (IVehicle* pVehicle = GetLinkedVehicle())
-  {
-    CryLog("Vehicle: %s (destroyed: %i)", pVehicle->GetEntity()->GetName(), pVehicle->IsDestroyed());
-    
-    IVehicleSeat* pSeat = pVehicle->GetSeatForPassenger(GetEntityId());
-    CryLog("Seat %i", pSeat ? pSeat->GetSeatId() : 0);
-  }
-
-  if (IItem* pItem = GetCurrentItem())
-  {
-    CryLog("Item: %s", pItem->GetEntity()->GetName());
-  }
-
-
-  CryLog("=====================================");
-}
-
-//
-//-----------------------------------------------------------------------------
 Vec3 CActor::GetWeaponOffsetWithLean(EStance stance, float lean, const Vec3& eyeOffset)
 {
 	//for player just do it the old way - from stance info

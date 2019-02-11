@@ -1019,12 +1019,12 @@ public:
 	};
 
 protected:
-	static void CmdDebugSpawns(IConsoleCmdArgs *pArgs);
+	
+    /*static void CmdDebugSpawns(IConsoleCmdArgs *pArgs);
 	static void CmdDebugMinimap(IConsoleCmdArgs *pArgs);
 	static void CmdDebugTeams(IConsoleCmdArgs *pArgs);
-	static void CmdDebugObjectives(IConsoleCmdArgs *pArgs);
+	static void CmdDebugObjectives(IConsoleCmdArgs *pArgs);*/
 
-	
 	void CreateScriptExplosionInfo(SmartScriptTable &scriptExplosionInfo, const ExplosionInfo &explosionInfo);
 	void UpdateAffectedEntitiesSet(TExplosionAffectedEntities &affectedEnts, const pe_explosion *pExplosion);
 	void AddOrUpdateAffectedEntity(TExplosionAffectedEntities &affectedEnts, IEntity* pEntity, float affected);

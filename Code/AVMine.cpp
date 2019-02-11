@@ -1,26 +1,22 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2007.
--------------------------------------------------------------------------
-$Id:$
-$DateTime$
-Description:  Anti-Vehicle mine implementation
--------------------------------------------------------------------------
-History:
-- 22:1:2007   14:39 : Created by Steve Humphreys
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  AVMine.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 01/2007   :   Created by Steve Humphreys
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
-
 #include "StdAfx.h"
 #include "AVMine.h"
-
 #include "Game.h"
 #include "GameRules.h"
 #include "HUD/HUD.h"
 #include "Player.h"
-
 #include "IEntityProxy.h"
-
 
 //------------------------------------------------------------------------
 CAVMine::CAVMine()

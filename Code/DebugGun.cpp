@@ -1,18 +1,17 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 09:01:2006   14:00 : Created by Michael Rauh
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Charge.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 01/2006   :   Created by Michael Rauh
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "DebugGun.h"
-
 #include <IActorSystem.h>
 #include <IVehicleSystem.h>
 #include <IMovementController.h>

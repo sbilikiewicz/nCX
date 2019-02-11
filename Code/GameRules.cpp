@@ -1,11 +1,15 @@
-/**********************************************************
-             #####  ##   ##
- ####    ## ##   ##  ## ##  Crysis nCX V3.0
-##  ##   ## ##        ###     by MrHorseDick
-##   ##  ## ##        ###       and
-##    ## ## ##   ##  ## ##        MrCtaoistrach
-##     ####  #####  ##   ##
-**********************************************************/
+/*************************************************************************
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Actor.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 10/2004   :   Created by niggers !!! check this who made this file
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
+*************************************************************************/
 #include "StdAfx.h"
 #include "ScriptBind_GameRules.h"
 #include "GameRules.h"
@@ -1881,9 +1885,6 @@ void CGameRules::FreezeEntity(EntityId entityId, bool freeze, bool vapor, bool f
       Script::CallReturn(gEnv->pScriptSystem, pfnGetFrozenAmount, pScriptTable, frost);
       gEnv->pScriptSystem->ReleaseFunc(pfnGetFrozenAmount);
 
-      if (g_pGameCVars->cl_debugFreezeShake)
-        CryLog("%s frost amount: %.2f", pEntity->GetName(), frost);
-
       if (frost < 0.99f)
         return;
     }
@@ -3171,10 +3172,11 @@ void CGameRules::RegisterConsoleCommands(IConsole *pConsole)
 	// todo: move to power struggle implementation when there is one
 	pConsole->AddCommand("buy",			"if (g_gameRules and g_gameRules.Buy) then g_gameRules:Buy(%1); end");
 	pConsole->AddCommand("buyammo", "if (g_gameRules and g_gameRules.BuyAmmo) then g_gameRules:BuyAmmo(%%); end");
-	pConsole->AddCommand("g_debug_spawns", CmdDebugSpawns);
+	//sbilikiewicz removed
+    /*pConsole->AddCommand("g_debug_spawns", CmdDebugSpawns);
 	pConsole->AddCommand("g_debug_minimap", CmdDebugMinimap);
 	pConsole->AddCommand("g_debug_teams", CmdDebugTeams);
-	pConsole->AddCommand("g_debug_objectives", CmdDebugObjectives);
+	pConsole->AddCommand("g_debug_objectives", CmdDebugObjectives);*/
 }
 
 //------------------------------------------------------------------------
@@ -3183,10 +3185,10 @@ void CGameRules::UnregisterConsoleCommands(IConsole *pConsole)
 	pConsole->RemoveCommand("buy");
 	pConsole->RemoveCommand("buyammo");
 	pConsole->RemoveCommand("avarst_meharties");
-	pConsole->RemoveCommand("g_debug_spawns");
+	/*pConsole->RemoveCommand("g_debug_spawns");
 	pConsole->RemoveCommand("g_debug_minimap");
 	pConsole->RemoveCommand("g_debug_teams");
-	pConsole->RemoveCommand("g_debug_objectives");
+	pConsole->RemoveCommand("g_debug_objectives");*/
 }
 
 //------------------------------------------------------------------------
@@ -3194,108 +3196,6 @@ void CGameRules::RegisterConsoleVars(IConsole *pConsole)
 {
 }
 
-
-//------------------------------------------------------------------------
-void CGameRules::CmdDebugSpawns(IConsoleCmdArgs *pArgs)
-{
-	CGameRules *pGameRules=g_pGame->GetGameRules();
-	if (!pGameRules->m_spawnGroups.empty())
-	{
-		CryLogAlways("// Spawn Groups //");
-		for (TSpawnGroupMap::const_iterator sit=pGameRules->m_spawnGroups.begin(); sit!=pGameRules->m_spawnGroups.end(); ++sit)
-		{
-			IEntity *pEntity=gEnv->pEntitySystem->GetEntity(sit->first);
-			int groupTeamId=pGameRules->GetTeam(pEntity->GetId());
-			const char *Default="$5*DEFAULT*";
-			CryLogAlways("Spawn Group: %s  (eid: %d %08x  team: %d) %s", pEntity->GetName(), pEntity->GetId(), pEntity->GetId(), groupTeamId, 
-				(sit->first==pGameRules->GetTeamDefaultSpawnGroup(groupTeamId))?Default:"");
-
-			for (TSpawnLocations::const_iterator lit=sit->second.begin(); lit!=sit->second.end(); ++lit)
-			{
-				int spawnTeamId=pGameRules->GetTeam(pEntity->GetId());
-				IEntity *pEntity=gEnv->pEntitySystem->GetEntity(*lit);
-				const char *cs="";
-				if (spawnTeamId && spawnTeamId!=groupTeamId)
-					cs="$4";
-				CryLogAlways("    -> Spawn Location: %s  (eid: %d %08x  team: %d)", pEntity->GetName(), pEntity->GetId(), pEntity->GetId(), spawnTeamId);
-			}
-		}
-	}
-
-	CryLogAlways("// Spawn Locations //");
-	for (TSpawnLocations::const_iterator lit=pGameRules->m_spawnLocations.begin(); lit!=pGameRules->m_spawnLocations.end(); ++lit)
-	{
-		IEntity *pEntity=gEnv->pEntitySystem->GetEntity(*lit);
-		Vec3 pos=pEntity?pEntity->GetWorldPos():ZERO;
-		CryLogAlways("Spawn Location: %s  (eid: %d %08x  team: %d) %.2f,%.2f,%.2f", pEntity->GetName(), pEntity->GetId(), pEntity->GetId(), pGameRules->GetTeam(pEntity->GetId()), pos.x, pos.y, pos.z);
-	}
-}
-
-//------------------------------------------------------------------------
-void CGameRules::CmdDebugMinimap(IConsoleCmdArgs *pArgs)
-{
-	CGameRules *pGameRules=g_pGame->GetGameRules();
-	if (!pGameRules->m_minimap.empty())
-	{
-		CryLogAlways("// Minimap Entities //");
-		for (TMinimap::const_iterator it=pGameRules->m_minimap.begin(); it!=pGameRules->m_minimap.end(); ++it)
-		{
-			IEntity *pEntity=gEnv->pEntitySystem->GetEntity(it->entityId);
-			CryLogAlways("  -> Entity %s  (eid: %d %08x  class: %s  lifetime: %.3f  type: %d)", pEntity->GetName(), pEntity->GetId(), pEntity->GetId(), pEntity->GetClass()->GetName(), it->lifetime, it->type);
-		}
-	}
-}
-
-//------------------------------------------------------------------------
-void CGameRules::CmdDebugTeams(IConsoleCmdArgs *pArgs)
-{
-	CGameRules *pGameRules=g_pGame->GetGameRules();
-	if (!pGameRules->m_entityteams.empty())
-	{
-		CryLogAlways("// Teams //");
-		for (TTeamIdMap::const_iterator tit=pGameRules->m_teams.begin(); tit!=pGameRules->m_teams.end(); ++tit)
-		{
-			CryLogAlways("Team: %s  (id: %d)", tit->first.c_str(), tit->second);
-			for (TEntityTeamIdMap::const_iterator eit=pGameRules->m_entityteams.begin(); eit!=pGameRules->m_entityteams.end(); ++eit)
-			{
-				if (eit->second==tit->second)
-				{
-					IEntity *pEntity=gEnv->pEntitySystem->GetEntity(eit->first);
-					CryLogAlways("    -> Entity: %s  class: %s  (eid: %d %08x)", pEntity?pEntity->GetName():"<null>", pEntity?pEntity->GetClass()->GetName():"<null>", eit->first, eit->first);
-				}
-			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------
-void CGameRules::CmdDebugObjectives(IConsoleCmdArgs *pArgs)
-{
-	const char *status[CHUDMissionObjective::LAST+1];
-	status[0]="$5invalid$o";
-	status[CHUDMissionObjective::LAST]="$5invalid$o";
-
-	status[CHUDMissionObjective::ACTIVATED]="$3active$o";
-	status[CHUDMissionObjective::DEACTIVATED]="$9inactive$o";
-	status[CHUDMissionObjective::COMPLETED]="$2complete$o";
-	status[CHUDMissionObjective::FAILED]="$4failed$o";
-
-	CGameRules *pGameRules=g_pGame->GetGameRules();
-	if (!pGameRules->m_objectives.empty())
-	{
-		CryLogAlways("// Teams //");
-		for (TTeamIdMap::const_iterator tit=pGameRules->m_teams.begin(); tit!=pGameRules->m_teams.end(); ++tit)
-		{
-			if (TObjectiveMap *pObjectives=pGameRules->GetTeamObjectives(tit->second))
-			{
-				for (TObjectiveMap::const_iterator it=pObjectives->begin(); it!=pObjectives->end(); ++it)
-					CryLogAlways("  -> Objective: %s  teamId: %d  status: %s  (eid: %d %08x)", it->first.c_str(), tit->second,
-						status[CLAMP(it->second.status, 0, CHUDMissionObjective::LAST)], it->second.entityId, it->second.entityId);
-			}
-		}
-	}
-}
-//------------------------------------------------------------------------
 void CGameRules::CreateScriptHitInfo(SmartScriptTable &scriptHitInfo, const HitInfo &hitInfo)
 {
 	CScriptSetGetChain hit(scriptHitInfo);

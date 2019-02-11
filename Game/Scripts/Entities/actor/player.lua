@@ -1,4 +1,16 @@
-Script.ReloadScript( "SCRIPTS/Entities/actor/BasicActor.lua");
+----------------------------------------------------------------------
+--  Crytek Source File.
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  Player.lua
+--  Common functions for actors (players, AIs..)
+----------------------------------------------------------------------
+--  History:
+--  10/2004  :  Created by Filippo De Luca
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
+Script.ReloadScript("SCRIPTS/Entities/actor/BasicActor.lua");
 
 Player = {
 
@@ -7,12 +19,11 @@ Player = {
 
 	type = "Player",
 
-	foreignCollisionDamageMult = 0.1,	
-	vehicleCollisionDamageMult = 7.5,
+	foreignCollisionDamageMult   = 0.1,	
+	vehicleCollisionDamageMult   = 7.5,
 	vehicleCollisionDamageMultMP = 0.4,
 	
-	Properties = 
-	{	
+	Properties = {	
 		-- AI-related properties
 		soclasses_SmartObjectClass = "Player",
 		groupid = 0,
@@ -23,8 +34,7 @@ Player = {
 		voiceType = "player",
 		aicharacter_character = "Player",
 
-		Perception =
-		{
+		Perception = {
 			--how visible am I
 			camoScale = 1,
 			--movement related parameters
@@ -46,8 +56,7 @@ Player = {
 		aibehavior_behaviour = "PlayerIdle",
 	},
 	
-	ammoCapacity =
-	{
+	ammoCapacity = {
 		bullet=40*7,
 		fybullet=30*10,
 		lightbullet=20*10,
@@ -75,10 +84,8 @@ Player = {
 		aybullet=40*10,		
 	},
 	
-	gameParams =
-	{
-		stance =
-		{
+	gameParams = {
+		stance = {
 			{
 				stanceId = STANCE_STAND,
 				normalSpeed = 1.75,
@@ -161,8 +168,7 @@ Player = {
 		
 	},
 			
-	modelSetup =
-	{
+	modelSetup = {
 		deadAttachments = {"head","helmet"},
 	},
 			
@@ -182,9 +188,9 @@ function Player:Expose()
 	Net.Expose{
 		Class = self,
 		ClientMethods = {
-			Revive							= { RELIABLE_ORDERED, POST_ATTACH },
-			MoveTo							= { RELIABLE_ORDERED, POST_ATTACH, VEC3 },
-			AlignTo							= { RELIABLE_ORDERED, POST_ATTACH, VEC3 },
+			Revive					= { RELIABLE_ORDERED, POST_ATTACH },
+			MoveTo					= { RELIABLE_ORDERED, POST_ATTACH, VEC3 },
+			AlignTo					= { RELIABLE_ORDERED, POST_ATTACH, VEC3 },
 			ClearInventory			= { RELIABLE_ORDERED, POST_ATTACH },
 		},
 		ServerMethods = {

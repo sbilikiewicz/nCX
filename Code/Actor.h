@@ -1157,8 +1157,6 @@ public:
 
   virtual bool IsCloaked() const { return false; }
 
-  virtual void DumpActorInfo();
-
 	virtual bool IsAlien() {return false;}
 	//nCX
 	void SequenceChecks();

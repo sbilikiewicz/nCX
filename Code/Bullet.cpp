@@ -1,14 +1,14 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 18:10:2005   14:14 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Bullet.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 10/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "Game.h"
@@ -17,7 +17,6 @@ History:
 #include <IEntitySystem.h>
 #include <IGameTokens.h>
 #include "AmmoParams.h"
-
 
 int CBullet::m_waterMaterialId = -1;
 IEntityClass* CBullet::EntityClass = 0;

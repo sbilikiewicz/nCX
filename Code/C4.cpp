@@ -1,19 +1,18 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 2:3:2005   16:06 : Created by Márcio Martins
-
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  C4.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 03/2005   :   Created by Márcio Martins
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "C4.h"
 #include "Plant.h"
-
 #include "Game.h"
 #include "Actor.h"
 #include "WeaponSystem.h"
