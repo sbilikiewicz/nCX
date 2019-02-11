@@ -49,10 +49,6 @@
  <Components>
   <Component name="Hull" damageMax="250" major="1" minBound="0,0,0" maxBound="0,0,0" useBoundsFromParts="0" useDamageLevels="0" id="idHull">
    <DamageMultipliers>
-    <DamageMultiplier damageType="fire" multiplier="1"/>
-    <DamageMultiplier damageType="explosion" multiplier="1" splash="0.35"/>
-    <DamageMultiplier damageType="frag" multiplier="0.5" splash="0.75"/>
-    <DamageMultiplier damageType="gaussbullet" multiplier="0.2"/>
    </DamageMultipliers>
    <DamageBehaviors>
     <DamageBehavior class="Group" damageRatioMin="1">
@@ -61,9 +57,18 @@
     <DamageBehavior class="Effect" damageRatioMin="0.25" damageRatioMax="1">
      <Effect effect="HullDamaged25" disableAfterExplosion="1"/>
     </DamageBehavior>
+    <DamageBehavior class="Effect" damageRatioMin="0.25" damageRatioMax="0.5">
+     <Effect effect="EngineDamaged25" disableAfterExplosion="1"/>
+    </DamageBehavior>     
+    <DamageBehavior class="Effect" damageRatioMin="0.25" damageRatioMax="0.75">
+     <Effect effect="EngineDamaged25" disableAfterExplosion="1"/>
+    </DamageBehavior>     
     <DamageBehavior class="Effect" damageRatioMin="0.75" damageRatioMax="1">
      <Effect effect="HullDamaged75" disableAfterExplosion="1"/>
     </DamageBehavior>
+    <DamageBehavior class="Effect" damageRatioMin="0.75">
+     <Effect effect="EngineDamaged75" disableAfterExplosion="1"/>
+    </DamageBehavior>     
     <DamageBehavior class="Indicator" damageRatioMin="0.60000002">
      <Indicator>
       <Light material="damagelight_chassis" sound="sounds/vehicles:vehicle_accessories:warning_beep_wheeled" soundRatioMin="0.75" helper="dashboardPos"/>
@@ -636,8 +641,8 @@
   </SeatGroup>
  </SeatGroups>
  <MovementParams>
-  <StdWheeled vMaxSteerMax="20" steerSpeed="70" steerSpeedMin="100" steerSpeedScale="1" steerSpeedScaleMin="1" v0SteerMax="33" kvSteerMax="4" steerRelaxation="500" pedalLimitMax="0.1" rpmInterpSpeed="4" rpmRelaxSpeed="2" rpmGearShiftSpeed="3">
-   <Wheeled axleFriction="700" axleFrictionMax="2000" brakeTorque="5000" brakeImpulse="0.5" clutchSpeed="2.3" damping="0" engineIdleRPM="500" engineMaxRPM="3050" engineMinRPM="100" enginePower="500" engineShiftDownRPM="1300" engineShiftUpRPM="2000" engineStartRPM="500" stabilizer="0.2" maxBrakingFriction="0.60000002" maxSteer="0.44999999" maxSpeed="30" maxTimeStep="0.02" minEnergy="0.01" slipThreshold="0.02" suspDampingMin="-0.18000001" suspDampingMax="-0.5" suspDampingMaxSpeed="15" gearDirSwitchRPM="1000" dynFriction="1.1" latFriction="1">
+  <StdWheeled vMaxSteerMax="20" steerSpeed="100" steerSpeedMin="100" steerSpeedScale="1" steerSpeedScaleMin="1" v0SteerMax="45" kvSteerMax="4" steerRelaxation="700" pedalLimitMax="0.1" rpmInterpSpeed="4" rpmRelaxSpeed="2" rpmGearShiftSpeed="3">
+   <Wheeled axleFriction="700" axleFrictionMax="2000" brakeTorque="5000" brakeImpulse="0.5" clutchSpeed="2.3" damping="0" engineIdleRPM="500" engineMaxRPM="3050" engineMinRPM="100" enginePower="200" engineShiftDownRPM="1300" engineShiftUpRPM="2000" engineStartRPM="500" stabilizer="0.2" maxBrakingFriction="0.80000002" rearWheelBrakingFrictionMult="1" maxSteer="0.44999999" maxSpeed="23" maxTimeStep="0.02" minEnergy="0.01" slipThreshold="0.02" suspDampingMin="-0.18000001" suspDampingMax="-0.5" suspDampingMaxSpeed="15" gearDirSwitchRPM="1000" dynFriction="1.6" latFriction="1">
     <gearRatios>
      <gearRatio value="-20"/>
      <gearRatio value="0"/>
@@ -658,8 +663,8 @@
     </TweakGroup>
     <TweakGroup name="player_boost">
      <Tweaks>
-      <Tweak name="enginePower" value="1.4" op="1"/>
-      <Tweak name="engineMaxRPM" value="1.25" op="1"/>
+      <Tweak name="enginePower" value="2.0" op="1"/>
+      <Tweak name="engineMaxRPM" value="2.5" op="1"/>
       <Tweak name="axleFriction" value="0.75" op="1"/>
      </Tweaks>
     </TweakGroup>
@@ -675,8 +680,9 @@
    </Helpers>
    <EngineStart effect="vehicle_fx.vehicle_exhaust.smoke"/>
    <EngineStop effect="vehicle_fx.vehicle_exhaust.smoke_dark"/>
-   <EngineRunning effect="vehicle_fx.vehicle_exhaust.smoke_white" boostEffect="vehicle_fx.vehicle_exhaust.boost" baseSizeScale="1" minSpeed="0" minSpeedSizeScale="2" minSpeedCountScale="1" minSpeedSpeedScale="1" maxSpeed="30" maxSpeedSizeScale="1" maxSpeedCountScale="1" maxSpeedSpeedScale="1" minPower="0" minPowerSizeScale="0.5" minPowerCountScale="1" minPowerSpeedScale="1" maxPower="1" maxPowerSizeScale="1.5" maxPowerCountScale="1.5" maxPowerSpeedScale="1"/>
+   <EngineRunning effect="vehicle_fx.vehicle_exhaust.smoke_white" boostEffect="vehicle_fx.vehicle_exhaust.boost" baseSizeScale="3" minSpeed="0" minSpeedSizeScale="1" minSpeedCountScale="1" minSpeedSpeedScale="1" maxSpeed="15" maxSpeedSizeScale="1" maxSpeedCountScale="1" maxSpeedSpeedScale="1" minPower="0" minPowerSizeScale="0.5" minPowerCountScale="1" minPowerSpeedScale="1" maxPower="1" maxPowerSizeScale="1.5" maxPowerCountScale="1.5" maxPowerSpeedScale="1"/>
   </Exhaust>
+  <ShatterEffect effect="vehicle_fx.frozen_shatter.small" /> 
   <DamageEffects>
    <DamageEffect name="EngineDamaged25" helper="engineSmokeOut" effect="Vehicle_fx.Damages_Land.LTV_engine_smoke_a"/>
    <DamageEffect name="EngineDamaged75" helper="engineSmokeOut" effect="Vehicle_fx.Damages_Land.LTV_engine_smoke_b"/>
