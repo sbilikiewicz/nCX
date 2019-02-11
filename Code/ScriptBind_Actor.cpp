@@ -43,7 +43,7 @@ CScriptBind_Actor::CScriptBind_Actor(ISystem *pSystem)
 #undef SCRIPT_REG_CLASSNAME
 #define SCRIPT_REG_CLASSNAME &CScriptBind_Actor::
 
-  SCRIPT_REG_FUNC(DumpActorInfo);
+	//SCRIPT_REG_FUNC(DumpActorInfo);
 	SCRIPT_REG_FUNC(SetViewAngleOffset);
 	SCRIPT_REG_FUNC(GetViewAngleOffset);
 	SCRIPT_REG_FUNC(Revive);
@@ -206,17 +206,16 @@ CActor *CScriptBind_Actor::GetActor(IFunctionHandler *pH)
 }
 
 
-//------------------------------------------------------------------------
-int CScriptBind_Actor::DumpActorInfo(IFunctionHandler *pH)
+/*int CScriptBind_Actor::DumpActorInfo(IFunctionHandler *pH)
 {
   CActor *pActor = GetActor(pH);
   if (!pActor)
     return pH->EndFunction();
 
-  pActor->DumpActorInfo();
+  //pActor->DumpActorInfo();
   
   return pH->EndFunction();
-}
+}*/
 
 //------------------------------------------------------------------------
 int CScriptBind_Actor::SetViewAngleOffset(IFunctionHandler *pH)

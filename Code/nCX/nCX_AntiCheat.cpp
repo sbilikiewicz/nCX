@@ -60,7 +60,7 @@ void nCX_Anticheat::OnCheatDetected(EntityId entityId, const char* cheat, const 
 	}
 }
 
-void nCX_Anticheat::ShootPositionCheck(IActor *pActor, Vec3 DefinedPos, float time)
+bool nCX_Anticheat::ShootPositionCheck(CActor *pActor, Vec3 DefinedPos, float time)
 {
 	float Treshold = 50.0f;
 	Vec3 ActorPos = pActor->GetEntity()->GetWorldPos();
@@ -81,8 +81,8 @@ void nCX_Anticheat::ShootPositionCheck(IActor *pActor, Vec3 DefinedPos, float ti
 		{
 			string info;
 			OnCheatDetected(pActor->GetEntityId(), "Shoot Pos", info.Format("%.2fm", Distance).c_str(), false);
-			pActor->m_WeaponCheatDelay = currTime + 10.0f;
+			return true;
 		}
-		return true;
 	}
+	return false;
 }

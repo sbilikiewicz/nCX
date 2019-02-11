@@ -38,8 +38,8 @@ public:
 	void AttachTo(CActor *pActor);
 
 	//------------------------------------------------------------------------
-	virtual int DumpActorInfo(IFunctionHandler *pH);
-  virtual int SetViewAngleOffset(IFunctionHandler *pH);
+	//virtual int DumpActorInfo(IFunctionHandler *pH);
+	virtual int SetViewAngleOffset(IFunctionHandler *pH);
 	virtual int GetViewAngleOffset(IFunctionHandler *pH);
 	virtual int Revive(IFunctionHandler *pH);
 	virtual int Kill(IFunctionHandler *pH);

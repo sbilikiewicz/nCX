@@ -400,32 +400,8 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 				{
 					//Shoot Pos Spoof
 					if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
-					{
-						nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime);
-						
-						float Treshold = 50.0f;
-						float Distance = (pActor->GetEntity()->GetWorldPos() - params.pos).len2();
-						if (Distance > 0.0f)
-							Distance = cry_sqrtf_fast(Distance);
-
-						if (Distance > Treshold)
-						{
-							if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
-							{
-								const SVehicleStatus& status = pVehicle->GetStatus();
-								if (status.speed > Treshold)
-									Treshold = status.speed;
-
-							}
-							if (currTime - pActor->m_WeaponCheatDelay > 3.0f)
-							{
-								string info;
-								nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Shoot Pos", info.Format("%.2fm", Distance).c_str(), false);
-								pActor->m_WeaponCheatDelay = currTime + 10.0f;
-							}
+						if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
 							return true;
-						}
-					}
 
 					//RapidFire & NoRecoil
 					int currFireMode = GetCurrentFireMode();
@@ -436,7 +412,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 						if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
 						{
 							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
-							CryLogAlways("[AntiCheat] Rapid Fire: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
 							m_FireCheck = 0;
 							pActor->m_WeaponCheatDelay = currTime + 3.0f;
 							// temporary disabled return true;
