@@ -1207,6 +1207,7 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 	if (GetEntity()->IsHidden() && !(GetEntity()->GetFlags() & ENTITY_FLAG_UPDATE_HIDDEN))
 		return;
   
+  //Move this to nCX Sec timer ?
 	if (m_sleepTimer>0.0f && gEnv->bServer)
 	{
 		pe_status_dynamics dynStat;
@@ -1266,15 +1267,6 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 	if (m_frozenAmount>0.f && !IsFrozen())
 		SetFrozenAmount(m_frozenAmount - g_pGameCVars->g_frostDecay*ctx.fFrameTime);
   
-/*
-	// remove this if AI is not supposed to unfreeze
-	if (m_frozenAmount>0.0f && m_pGameFramework->IsServer() && !IsPlayer())
-	{
-		m_frozenAmount=CLAMP(m_frozenAmount-ctx.fFrameTime/5.0f, 0.0f, 1.0f); // max 3secs frozen (will be reduced by sworkarounding mouse)
-		if (m_frozenAmount<=0.0f)
-			g_pGame->GetGameRules()->FreezeEntity(GetEntityId(), false, false);
-	}
-*/
 	UpdateZeroG(ctx.fFrameTime);
 	
 	if (GetHealth() > 0.0f)
@@ -1356,7 +1348,7 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 	UpdateAnimGraph( m_pAnimatedCharacter?m_pAnimatedCharacter->GetAnimationGraphState():NULL );
 
 	//
-	// get stats table
+	// TODO try to remove whole lua part from Onfram Updates
 	if (!m_actorStats)
 	{
 		IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
@@ -1365,7 +1357,8 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 	}
 	UpdateScriptStats(m_actorStats);
 
-	EntityId currentItemId=GetCurrentItemId();
+	/* Sbilikiewicz we probably dont need it in mp even in sp it can be deleted...
+    EntityId currentItemId=GetCurrentItemId();
 	if (currentItemId!=m_lastItemId)
 	{
 		HSCRIPTFUNCTION pfnCurrentItemChanged=0;
@@ -1378,7 +1371,7 @@ void CActor::Update(SEntityUpdateContext& ctx, int slot)
 		}
 
 		m_lastItemId=currentItemId;
-	}
+	}*/
 }
 
 void CActor::ResetMovementSys()

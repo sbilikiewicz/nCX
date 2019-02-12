@@ -10,6 +10,18 @@ History:
 - 29:9:2004: Created by Filippo De Luca
 
 *************************************************************************/
+/*************************************************************************
+  Crytek Source File.
+  Copyright (C), Crytek Studios.
+ -------------------------------------------------------------------------
+  Actor.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 09/2004   :   Created by Filippo De Luca
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
+*************************************************************************/
 #include "StdAfx.h"
 #include "Game.h"
 #include "GameCVars.h"
@@ -17,13 +29,11 @@ History:
 #include "Player.h"
 #include "PlayerView.h"
 #include "GameUtils.h"
-
 #include "Weapon.h"
 #include "WeaponSystem.h"
 #include "OffHand.h"
 #include "Fists.h"
 #include "GameRules.h"
-
 #include <IViewSystem.h>
 #include <IItemSystem.h>
 #include <IPhysics.h>
@@ -34,38 +44,26 @@ History:
 #include <ISerialize.h>
 #include <ISound.h>
 #include "IMaterialEffects.h"
-
 #include <IRenderAuxGeom.h>
 #include <IWorldQuery.h>
-
 #include <IGameTokens.h>
-
 #include <IDebugHistory.h>
-
 #include <IMusicSystem.h>
 #include <StringUtils.h>
-
-
 #include "PlayerMovementController.h"
-
 #include "HUD/HUD.h"
 #include "HUD/HUDRadar.h"
 #include "HUD/HUDCrosshair.h"
 #include "HUD/HUDVehicleInterface.h"
-
 #include "PlayerMovement.h"
 #include "PlayerRotation.h"
 #include "PlayerInput.h"
 #include "NetPlayerInput.h"
 #include "AIDemoInput.h"
-
 #include "CryCharAnimationParams.h"
-
 #include "VehicleClient.h"
-
 #include "AVMine.h"
 #include "Claymore.h"
-
 #include "Binocular.h"
 #include "SoundMoods.h"
 
@@ -719,7 +717,9 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 	if (pEnt->IsHidden() && !(GetEntity()->GetFlags() & ENTITY_FLAG_UPDATE_HIDDEN))
 		return;
 
-	if (gEnv->bServer && !IsClient() && IsPlayer())
+	CryLogAlways("CPlayer::Update for %s", GetEntity()->GetName());
+    /* Moved to nCX sec timer
+    if (gEnv->bServer && !IsClient() && IsPlayer())
 	{
 		if (INetChannel *pNetChannel=m_pGameFramework->GetNetChannel(GetChannelId()))
 		{
@@ -731,7 +731,7 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 					SufferingHighLatency(false);
 			}
 		}
-	}
+	}*/
 
 	if (IPhysicalEntity *pPE = pEnt->GetPhysics())
 	{
@@ -804,6 +804,7 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 		adpm = eADPM_WhenInvisibleAndFarAway;
 	else
 		adpm = eADPM_WhenAIDeactivated;
+        
 	GetGameObject()->SetAutoDisablePhysicsMode(adpm);
 	
 	if (GetHealth()<=0)
@@ -1364,17 +1365,6 @@ void CPlayer::PrePhysicsUpdate()
 		SActorFrameMovementParams frameMovementParams;
 		if (m_pMovementController->Update(frameTime, frameMovementParams))
 		{
-/*
-#ifdef _DEBUG
-			if(m_pMovementDebug)
-				m_pMovementDebug->AddValue(frameMovementParams.desiredVelocity.len());
-			if(m_pDeltaXDebug)
-				m_pDeltaXDebug->AddValue(frameMovementParams.desiredVelocity.x);
-			if(m_pDeltaYDebug)
-				m_pDeltaYDebug->AddValue(frameMovementParams.desiredVelocity.y);
-#endif
-*/
-
       if (m_linkStats.CanRotate())
 			{
 				Quat baseQuatBackup(m_baseQuat);
@@ -1588,16 +1578,6 @@ void CPlayer::SetIK( const SActorFrameMovementParams& frameMovementParams )
 		}
 		pSkeletonPose->SetAimIK( aimEnabled, aimTarget );
 		pGraph->SetInput( m_inputAiming, aimEnabled ? 1 : 0 );
-
-
-/*
-		if (frameMovementParams.aimIK)
-		{
-			ICVar *pg_aimDebug = gEnv->pConsole->GetCVar("g_aimdebug");
-			if (pg_aimDebug && pg_aimDebug->GetIVal()!=0)
-				gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(  frameMovementParams.aimTarget, 0.5f, ColorB(255,0,255,255) );
-		}
-*/
 	}
 }
 
@@ -2251,46 +2231,6 @@ void CPlayer::UpdateSwimStats(float frameTime)
 
 		PlaySound(ESound_Underwater, (cameraWaterLevel < 0.0f));
 	}
-
-	// DEBUG RENDERING
-	bool debugSwimming = (g_pGameCVars->cl_debugSwimming != 0);
-	if (debugSwimming && (playerWaterLevel > -10.0f) && (playerWaterLevel < 10.0f))
-	{
-		Vec3 vRight(m_baseQuat.GetColumn0());
-
-		static ColorF referenceColor(1,1,1,1);
-		static ColorF surfaceColor1(0,0.5f,1,1);
-		static ColorF surfaceColor0(0,0,0.5f,0);
-		static ColorF bottomColor(0,0.5f,0,1);
-
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(referencePos, 0.1f, referenceColor);
-
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(referencePos, surfaceColor1, surfacePos, surfaceColor1, 2.0f);
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(surfacePos, 0.2f, surfaceColor1);
-		gEnv->pRenderer->DrawLabel(referencePos + vRight * 0.5f, 1.5f, "WaterLevel %3.2f (HWL %3.2f) (SurfaceZ %3.2f)", playerWaterLevel, headWaterLevel, surfacePos.z);
-		gEnv->pRenderer->DrawLabel(referencePos + vRight * 0.5f - Vec3(0,0,-0.2f), 1.5f, "InWaterTimer %3.2f", m_stats.inWaterTimer);
-
-		static int lines = 16;
-		static float radius0 = 0.5f;
-		static float radius1 = 1.0f;
-		static float radius2 = 2.0f;
-		for (int i = 0; i < lines; ++i)
-		{
-			float radians = ((float)i / (float)lines) * gf_PI2;
-			Vec3 offset0(radius0 * cry_cosf(radians), radius0 * cry_sinf(radians), 0);
-			Vec3 offset1(radius1 * cry_cosf(radians), radius1 * cry_sinf(radians), 0);
-			Vec3 offset2(radius2 * cry_cosf(radians), radius2 * cry_sinf(radians), 0);
-			gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(surfacePos+offset0, surfaceColor0, surfacePos+offset1, surfaceColor1, 2.0f);
-			gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(surfacePos+offset1, surfaceColor1, surfacePos+offset2, surfaceColor0, 2.0f);
-		}
-
-		if (bottomDepth > 0.0f)
-		{
-			gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(referencePos, bottomColor, bottomPos, bottomColor, 2.0f);
-			gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(bottomPos, 0.2f, bottomColor);
-			gEnv->pRenderer->DrawLabel(bottomPos + Vec3(0,0,0.5f) - vRight * 0.5f, 1.5f, "BottomDepth %3.3f", bottomDepth);
-		}
-	}
 }
 
 //------------------------------------------------------------------------
@@ -2298,8 +2238,6 @@ void CPlayer::UpdateUWBreathing(float frameTime, Vec3 worldBreathPos)
 {
 	if (!IsPlayer())
 		return;
-
-	bool debugSwimming = (g_pGameCVars->cl_debugSwimming != 0);
 
 	bool breath = (m_stats.headUnderWaterTimer > 0.0f);
 
@@ -2383,9 +2321,6 @@ void CPlayer::UpdateUWBreathing(float frameTime, Vec3 worldBreathPos)
 			m_underwaterBubblesDelay -= frameTime;
 			breathDebugFraction = -m_underwaterBubblesDelay / breathOutDuration;
 		}
-
-		if (debugSwimming)
-			gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(worldBreathPos, 0.2f + 0.2f * breathDebugFraction, ColorB(128,196,255,255));
 	}
 	else
 	{
@@ -2919,33 +2854,6 @@ void CPlayer::UpdateStats(float frameTime)
 						pRagDoll->Action(&v);
 				}
 			}
-
-			if (g_pGameCVars->pl_debugFallDamage != 0)
-			{
-				char* side = gEnv->bServer ? "Server" : "Client";
-
-				char* color = "";
-				if (velFraction < 0.33f)
-					color = "$6"; // Yellow
-				else if (velFraction < 0.66f)
-					color = "$8"; // Orange
-				else
-					color = "$4"; // Red
-
-				CryLogAlways("%s[%s][%s] ImpactVelo=%3.2f, FallSpeed=%3.2f, FallDamage=%3.1f (ArmorMode=%2.0f%%, NonArmorMode=%2.0f%%)", 
-					color, side, GetEntity()->GetName(), m_stats.downwardsImpactVelocity, m_stats.fallSpeed, 
-					hit.damage, hit.damage / maxDamage * 100.0f, hit.damage / maxHealth * 100.0f);
-			}
-		}
-		else if (g_pGameCVars->pl_debugFallDamage != 0)
-		{
-			if (m_stats.downwardsImpactVelocity > 0.5f)
-			{
-				char* side = gEnv->bServer ? "Server" : "Client";
-				char* color = "$3"; // Green
-				CryLogAlways("%s[%s][%s] ImpactVelo=%3.2f, FallSpeed=%3.2f, FallDamage: NONE", 
-					color, side, GetEntity()->GetName(), m_stats.downwardsImpactVelocity, m_stats.fallSpeed);
-			}
 		}
 	}
 
@@ -2967,21 +2875,6 @@ void CPlayer::UpdateStats(float frameTime)
 	{
 		m_stats.fallSpeed = 0.0f;
 		//CryLogAlways( "[player] end falling %f", ppos.z);
-	}
-
-	if (g_pGameCVars->pl_debugFallDamage == 2)
-	{
-		Vec3 pos = GetEntity()->GetWorldPos();
-		char* side = gEnv->bServer ? "Sv" : "Cl";
-		CryLogAlways("[%s] liv.vel=%0.1f,%0.1f,%3.2f liv.velU=%0.1f,%0.1f,%3.2f impactVel=%3.2f posZ=%3.2f (liv.velReq=%0.1f,%0.1f,%3.2f) (fallspeed=%3.2f) gt=%3.3f, pt=%3.3f", 
-								side, 
-								livStat.vel.x, livStat.vel.y, livStat.vel.z, 
-								livStat.velUnconstrained.x, livStat.velUnconstrained.y, livStat.velUnconstrained.z, 
-								m_stats.downwardsImpactVelocity, 
-								/*pos.x, pos.y,*/ pos.z, 
-								livStat.velRequested.x, livStat.velRequested.y, livStat.velRequested.z, 
-								m_stats.fallSpeed, 
-								gEnv->pTimer->GetCurrTime(), gEnv->pPhysicalWorld->GetPhysicsTime());
 	}
 
 	m_stats.mass = dynStat.mass;
@@ -4345,24 +4238,6 @@ bool CPlayer::CreateCodeEvent(SmartScriptTable &rTable)
 
 		return true;
 	}
-/* kirill - needed for debugging AI aiming/accuracy 
-	else if (event && !strcmp(event,"aiHitDebug"))
-	{
-		if(!IsPlayer())
-			return true;
-		ScriptHandle id;
-		id.n = 0;
-		rTable->GetValue("shooterId",id);
-		IEntity *pEntity((id.n)?gEnv->pEntitySystem->GetEntity(id.n):NULL);
-		if(pEntity && pEntity->GetAI())
-		{
-			IAIObject *pAIObj(pEntity->GetAI());
-				if(pAIObj->GetProxy())
-					++(pAIObj->GetProxy()->DebugValue());
-		}
-		return true;
-	}
-*/
 	else
 		return CActor::CreateCodeEvent(rTable);
 }
@@ -5195,14 +5070,7 @@ void CPlayer::UpdateUnfreezeInput(const Ang3 &deltaRotation, const Vec3 &deltaMo
 	float deltaRot = (abs(deltaRotation.x) + abs(deltaRotation.z)) * mult;
 	float deltaMov = abs(deltaMovement.x) + abs(deltaMovement.y);
 
-	static float color[] = {1,1,1,1};    
-
-	if (g_pGameCVars->cl_debugFreezeShake)
-	{    
-		gEnv->pRenderer->Draw2dLabel(100,50,1.5,color,false,"frozenAmount: %f (actual: %f)", GetFrozenAmount(true), m_frozenAmount);
-		gEnv->pRenderer->Draw2dLabel(100,80,1.5,color,false,"deltaRotation: %f (freeze mult: %f)", deltaRot, mult);
-		gEnv->pRenderer->Draw2dLabel(100,110,1.5,color,false,"deltaMovement: %f", deltaMov);
-	}
+	static float color[] = {1,1,1,1};
 
 	float freezeDelta = deltaRot*g_pGameCVars->cl_frozenMouseMult + deltaMov*g_pGameCVars->cl_frozenKeyMult;
 
@@ -5216,11 +5084,6 @@ void CPlayer::UpdateUnfreezeInput(const Ang3 &deltaRotation, const Vec3 &deltaMo
 				float strength = pSuit->GetSlotValue(NANOSLOT_STRENGTH);
 				strength = max(-0.75f, (strength-50)/50.f) * freezeDelta;
 				freezeDelta += strength;
-
-				if (g_pGameCVars->cl_debugFreezeShake)
-				{ 
-					gEnv->pRenderer->Draw2dLabel(100,140,1.5,color,false,"freezeDelta: %f (suit mod: %f)", freezeDelta, strength);
-				}
 			}
 		}
 
