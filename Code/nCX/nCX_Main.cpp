@@ -1,11 +1,14 @@
-/**********************************************************
-             #####  ##   ##
- ####    ## ##   ##  ## ##  Crysis nCX V3.0
-##  ##   ## ##        ###     by MrHorseDick
-##   ##  ## ##        ###       and
-##    ## ## ##   ##  ## ##        MrCtaoistrach
-##     ####  #####  ##   ##
-**********************************************************/
+/*************************************************************************
+  nCX dedicated server
+  Copyright (C), Sbilikiewicz.
+  https://github.com/sbilikiewicz
+ -------------------------------------------------------------------------
+  nCX_Main.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 02/2019   :   Created by sbilikiewicz
+                  
+*************************************************************************/
 #include "StdAfx.h"
 #include "nCX_Main.h"
 #include "nCX_PCInfo.h"
@@ -269,13 +272,6 @@ bool nCX::LogToFile(const char* which, const char* msg)
 
 void nCX::LogToConsole(const char* msg, int channelId, bool toOther)
 {
-	//int space = g_pGameCVars->nCX_ConsoleSpace+9;//why do we have a cvar for that.. it wont change anytime
-	//string placeholder("                                                                           ");
-	/*if (space>0 && placeholder.size()>space)
-	placeholder.resize(space);
-	else if (space <= 0)
-	placeholder = "";*/
-
 	string info;
 	info.Format("%40s %s", "$4nCX $9:", msg).c_str();
 
@@ -317,23 +313,6 @@ void nCX::SaveBanList(const char* line)
 	}
 }
 
-void nCX::ClientPacket(int channelId, const char* msg)
-{
-	if (channelId > 0)
-	{
-		CActor *pActor = g_pGame->GetGameRules()->GetActorByChannelId(channelId);
-		if (IScriptSystem *pScript = gEnv->pScriptSystem) //Lua
-		{
-			pScript->BeginCall(m_onClientScript, "ClWorkComplete");
-			pScript->PushFuncParam(m_onClientScript);
-			pScript->PushFuncParam(channelId);
-			pScript->PushFuncParam(ScriptHandle(pActor->GetEntityId()));
-			pScript->PushFuncParam(msg);
-			pScript->EndCall();
-		}
-	}
-}
-
 void nCX::SendAdminMessage(int type, const char *msg)
 {
 	if (CGameRules *pRules = g_pGame->GetGameRules())
@@ -361,7 +340,7 @@ void nCX::OnUpdate(float frameTime)
 	if ((frameTime - m_TickTimer) > 1.0f)
 	{
 		TickTimer();
-		++m_MinTimer;
+        ++m_MinTimer;
 		m_TickTimer = frameTime;
 		if (m_MinTimer > 59)
 		{
@@ -377,6 +356,64 @@ void nCX::OnUpdate(float frameTime)
 	}
 }
 
+void nCX::PlayerTimer()//Every second
+{
+	if (CPlayer *pPlayer = ((CPlayer*)this))
+	{
+		//Ripped from CPlayer::Update	
+		if (pPlayer->m_stats.spectatorMode == 3/*eASM_Follow*/)
+		{
+			CActor* pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActor(pPlayer->m_stats.spectatorTarget));
+			if (pActor)
+			{
+				CPlayer* pTargetPlayer = static_cast<CPlayer*>(pActor);
+				float timeSinceDeath = gEnv->pTimer->GetFrameStartTime().GetSeconds() - pTargetPlayer->GetDeathTime();
+				if (pTargetPlayer && (pTargetPlayer->GetHealth() <= 0 && timeSinceDeath > 3.0f) || pTargetPlayer->GetSpectatorMode() != eASM_None)
+				{
+					pPlayer->m_stats.spectatorTarget = 0;
+					g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+				}
+			}
+			else
+			{
+				pPlayer->m_stats.spectatorTarget = 0;
+				g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+			}
+		}
+		//Ripped from CNanosuit::OnUpdate
+		if (CNanoSuit *pSuit = pPlayer->m_pNanoSuit)
+		{
+			if (!pSuit->m_invulnerable)
+				pSuit->m_invulnerabilityTimeout = 0.0f;
+
+			if (pSuit->m_invulnerabilityTimeout > 0.0f)
+			{
+				--pSuit->m_invulnerabilityTimeout;
+				if (pSuit->m_invulnerabilityTimeout < 1.0f)
+				{
+					pSuit->m_invulnerabilityTimeout = 0.0f;
+					pSuit->SetInvulnerability(false);
+				}
+			}
+			/*if (!pSuit->IsActive())
+			{
+				for (int i = 0; i < NANODISABLE_NUMENTRIES; i++)
+				{
+					if (pSuit->m_disabledTimes[i] > 0.0f)
+					{
+						--pSuit->m_disabledTimes[i];
+						if (pSuit->m_disabledTimes[i] < 1.0f)
+						{
+							pSuit->m_disabledTimes[i] = 0.0f;
+							pSuit->m_disabledFlags[i] = false;
+						}
+					}
+				}
+			}*/
+		}
+	}
+}
+
 void nCX::TickTimer()
 {
 	int PlayerCount = 0;
@@ -387,9 +424,33 @@ void nCX::TickTimer()
 		{
 			if (INetChannel *pNetChannel = g_pGame->GetIGameFramework()->GetNetChannel(*it))
 			{
-				if (CActor *pActor = static_cast<CActor *>(g_pGame->GetGameRules()->GetActorByChannelId(*it)))
+				if (CActor *pActor = static_cast<CActor *>(pRules->GetActorByChannelId(*it)))
 				{
-					//Ping procession
+					if (pActor->m_IsLagging)
+            			++pActor->m_LagCounter;
+                        
+            		if (pActor->m_LagCounter > 5)
+            		{
+            			pActor->m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
+            			pActor->m_LagCounter = 0;
+            		}
+            		else
+            			pActor->m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
+                        
+                    //RMI Flood
+                    if (m_RMIFlood > 140)
+                	{
+                		char info[6];
+                		sprintf(info, "%d", m_RMIFlood);
+                		nCX_Anticheat::CheatDetected(GetEntityId(), "RMI Flood", info, true);
+                	}
+                    //Chat spam
+                	if (m_ChatCounter > 3)
+                		nCX_Anticheat::CheatDetected(GetEntityId(), "Chat Spam", info, true);
+                
+                	m_ChatCounter = 0;
+                	m_RMIFlood = 0;
+                    //Ping procession
 					int ping = pNetChannel->GetPing(true) * 1000;
 					int SmoothedPing = floor(ping - (ping*0.2));
 					ping = SmoothedPing<1 ? 1 : SmoothedPing;
@@ -400,31 +461,12 @@ void nCX::TickTimer()
 					if (ping > gEnv->pConsole->GetCVar("nCX_HighPingLimit")->GetIVal())
 						PingGuard(ping, *it);
 
-					pActor->SequenceChecks();
 					++PlayerCount;
 				}
 			}
 		}
 		m_PlayerCount = PlayerCount;
 		m_AveragePing = PlayerCount>0 ? floor(AveragePing / PlayerCount) : 0;
-		/*Update defined lua timers
-		for (unsigned int i = 0; i < m_TimerTable.size(); i++)
-		{
-			if (m_TimerTable[i])
-			{
-				IEntity* pTimer = gEnv->pEntitySystem->GetEntity(m_TimerTable[i]);
-				if (pTimer && pTimer != NULL)
-				{
-					IScriptTable *pScriptTable = pTimer->GetScriptTable();
-					if (pScriptTable && pScriptTable->HaveValue("OnTimer"))
-					{
-						m_pScriptSystem->BeginCall(pScriptTable, "OnTimer");
-						m_pScriptSystem->PushFuncParam(pScriptTable);
-						m_pScriptSystem->EndCall();
-					}
-				}
-			}
-		}*/
 		//Unfreeze frozen vehicles
 		CGameRules::TFrozenEntities::iterator fit;
 		for (fit = pRules->m_frozen.begin(); fit != pRules->m_frozen.end();)
@@ -461,8 +503,7 @@ void nCX::TickTimer()
 			}
 		}
 
-		//UpdateEntitySchedules
-		//UpdateEntitySchedules();
+		pRules->UpdateEntitySchedules();
 
 		//Check voting
 		//if (!m_VoteSystem.empty())
@@ -487,15 +528,14 @@ void nCX::TickTimer()
 					pRules->GetGameObject()->InvokeRMI(pRules->ClSetObjectiveStatus(), CGameRules::SetObjectiveStatusParams(msg, 2), 0x01, *con);
 				}
 			}
-			//
+			/* Do we even need this? Lobby wont let client connect if server is full anyways
 			int maxplayers = gEnv->pConsole->GetCVar("sv_maxplayers")->GetIVal();
 			if ((maxplayers != 0) && (m_PlayerCount >= maxplayers))
 			{
 				//if (!access)
 				pNetChannel->Disconnect(eDC_ServerFull, "Server full");
-
 				return;
-			}
+			}*/
 			for (TBanMap::const_iterator entry = m_BanSystem.begin(); entry != m_BanSystem.end(); ++entry)
 			{ //entry->second.ID == ID
 				if (entry->second.IP == IP)

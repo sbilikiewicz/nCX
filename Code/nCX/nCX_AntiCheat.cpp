@@ -86,3 +86,78 @@ bool nCX_Anticheat::ShootPositionCheck(CActor *pActor, Vec3 DefinedPos, float ti
 	}
 	return false;
 }
+
+bool nCX_Anticheat::LongpokeCheck(CActor *pActor, seq)
+{
+    float currTime = gEnv->pTimer->GetCurrTime();
+	if (seq == 1)
+	{
+		if (currTime - pActor->m_WeaponCheatDelay > 3.0f)
+		{
+			OnCheatDetected(pActor->GetEntityId(), "Longpoke", "seq", true);
+			pActor->m_WeaponCheatDelay = currTime + 10.0f;
+		    return true;
+        }
+	}
+    return false;
+}
+
+bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
+{
+    int currFireMode = pWeapon->GetCurrentFireMode();
+	if (IFireMode *pFireMode = pWeapon->GetFireMode(currFireMode))
+	{
+		++m_FireCheck;
+		float rate = pFireMode->GetFireRate();
+		if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
+		{
+			OnCheatDetected(pWeapon->GetOwner()->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
+			m_FireCheck = 0;
+			pActor->m_WeaponCheatDelay = currTime + 3.0f;
+			return true;
+		}
+		if (pClass == sSCARClass || pClass == sFY71Class || pClass == sSMGClass || pClass == sHurricaneClass || (sAlienMountClass && currFireMode == 1))
+		{
+			/* not needed right now
+            int clip = pFireMode->GetAmmoCount();
+			if (clip == 0)
+				CryLogAlways("$4Clip is empty and still shooting!");*/
+
+			float x = abs(pWeapon->m_LastRecoil.x - params.dir.x);
+			float y = abs(pWeapon->m_LastRecoil.y - params.dir.y);
+			float z = abs(pWeapon->m_LastRecoil.z - params.dir.z);
+			float Average = (x + y + z) / 3;
+			// 0.0001f check this
+			if ((Average < 0.0001f) && (currFireMode < 1))
+			{
+				++pWeapon->m_RecoilWarning;
+				if (pWeapon->m_RecoilWarning == 5)
+				{
+					string info;
+					const char* type = "No Recoil";
+					if (Average > 0.00001f)
+					{
+						type = "Low Recoil";
+						info.Format("%.5f, %s", Average, pClass->GetName());
+					}
+					else
+						info.Format("%s", pClass->GetName());
+
+					nCX_Anticheat::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
+					pWeapon->m_RecoilWarning = 0;
+					return true;
+				}
+			}
+			else
+				pWeapon->m_RecoilWarning = 0;
+
+			pWeapon->m_LastRecoil = params.dir;
+	   }
+    }
+    return false;
+}
+
+bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
+{
+
+}

@@ -308,7 +308,7 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 
 	//g_pGame->GetServerSynchedStorage()->SetGlobalValue(15, 1026);
 
-	bool server=gEnv->bServer;
+	bool server = gEnv->bServer;
 
 	if (server)
 	{
@@ -317,36 +317,11 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 		//
 
 		ProcessQueuedExplosions();
-		UpdateEntitySchedules(ctx.fFrameTime);
+        //Moved this to ncx every sec update
+		//UpdateEntitySchedules(ctx.fFrameTime);
 
 		if (m_pShotValidator)
 			m_pShotValidator->Update();
-
-		if (gEnv->bMultiplayer)
-		{
-			TFrozenEntities::const_iterator next;
-			for (TFrozenEntities::const_iterator fit=m_frozen.begin(); fit!=m_frozen.end(); fit=next)
-			{
-				next=fit;
-				++next;
-
-				// unfreeze vehicles after 750ms
-				if ((gEnv->pTimer->GetFrameStartTime()-fit->second).GetMilliSeconds()>=750)
-				{
-					bool unfreeze=false;
-					if (m_pGameFramework->GetIVehicleSystem()->GetVehicle(fit->first))
-						unfreeze=true;
-					else if (IItem *pItem=m_pGameFramework->GetIItemSystem()->GetItem(fit->first))
-					{
-						if ((!pItem->GetOwnerId()) || (pItem->GetOwnerId()==pItem->GetEntityId()))
-							unfreeze=true;
-					}
-
-					if (unfreeze)
-						FreezeEntity(fit->first, false, false);
-				}
-			}
-		}
   }
 
 	UpdateMinimap(ctx.fFrameTime);
@@ -354,8 +329,9 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 	if(m_pBattleDust)
 		m_pBattleDust->Update();
 
-	if(m_pMPTutorial)
-		m_pMPTutorial->Update();
+	//Sbilikiewicz probably not on server?
+    //if(m_pMPTutorial)
+	//	m_pMPTutorial->Update();
 
 	if(gEnv->bMultiplayer && m_pRadio)
 		m_pRadio->Update();
@@ -3647,7 +3623,7 @@ void CGameRules::ScheduleEntityRespawn(EntityId entityId, bool unique, float tim
 	m_respawns.insert(TEntityRespawnMap::value_type(entityId, respawn));
 }
 
-//------------------------------------------------------------------------
+//Moved this to ncx every sec timer
 void CGameRules::UpdateEntitySchedules(float frameTime)
 {
 	if (!gEnv->bServer || m_pGameFramework->IsEditing())

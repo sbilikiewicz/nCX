@@ -295,9 +295,6 @@ void CWeapon::SendEndReload()
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestStartFire)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
 	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
 	if (channelId)
 	{
@@ -376,147 +373,89 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 			//Idk what is this
 			pActor->GetGameObject()->Pulse('bang');
 			GetGameObject()->Pulse('bang');
+            
+            //RMI Spoof
+			if (pActor->GetEntityId() != GetOwnerId())
+            {
+                nCX_AntiCheat::CheatDetected(pActor->GetEntityId(), "RMI Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
+                return false;
+            }
+			//Longpoke
+            if (nCX_Anticheat::CheckLongpoke(pActor, params.seq))
+                return false;
+				
+            IEntityClass *pClass = GetEntity()->GetClass();
+			if (pClass == sAsian50CalClass) //CTAO added
+				pActor->m_RMIFlood = pActor->m_RMIFlood - 0.5;
 
-			if (pActor->GetEntityId() == GetOwnerId())
+			if (!pActor->m_IsLagging)//Process anticheat only if player is not lagging !
 			{
-				//Longpoke
-				float currTime = gEnv->pTimer->GetCurrTime();
-				if (params.seq == 1)
+				//Shoot Pos Spoof
+				if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
+					if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
+						return false;
+
+			    //RapidFire & NoRecoil
+				if (nCX_Anticheat::CheckRecoil(pWeapon, params))
+					return false;
+				
+                //Weapon SpinUp time Check
+				float spinUpTime = pFireMode->GetSpinUpTime();
+				if (spinUpTime > 0.01f)
 				{
-					if (currTime - pActor->m_WeaponCheatDelay > 3.0f) //CTAO added the same here
+					if (currTime - m_SpinupTime < spinUpTime)
 					{
-						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Longpoke", "seq", true);
-						pActor->m_WeaponCheatDelay = currTime + 10.0f;
-					}
-					return true;
-				}
-
-				IEntityClass *pClass = GetEntity()->GetClass();
-
-				if (pClass == sAsian50CalClass) //CTAO added
-					pActor->m_RMIFlood = pActor->m_RMIFlood - 0.5;
-
-				if (!pActor->m_IsLagging)
-				{
-					//Shoot Pos Spoof
-					if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
-						if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
-							return true;
-
-					//RapidFire & NoRecoil
-					int currFireMode = GetCurrentFireMode();
-					if (IFireMode *pFireMode = GetFireMode(currFireMode))
-					{
-						++m_FireCheck;
-						float rate = pFireMode->GetFireRate();
-						if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
-						{
-							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
-							m_FireCheck = 0;
-							pActor->m_WeaponCheatDelay = currTime + 3.0f;
-							// temporary disabled return true;
-						}
-						if (pClass == sSCARClass || pClass == sFY71Class || pClass == sSMGClass || pClass == sHurricaneClass || (sAlienMountClass && currFireMode == 1))
-						{
-							int clip = pFireMode->GetAmmoCount();
-							if (clip == 0)
-							{
-								CryLogAlways("$4Clip is empty and still shooting!");
-							}
-							float x = abs(m_LastRecoil.x - params.dir.x);
-							float y = abs(m_LastRecoil.y - params.dir.y);
-							float z = abs(m_LastRecoil.z - params.dir.z);
-							float Average = (x + y + z) / 3;
-							// 0.0001f check this
-							if ((Average < 0.0001f) && (currFireMode < 1))
-							{
-								++m_RecoilWarning;
-								if (m_RecoilWarning == 5)
-								{
-									string info;
-									const char* type = "No Recoil";
-									if (Average > 0.00001f)
-									{
-										type = "Low Recoil";
-										info.Format("%.5f, %s", Average, pClass->GetName());
-									}
-									else
-										info.Format("%s", pClass->GetName());
-
-									nCX_Anticheat::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
-									m_RecoilWarning = 0;
-									return true;
-								}
-							}
-							else
-								m_RecoilWarning = 0;
-
-							m_LastRecoil = params.dir;
-						}
-						//Weapon SpinUp time Check
-						float spinUpTime = pFireMode->GetSpinUpTime();
-						if (spinUpTime > 0.01f)
-						{
-							if (currTime - m_SpinupTime < spinUpTime)
-							{
-								//g_pGame->GetGameRules()->OnCheatDetected(pActor->GetEntityId(), "Weapon Spinup", pClass->GetName(), true);
-								CryLogAlways("[AntiCheat] Weapon Spinup detected on %s : %s : SpinupTime %.4f : ShootStart %.4f : currTime %.4f : $4DIFF %.4f", pActor->GetEntity()->GetName(), pClass->GetName(), spinUpTime, m_SpinupTime, currTime, spinUpTime - (currTime - m_SpinupTime));
-								m_SpinupTime = 0.0f;
-							}
-						}
-						//Weapon Cooldown Check
-						if (pClass == sMOARClass || pClass == sVehicleMOARMounted || pClass == sAlienMountClass || pClass == sShiTenClass || pClass == sAsian50CalClass || pClass == sAsianCoaxialGun || pClass == sUSCoaxialGun || pClass == sUSCoaxialGun_VTOL || pClass == sVehicleUSMachinegun || pClass == sVehicleShiTenV2 || pClass == sAvengerCannon)
-						{
-							++m_CoolDownCheck;
-							if (((pClass == sMOARClass || pClass == sVehicleMOARMounted) && m_CoolDownCheck == 13) || ((pClass == sShiTenClass || pClass == sAsianCoaxialGun || pClass == sVehicleShiTenV2) && m_CoolDownCheck == 90) || (pClass == sUSCoaxialGun_VTOL && m_CoolDownCheck == 62))
-							{
-								string info;
-								nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Cooldown", pClass->GetName(), false);
-								m_FireControl = true;
-							}
-						}
-					}
-					else
-						m_FireCheck = 0;
-				}
-				//gEnv->pPhysicalWorld->AddEventClient(1, 1);
-
-				++m_BulletsOut;
-				static ray_hit rh;
-				IEntity* pEntity = NULL;
-				if (gEnv->pPhysicalWorld->RayWorldIntersection(params.pos, params.dir*4096.0f, ent_all & ~ent_terrain, rwi_stop_at_pierceable | rwi_ignore_back_faces, &rh, 1))
-					pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(rh.pCollider);
-
-				if (pEntity)
-				{
-					if (INetContext* pNC = m_pGameFramework->GetNetContext())
-					{
-						if (pNC->IsBound(pEntity->GetId()))
-						{
-							AABB bbox; pEntity->GetWorldBounds(bbox);
-							bool hit0 = bbox.GetRadius() < 1.0f;
-							Vec3 hitLocal = pEntity->GetWorldTM().GetInvertedFast() * rh.pt;
-							GetGameObject()->InvokeRMIWithDependentObject(ClShootX(), ClShootXParams(pEntity->GetId(), hit0, hitLocal, params.predictionHandle), 0x04 | 0x10000, pEntity->GetId(), channelId);
-						}
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Spinup", pClass->GetName(), true);
+						m_SpinupTime = 0.0f;
 					}
 				}
-				else
-					GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.hit, params.predictionHandle), 0x04 | 0x10000, channelId);
-
-				m_fm->NetShoot(params.hit, params.predictionHandle);
+                
+				//Weapon Cooldown Check
+				if (pClass == sMOARClass || pClass == sVehicleMOARMounted || pClass == sAlienMountClass || pClass == sShiTenClass || pClass == sAsian50CalClass || pClass == sAsianCoaxialGun || pClass == sUSCoaxialGun || pClass == sUSCoaxialGun_VTOL || pClass == sVehicleUSMachinegun || pClass == sVehicleShiTenV2 || pClass == sAvengerCannon)
+				{
+					++m_CoolDownCheck;
+					if (((pClass == sMOARClass || pClass == sVehicleMOARMounted) && m_CoolDownCheck == 13) || ((pClass == sShiTenClass || pClass == sAsianCoaxialGun || pClass == sVehicleShiTenV2) && m_CoolDownCheck == 90) || (pClass == sUSCoaxialGun_VTOL && m_CoolDownCheck == 62))
+					{
+						string info;
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Cooldown", pClass->GetName(), false);
+						m_FireControl = true;
+					}
+				}
+			}
+			else
+				m_FireCheck = 0;
+		}
+		//gEnv->pPhysicalWorld->AddEventClient(1, 1);
+		++m_BulletsOut;
+		static ray_hit rh;
+		IEntity* pEntity = NULL;
+		if (gEnv->pPhysicalWorld->RayWorldIntersection(params.pos, params.dir*4096.0f, ent_all & ~ent_terrain, rwi_stop_at_pierceable | rwi_ignore_back_faces, &rh, 1))
+			pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(rh.pCollider);
+        
+        if (pEntity)
+		{
+			if (INetContext* pNC = m_pGameFramework->GetNetContext())
+			{
+				if (pNC->IsBound(pEntity->GetId()))
+				{
+					AABB bbox; pEntity->GetWorldBounds(bbox);
+					bool hit0 = bbox.GetRadius() < 1.0f;
+					Vec3 hitLocal = pEntity->GetWorldTM().GetInvertedFast() * rh.pt;
+					GetGameObject()->InvokeRMIWithDependentObject(ClShootX(), ClShootXParams(pEntity->GetId(), hit0, hitLocal, params.predictionHandle), 0x04 | 0x10000, pEntity->GetId(), channelId);
+				}
 			}
 		}
-	}
+		else
+			GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.hit, params.predictionHandle), 0x04 | 0x10000, channelId);
 
+		m_fm->NetShoot(params.hit, params.predictionHandle);
+	}
 	return true;
 }
 
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-
 	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
 	if (channelId)
 	{
@@ -625,12 +564,7 @@ IMPLEMENT_RMI(CWeapon, ClShootX)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestStartMeleeAttack)
 {
-	// Crysis Co-op :: Fixes the melee sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
-
-	GetGameObject()->InvokeRMI(CWeapon::ClStartMeleeAttack(), params, eRMI_ToOtherClients, 
-		m_pGameFramework->GetGameChannelId(pNetChannel));
+	GetGameObject()->InvokeRMI(CWeapon::ClStartMeleeAttack(), params, eRMI_ToOtherClients, m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
 	IActor *pLocalActor=m_pGameFramework->GetClientActor();
@@ -741,12 +675,7 @@ IMPLEMENT_RMI(CWeapon, ClZoom)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestFireMode)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
-
 	SetCurrentFireMode(params.id);
-
 	return true;
 }
 
@@ -754,16 +683,12 @@ IMPLEMENT_RMI(CWeapon, SvRequestFireMode)
 IMPLEMENT_RMI(CWeapon, ClSetFireMode)
 {
 	SetCurrentFireMode(params.id);
-
 	return true;
 }
 
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestReload)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
 	/*if (!pActor || pActor->GetHealth()<=0)
@@ -813,10 +738,6 @@ IMPLEMENT_RMI(CWeapon, ClEndReload)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestCancelReload)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
-
 	if(m_fm)
 	{
 		m_fm->CancelReload();
@@ -857,10 +778,6 @@ IMPLEMENT_RMI(CWeapon, ClUnlock)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestLock)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
-
 	if (m_fm)
 		m_fm->Lock(params.entityId, params.partId);
 
@@ -872,10 +789,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestLock)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestUnlock)
 {
-	// Crysis Co-op :: Fixes the weapon sync for Co-op AI
-	//CHECK_OWNER_REQUEST();
-	// ~Crysis Co-op
-
 	if (m_fm)
 		m_fm->Unlock();
 
@@ -903,4 +816,3 @@ IMPLEMENT_RMI(CWeapon, ClWeaponRaised)
 
 	return true;
 }
-
