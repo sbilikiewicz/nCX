@@ -1,85 +1,58 @@
---------------------------------------------------------------------------
---	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2005.
---------------------------------------------------------------------------
---
---	Description: BasicAI should contain all shared AI functionality for 
---	actors 
---  
---------------------------------------------------------------------------
+----------------------------------------------------------------------
+--  Crytek Source File.
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  BasicAI.lua
+--  File should contain all shared AI functionality for actors
+----------------------------------------------------------------------
 --  History:
---	Created by Petar
---  - 13/06/2005   15:36 : Kirill - cleanup
---
---------------------------------------------------------------------------
-
+--  06/2005  :  Created by Petar
+--  06/2005  :  Cleanup by Kirill
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
 Script.ReloadScript( "SCRIPTS/Entities/AI/Shared/BasicAITable.lua");
 Script.ReloadScript( "SCRIPTS/Entities/AI/Shared/BasicAIEvent.lua");
 Script.ReloadScript("Scripts/AI/anchor.lua");
 
-
 BasicAI = {
-	ai=1,
-------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------
-
+	ai = 1,
 	primaryWeapon = "FY71",
 	secondaryWeapon = "SOCOM",
-
-	supressed=0,
-	supressedTrh=8,	
-
-	Behaviour = {
-	},
-
+	supressed = 0,
+	supressedTrh = 8,
+	Behaviour = {},
 	onAnimationStart = {},
 	onAnimationEnd = {},
 	onAnimationKey = {},
-	
 	Server = {},
 	Client = {},
 	lastSplash = 0,
-	
-	Editor={
-		Icon="User.bmp",
-		IconOnTop=1,
+	Editor= {
+		Icon = "User.bmp",
+		IconOnTop = 1,
 	},
-	
 	SuitMode ={
-		SUIT_OFF=0,
-		SUIT_ARMOR=1,		
-		SUIT_CLOAK=2,
-		SUIT_POWER=3,
-		SUIT_SPEED=4,				
+		SUIT_OFF = 0,
+		SUIT_ARMOR = 1,		
+		SUIT_CLOAK = 2,
+		SUIT_POWER = 3,
+		SUIT_SPEED = 4,				
 	}
 }
 
---------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------
 function BasicAI:OnPropertyChange()
 	--do not rephysicalize at each property change
-
 	self:RegisterAI();
 	self:OnReset();
-	
 end
 
-
-----------------------------------------------------------------------------------------------------
 function BasicAI:OnLoadAI(saved)
-
-
---	AI.RegisterWithAI(self.id, AIOBJECT_PUPPET, self.Properties, self.PropertiesInstance, self.AIMovementAbility);
---	AI.ChangeParameter(self.id,AIPARAM_COMBATCLASS,AICombatClasses.Infantry);
-
 	self.AI = {};
 	if(saved.AI) then 
 		self.AI = saved.AI;
 	end
-
-	if(saved.Events) then 
---		self.Events = saved.Events;
+	if(saved.Events) then
 		self.Events = {};
 		local evts = self.Events;
 		for name, data in pairs(saved.Events) do
@@ -94,48 +67,38 @@ function BasicAI:OnLoadAI(saved)
 	else
 		self.Events = nil;
 	end
-
 	if(saved.spawnedEntity) then
 		self.spawnedEntity = saved.spawnedEntity;
 	else
 		self.spawnedEntity = nil;
 	end
-			
 	if(self.Properties and self.Properties.aicharacter_character) then 
 		local characterTable = AICharacter[self.Properties.aicharacter_character];
 		if(characterTable and characterTable.OnLoad) then 
 			characterTable.OnLoad(self,saved);
 		end
-	end	
-
+	end
 end
 
-
-----------------------------------------------------------------------------------------------------
 function BasicAI:OnSaveAI(save)
 	if(self.AI) then 
 		save.AI = self.AI;
 	end
-	
-	if(self.Events) then 
---		self.Events = sav.Events;
+	if(self.Events) then
 		save.Events = {};
 		local evtsSaved = save.Events
 		for name, data in pairs(self.Events) do
 			if not evtsSaved[name] then evtsSaved[name] = {} end
 			for i, target in pairs(data) do
-					local TargetId = target[1];
-					local TargetEvent = target[2];
-					table.insert(evtsSaved[name], {TargetId, TargetEvent})
-				end
---			evtsSaved[name] = data[1];
+				local TargetId = target[1];
+				local TargetEvent = target[2];
+				table.insert(evtsSaved[name], {TargetId, TargetEvent})
+			end
 		end
 	end
-
 	if(self.spawnedEntity) then
 		save.spawnedEntity = self.spawnedEntity;
 	end	
-
 	if(self.Properties and self.Properties.aicharacter_character) then 
 		local characterTable = AICharacter[self.Properties.aicharacter_character];
 		if(characterTable and characterTable.OnSave) then 
@@ -144,10 +107,7 @@ function BasicAI:OnSaveAI(save)
 	end
 end
 
-
------------------------------------------------------------------------------------------------------
 function BasicAI:RegisterAI()
-
 	if (self ~= g_localActor) then
 		if ( self.AIType == nil ) then
 			AI.RegisterWithAI(self.id, AIOBJECT_PUPPET, self.Properties, self.PropertiesInstance, self.AIMovementAbility,self.melee);
@@ -158,180 +118,120 @@ function BasicAI:RegisterAI()
 		AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_TARGET,self.forgetTimeTarget);
 		AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_SEEK,self.forgetTimeSeek);
 		AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_MEMORY,self.forgetTimeMemory);
-	
 		-- If the entity is hidden during 
 		if (self:IsHidden()) then
-			AI.LogEvent(self:GetName()..": The entity is hidden during init -> disable AI.");
+			System.LogAlways(self:GetName()..": The entity is hidden during init -> disable AI.");
+            --AI.LogEvent(self:GetName()..": The entity is hidden during init -> disable AI.");
 			self:TriggerEvent(AIEVENT_DISABLE);
 		end
 	end
 end
 
------------------------------------------------------------------------------------------------------
 function BasicAI:UnregisterAI()
     AI.RegisterWithAI(self.id, 0, self.Properties, self.PropertiesInstance, self.AIMovementAbility,self.melee);
 end
 
------------------------------------------------------------------------------------------------------
 function BasicAI:OnReset()
 	if (self.ResetOnUsed) then
 		self:ResetOnUsed();
 	end
-
 	self.ignorant = nil;
 	self.isFallen = nil;
-
 	local Properties = self.Properties;
-	
---	AI.ChangeParameter(self.id,AIPARAM_COMMRANGE,Properties.commrange);	-- communications range gets overriden when AI is killed
---	AI.ChangeParameter(self.id,AIPARAM_GROUPID,Properties.commrange);	-- communications range gets overriden when AI is killed
-
 	-- Reset all properties to editor set values.
 	AI.ResetParameters(self.id, Properties, self.PropertiesInstance, nil,self.melee);
 	AI.ChangeParameter(self.id,AIPARAM_COMBATCLASS,AICombatClasses.Infantry);
 	AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_TARGET,self.forgetTimeTarget);
 	AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_SEEK,self.forgetTimeSeek);
 	AI.ChangeParameter(self.id,AIPARAM_FORGETTIME_MEMORY,self.forgetTimeMemory);
-
 	-- free mounted weapon
 	if (self.AI.current_mounted_weapon) then
 		self.AI.current_mounted_weapon.reserved = nil;
 		self.AI.current_mounted_weapon.listPotentialUsers = nil;
 		self.AI.current_mounted_weapon = nil;
 	end	
-
 	if( self.OnInitCustom ) then
 	 self:OnInitCustom();
 	end 
-
 	self:SetActorModel();
-	
 	if (self.AI.bIsLeader) then
 		AI.SetLeader(self.id);
---	if(Properties.aicharacter_character =="TLDefense") then
 		AI.Signal(SIGNALFILTER_SENDER, 0, "REQUEST_JOIN_TEAM",self.id);
---	AI.Commander:AddLeader(self);
---	end
 	end
-
 	self.Enemy_Hidden = 0;
 	self.UpdateTime = 0.05;
-
 	self:NetPresent(1);
 	self.PLAYER_ALREADY_SEEN = nil;
 	self.DODGING_ALREADY  = nil;
 	self.POTSHOTS = 0;
 	self.EXPRESSIONS_ALLOWED = 1;
 	self:SetScriptUpdateRate(self.UpdateTime);
-
 	self.AI.PlayerEngaged = nil;
 	self.AI.ALARMNAME = nil;
 	self.RunToTrigger = nil;
 	self.SpecialTarget = nil;
 	self.useAction = AIUSEOP_NONE;
-
 	self:StopConversation();
-
 	if (Properties.ImpulseParameters) then 
 		for name,value in pairs(Properties.ImpulseParameters) do
 			self.ImpulseParameters[name] = value;
 		end
 	end
-
---	BasicPlayer.OnReset(self);
-	
+    --sbilikiewicz check this !
 	if(Properties.bNanoSuit==1) then 
-		--self.actor:ActivateNanoSuit(1);
+		System.LogAlways("BasicAI.lua nanosuit activated !!!");
+        self.actor:ActivateNanoSuit(1);
 	else
 		self.actor:ActivateNanoSuit(0);
 	end
-
 	self.AI.CurrentConversation = nil;
-	
-	--randomize only if the AI is using a voicepack.
 	if (Properties.SoundPack and Properties.SoundPack~="") then
 		Properties.SoundPack = SPRandomizer:GetHumanPack(self.PropertiesInstance.groupid,Properties.SoundPack);
--- 	 AI.LogEvent("SOUNDPACK "..self:GetName().." using"..Properties.SoundPack);
-	else
---		AI.LogEvent("SOUNDPACK not found for "..self:GetName());
 	end
-
 	self.groupid = self.PropertiesInstance.groupid;
-
 	Properties.LEADING_COUNT = -1;
 	self.LEADING = nil;
-
-	-- now the same for special fire animations
-
 	if (self.isAlien) then
 		BasicAlien.Reset(self);
 	else
 		BasicActor.Reset(self);
 	end
-	
 	if( self.OnResetCustom ) then
 		self:OnResetCustom();
 	end 
-
 	self.AI.theVehicle = nil;
-	
---	if (self.currentItemId) then
---		local item = System.GetEntity(self.currentItemId);
---	end
-
 	if (self.instructionId) then
 		HUD:SetInstructionObsolete(self.instructionId);
 	end
 	self.instructionId = nil;
-	
 	self:HideAttachment(0,"Animated LAW",true,true);
-
 	if(self.bSquadMate) then 
 		AICharacter.Player:InitItems(self);
 	end
 	self.AI.NextWeaponAccessory = nil;
 	self.AI.WeaponAccessoryMountType = nil;
 	self.AI.MountingAccessory = nil;
-
 	self:AssignPrimaryWeapon();
-	--self:CheckWeaponAttachments();
---	self:EnableLAM("Laser",true);
-	
 	if(not self.bGunReady) then
 		ItemSystem.SetActorItem(self.id,NULL_ENTITY,false);
-    --self:HolsterItem(true);
 	end
-		
 	if (self.isAlien) then
 	  self:DrawWeaponNow();
 	end
-	
 	self:CheckWeaponAttachments();
 	AI.EnableWeaponAccessory(self.id, AIWEPA_LASER, true);
-	
 	self:SetColliderMode(Properties.eiColliderMode);
-
 end
 
-
-
---------------------------------------------------------------------------------------------------------
 function BasicAI.Server:OnInit()
-	--Log("$8%s.Server:OnInit()", self:GetName());
-	
 	self:RegisterAI();
 	self:OnReset();
 end
 
-
---------------------------------------------------------------------------------------------------------
 function BasicAI.Client:OnInit()
 end
 
-
---------------------------------------------------------------------------------------------------------
 function BasicAI.Client:OnShutDown()
-
 	if (self.isAlien) then
 		BasicAlien.ShutDown(self);
 	else
@@ -339,10 +239,6 @@ function BasicAI.Client:OnShutDown()
 	end
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:CheckFlashLight()
 
 	if (self.Properties.special == 1) then 
@@ -350,27 +246,19 @@ function BasicAI:CheckFlashLight()
 	end
 
 	local name = AI.FindObjectOfType(self.id,2,AIAnchorTable.AIANCHOR_FLASHLIGHT);
-	
 	if (name) then 
 		self:InsertSubpipe(0,"flashlight_investigate",name);
 	end
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:MakeMissionConversation(name)
-
 	-- Conversation in place: the two guys are already close and don't have to move
 	-- to each other's place (also valid when they're walking together)
 	-- TO DO Conversation not in place: the guys requested for conversation must go to 
 	-- the requestor
-
 	if(name == nil or name=="") then
 		name = AI.FindObjectOfType(self.id,25,AIAnchorTable.IDLE_MISSION_TALK_INPLACE);
 	end
-
 	if (name and name~="") then
 		if (self.AI.CurrentConversation == nil) then
 			self.AI.ConvPartecipants = 0;
@@ -378,15 +266,11 @@ function BasicAI:MakeMissionConversation(name)
 			self.ConversationName = name;
 			g_SignalData.iValue = 1; -- for mission conversation 
 			g_SignalData.fValue = 1; -- for conversation in place
-
 			AI.Signal(SIGNALFILTER_GROUPONLY,0,"CONVERSATION_REQUEST",self.id, g_SignalData);
 			return 1
 		end
 	end
-
-
 	name = AI.FindObjectOfType(self.id,25,AIAnchorTable.IDLE_MISSION_TALK);
-
 	if (name) then
 		if (self.AI.CurrentConversation == nil) then
 			self.AI.ConvPartecipants = 0;
@@ -398,18 +282,10 @@ function BasicAI:MakeMissionConversation(name)
 			return 1
 		end
 	end
-	
 	return nil
-
 end
 
-
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:MakeRandomConversation(name)
-
 	-- Conversation in place: the two guys are already close and don't have to move
 	-- to each other's place (also valid when they're walking together)
 	-- TO DO Conversation not in place: the guys requested for conversation must go to 
@@ -430,9 +306,7 @@ function BasicAI:MakeRandomConversation(name)
 			return 1
 		end
 	end
-
 	name = AI.FindObjectOfType(self.id,25,AIAnchorTable.IDLE_RANDOM_TALK);
-	
 	if (name) then
 		if (self.AI.CurrentConversation == nil) then
 			self.AI.ConvPartecipants = 0;
@@ -444,29 +318,17 @@ function BasicAI:MakeRandomConversation(name)
 			return 1
 		end
 	end
-	
 	return nil
-
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:StopConversation()
-	
 	if (self.AI.CurrentConversation) then
 		self.AI.CurrentConversation:Stop(self);
---		self:StopDialog();
 		self.AI.CurrentConversation = nil;
 	end
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:RushTactic( probability)
-
 	if (self.Properties.fRushPercentage) then 
 		if (self.Properties.fRushPercentage>0) then
 			local percent = GetHealthPercentage();   -- self.actor:GetHealth() / 100;
@@ -481,69 +343,43 @@ function BasicAI:RushTactic( probability)
 	end
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:MakeAlerted( noDrawWeapon )
-
 	self:StopConversation();
-	
-	if(noDrawWeapon~=nil) then return end
-	
+	if (noDrawWeapon ~= nil) then
+        return;
+    end
 	self:DrawWeaponNow( );
-
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:MakeIdle()
-	-- Make this guy idle
 	AI.ChangeParameter(self.id,AIPARAM_SIGHTRANGE,self.Properties.Perception.sightrange);
 	AI.ChangeParameter(self.id,AIPARAM_FOVPRIMARY,self.Properties.Perception.FOVPrimary);
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:InitAIRelaxed()
-	
 	self:MakeIdle();
 	self:InsertSubpipe(0,"stance_relaxed");
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:InitAICombat()
-
 	self.AI.GunOut = true;
 	self:DrawWeaponNow( );
 	self.RunToTrigger = nil;
 	self:InsertSubpipe(0,"stance_stand");
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:InsertAnimationPipe( anim_name , layer_override, signal_at_end, fBlendTime, multiplier)
-
 	if (fBlendTime==nil) then
 		fBlendTime = 0.33;
 	end
-
 	if (multiplier==nil) then 
 		multiplier = 1;
 	end
-
-
 	AI.CreateGoalPipe("temp_animation_delay");
 	AI.PushGoal("temp_animation_delay","timeout",1,self:GetAnimationLength(0, anim_name)*multiplier);
 	if (signal_at_end) then
 		AI.PushGoal("temp_animation_delay","signal",1,-1,signal_at_end,0);
 	end
-
 	if (self:InsertSubpipe(0,"temp_animation_delay")) then
 		if (layer_override) then
 			self:StartAnimation(0,anim_name,layer_override,fBlendTime);
@@ -551,95 +387,53 @@ function BasicAI:InsertAnimationPipe( anim_name , layer_override, signal_at_end,
 			self:StartAnimation(0,anim_name,4,fBlendTime);
 		end
 	end
-
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:MakeRandomIdleAnimation()
-	
---do return end
-
 	-- pick random idle animation
 	local MyAnim = IdleManager:GetIdleAnimation( self );
 	if (MyAnim) then
 		self:InsertAnimationPipe(MyAnim.Name);
-	else
-		System.Warning( "[AI] [ART ERROR][DESIGN ERRoR] Model "..self.Properties.fileModel.." used, assigned a job BUT HAS NO idleXX animations.");
 	end
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:NotifyGroup()
 	return 1
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:GettingAlerted()
-
 	if (self.Properties.special == 1) then 
 		do return end
 	end
-
 	self:DrawWeaponNow( );
 end
-
-
---
---
---------------------------------------------------------------------------------------------------------
+--sbilikiewicz check this
 function BasicAI:Blind_RunToAlarm()
-
 	do return end
-	
 	if (self.Properties.special == 1) then 
 		do return end
 	end
-
 	self.AI.ALARMNAME = AI.FindObjectOfType(self.id,30,AIAnchorTable.USE_BLIND_ALARM);		
 	if (self.AI.ALARMNAME) then	
 		AI.Signal(0, 2, "GOING_TO_TRIGGER",self.id);
 	end
-
 end
-
-
-
---
---
---------------------------------------------------------------------------------------------------------
+--sbilikiewicz check this
 function BasicAI:RunToAlarm()
-
 	do return end
-	
 	if (self.Properties.special == 1) then 
 		do return end
 	end
-
 	local flare_name = AI.FindObjectOfType(self.id,10,AIAnchorTable.ACTION_THROW_FLARE);		
 	if (flare_name) then
-
 		AI.Signal(0, 2, "THROW_FLARE",self.id);
---		BasicPlayer.SelectGrenade(self,"FlareGrenade");
 	end
-
 	self.AI.ALARMNAME = AI.FindObjectOfType(self.id,30,AIAnchorTable.USE_PUSH_ALARM);		
 	if (self.AI.ALARMNAME) then	
 		AI.Signal(0, 2, "GOING_TO_TRIGGER",self.id);
 	end
-
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAI:Say( soundFile, soundData, listenerActor, sound3D )
 	if (soundData~=nil) then
 		if(listenerActor~=nil and listenerActor~=self) then
@@ -694,9 +488,6 @@ end
 --
 --------------------------------------------------------------------------------------------------------
 function BasicAI:Readibility(signal,bSkipGroupCheck,priority,delayMin,delayMax)
-
---	AI.LogEvent(" >>>> Readibility "..signal);
-
 	g_SignalData.iValue = 0;
 	g_SignalData.fValue = 0;
 
@@ -858,8 +649,6 @@ function BasicAI:Reload()
 	local weapon = self.inventory:GetCurrentItem();
 	if(weapon~=nil and weapon.weapon~=nil) then
 		weapon.weapon:Reload();
-	else
-		AI.LogEvent(">>>>"..self:GetName().." FAILED TO RELOAD WEAPON!");
 	end	
 end
 
@@ -890,7 +679,6 @@ function BasicAI:OnItemDropped(what)
 end
 
 function BasicAI:AnimationEvent(event,value)
-	--Log("BasicAI:AnimationEvent "..event.." "..value);
 	if ( event == "setIdleAction" ) then
 		self.actor:SetAnimationInput( "Action", "idle" );
 	elseif ( event == "useObject" ) then
@@ -1210,7 +998,6 @@ function BasicAI:UpdateRadar(radarContact)
 			end
 			
 			if (self.speakingTime and self.speakingTime > 0) then
-				AI.LogEvent(self:GetName() .."speaking for ".. self.speakingTime * 0.001 .." seconds");
 				radarContact.blinking = 1.0+self.speakingTime * 0.001;
 				radarContact.blinkColor[1] = 255;
 				radarContact.blinkColor[2] = 255;
@@ -1239,17 +1026,14 @@ function BasicAI:RequestVehicle(goaltype,target)
 		if(targetName) then
 			target = System.GetEntityByName(targetName);
 		else -- no target at all
-			AI.LogEvent(self:GetName().." requesting vehicle with no target ");
 			return;
 		end
 	end
 
 	if (target and target.id) then 
-		AI.LogEvent(self:GetName().." requesting vehicle for target "..target:GetName());
 		g_SignalData.id = target.id;
 		CopyVector(g_SignalData.point2,g_Vectors.v000);
 	else -- target is there, but it's not an entity
-		AI.LogEvent(self:GetName().." requesting vehicle for AI target "..targetName);
 		g_SignalData.id = NULL_ENTITY;
 		AI.GetAttentionTargetPosition(self.id,g_SignalData.point2);
 	end
@@ -1262,15 +1046,12 @@ function BasicAI:RequestVehicle(goaltype,target)
 end
 
 function BasicAI:CheckReinforcements()
-	AI.LogEvent(self:GetName().." >>> checking reinforcements, group count="..AI.GetGroupCount(self.id,GROUP_ENABLED,AIOBJECT_PUPPET));
 	if(AI.GetGroupCount(self.id,GROUP_ENABLED,AIOBJECT_PUPPET)<3) then -- the 3rd is the one just died
-		AI.LogEvent(self:GetName().." found less than 3 people");
 		local anchorName = AI.FindObjectOfType(self.id,30,AIAnchorTable.USE_RADIO_ALARM,0);
 		if(anchorName == nil) then
 			-- achorName = other kind of anchor (call reinforcements by waving hand etc)
 		end
 		if(anchorName) then
-			AI.LogEvent(self:GetName().." found an anchor for reinforcement");
 			local anchor = System.GetEntityByName(anchorName);
 			if(anchor) then
 				self:InsertSubpipe(0,"do_it_standing");
@@ -1284,10 +1065,8 @@ function BasicAI:CheckReinforcements()
 end
 
 function BasicAI:SetRefPointAroundBeaconRandom(distance)
-	local targetPos = g_Vectors.temp;
---AI.LogEvent("BasicAI:SetRefPointAroundBeaconRandom>>> "); 	
+	local targetPos = g_Vectors.temp; 	
 	if( AI.GetBeaconPosition(self.id,targetPos) == nil ) then	return nil; end
---AI.LogEvent("BasicAI:SetRefPointAroundBeaconRandom>>> good beacon at "..Vec2Str(targetPos));
 	local targetDir = g_Vectors.temp_v1;
 	if(random(10)<5) then
 		targetDir.x = -randomF(1,distance);
@@ -1305,14 +1084,11 @@ function BasicAI:SetRefPointAroundBeaconRandom(distance)
 		local firstHit = g_HitTable[1];
 		AI.SetRefPointPosition(self.id, firstHit.pos);
 		actualDistance = firstHit.dist;
---AI.LogEvent("BasicAI:SetRefPointAroundBeaconRandom>>> hit  "..Vec2Str(firstHit.pos));
 	else
 		targetPos.x = targetPos.x + targetDir.x;
 		targetPos.y = targetPos.y + targetDir.y;
 		AI.SetRefPointPosition(self.id, targetPos);
---AI.LogEvent("BasicAI:SetRefPointAroundBeaconRandom>>> free  "..Vec2Str(targetPos));
 	end
---AI.LogEvent("BasicAI:SetRefPointAroundBeaconRandom>>> dist "..actualDistance);
 	return actualDistance;
 end
 
@@ -1325,7 +1101,6 @@ function BasicAI:SetRefPointAtDistanceFromTarget(distance)
 	end
 
 	AI.GetAttentionTargetDirection(self.id, targetDir);
---	AI.LogEvent("TARGET DIR: "..Vec2Str(targetDir));
 	if(LengthSqVector(targetDir)<0.05) then 
 		-- target is still, no direction to approach
 		return false; 
@@ -1383,8 +1158,6 @@ function BasicAI:Supress( stress )
 		AI.Signal(SIGNALFILTER_SENDER, 0, "SUPRESSED",self.id);
 		self.supressed = self.supressed/2;
 	end	
-
---AI.LogEvent(">>>  "..self.supressed);
 	
 end
 
@@ -1715,7 +1488,6 @@ function BasicAI:ExecuteAttachWeaponAccessory(singleItem)
 	local item = self.inventory:GetCurrentItem();
 	if(item) then 
 		local currWeapon = item.weapon;
-		--System.Log("ATTACHING WEAPON ACCESSORY:"..self.AI.NextWeaponAccessory.." ON="..tostring(self.AI.NextWeaponAccessoryMount));
 		if(currWeapon) then 
 			if(self.AI.WeaponAccessoryMountType==0) then 
 				currWeapon:AttachAccessory(self.AI.NextWeaponAccessory,false);
@@ -1781,9 +1553,6 @@ end
 
 ---------------------------------------------------------------------
 function BasicAI:NanoSuitMode( mode )
-
-	AI.LogEvent(self:GetName()..": Setting SUIT mode to "..mode);
-
 	if(mode == self.AI.curSuitMode) then return end
 
 	if(mode == BasicAI.SuitMode.SUIT_OFF) then

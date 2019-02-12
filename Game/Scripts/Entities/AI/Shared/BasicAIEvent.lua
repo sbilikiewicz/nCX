@@ -1,84 +1,50 @@
---------------------------------------------------------------------------
---	Crytek Source File.
--- 	Copyright (C), Crytek Studios, 2001-2005.
---------------------------------------------------------------------------
---
---	Description: BasicAIEvents - moved out all the events from BasicAI
---	
---  
---------------------------------------------------------------------------
+----------------------------------------------------------------------
+--  Crytek Source File.
+--  Copyright (C), Crytek Studios.
+----------------------------------------------------------------------
+--  BasicAIEvents.lua
+--  Moved out all the events from BasicAI
+----------------------------------------------------------------------
 --  History:
---  - 13/06/2005   15:36 : created by Kirill Bulatsev
---
---------------------------------------------------------------------------
-
-
-BasicAIEvent =
-{
-
-}
+--  06/2005  :  Created by Kirill Bulatsev
+--  02/2019  :  Edited and optimized by sbilikiewicz
+--              https://github.com/sbilikiewicz
+----------------------------------------------------------------------
+BasicAIEvent = {}
 
 MakeUsable(BasicAIEvent);
 
-
---
---
---------------------------------------------------------------------------------------------------------
-function BasicAIEvent:Event_Dead( params )
+function BasicAIEvent:Event_Dead(params)
 	BroadcastEvent(self, "Dead");
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
-function BasicAIEvent:Event_WakeUp( params )
-
+function BasicAIEvent:Event_WakeUp(params)
 	if (self.actor:GetPhysicalizationProfile() == "sleep") then
 		self.actor:StandUp();
 	end
 end
 
---
---
---------------------------------------------------------------------------------------------------------
-function BasicAIEvent:Event_Sleep( params )
---System.Log(">>>>>>> BasicAIEvent:Event_Sleep "..self:GetName());
+function BasicAIEvent:Event_Sleep(params)
 	if(not self.isFallen) then
 		BroadcastEvent(self, "Sleep");
 	end	
 	self.isFallen = 1;
 end
 
-
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_Enabled( params )
 	BroadcastEvent(self, "Enabled");
 end
 
-
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_OnAlert( params )
 	BroadcastEvent( self, "OnAlert" );
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_Disable(params)
-	--hide does enable/disable physics as well
 	self:Hide(1);
-	
-	-- Crysis Co-op :: Causes problem in MP
-	--self:TriggerEvent(AIEVENT_DISABLE);
-	-- ~ Crysis Co-op
+	-- sbilikiewicz : this event caused problems in mp
+	-- self:TriggerEvent(AIEVENT_DISABLE);
 end
- 
---
---
---------------------------------------------------------------------------------------------------------
+
 function BasicAIEvent:Event_Enable(params)
 	if (not self:IsDead() ) then 
 		-- hide does enable/disable physics as well
@@ -94,27 +60,12 @@ function BasicAIEvent:Event_Enable(params)
 	end
 end
 
-
---
---	This event will kill the actor 
---------------------------------------------------------------------------------------------------------
-function BasicAIEvent:Event_Kill(params)
-	--Log("BasicAIEvent:Event_Kill");
+function BasicAIEvent:Event_Kill(params) -- kill the actor
 	if (not self:IsDead()) then 
 		g_gameRules:CreateHit(self.id,self.id,self.id,100000,nil,nil,nil,"event");
 	end
 end
 
-
----------------------------------------------------------------------------------------------------------
---
---
---			below are old events - to-be-removed candidates
---
----------------------------------------------------------------------------------------------------------
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_Follow(sender)
 	BroadcastEvent(self, "Follow");
 	local newGroupId;
@@ -127,48 +78,30 @@ function BasicAIEvent:Event_Follow(sender)
 	AI.Signal(SIGNALFILTER_SENDER,0,"FOLLOW_LEADER",self.id);
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_Test(sender)
 	g_SignalData.fValue = 2;
 	AI.Signal(SIGNALFILTER_LEADER,0,"OnScaleFormation",self.id,g_SignalData);
 end
 
---
---
---------------------------------------------------------------------------------------------------------
 function BasicAIEvent:Event_TestStealth(sender)
 	AI.SetPFProperties(self.id, AIPATH_HUMAN_COVER);
 end
 
-
-
-
-
-BasicAIEvent.FlowEvents =
-{
-	Inputs =
-	{
-		Used = { BasicAIEvent.Event_Used, "bool" },
-		EnableUsable = { BasicAIEvent.Event_EnableUsable, "bool" },
+BasicAIEvent.FlowEvents = {
+	Inputs = {
+		Used          = { BasicAIEvent.Event_Used, "bool" },
+		EnableUsable  = { BasicAIEvent.Event_EnableUsable, "bool" },
 		DisableUsable = { BasicAIEvent.Event_DisableUsable, "bool" },
-		
-		Disable = { BasicAIEvent.Event_Disable, "bool" },
-		Enable = { BasicAIEvent.Event_Enable, "bool" },
-		Kill = { BasicAIEvent.Event_Kill, "bool" },
-		
-		WakeUp = { BasicAIEvent.Event_WakeUp, "bool" },		-- fall-and-play stand up
+		Disable       = { BasicAIEvent.Event_Disable, "bool" },
+		Enable        = { BasicAIEvent.Event_Enable, "bool" },
+		Kill          = { BasicAIEvent.Event_Kill, "bool" },
+		WakeUp        = { BasicAIEvent.Event_WakeUp, "bool" },
 	},
-	Outputs =
-	{
-		Used = "bool",
-
-		Dead = "bool",
-		OnAlert = "bool",
-		Sleep = "bool",				-- fall-and-play falling
---		Awake = "bool",
-		
-		Enabled = "bool",
+	Outputs = {
+		Used      = "bool",
+		Dead      = "bool",
+		OnAlert   = "bool",
+		Sleep     = "bool",
+		Enabled   = "bool",
 	},
 }

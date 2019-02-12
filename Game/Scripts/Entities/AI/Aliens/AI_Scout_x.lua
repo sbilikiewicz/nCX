@@ -830,7 +830,19 @@ end
 
 
 function AI_Scout_x.Server:OnHit(hit)--(shooterId, weaponId, matName, damage, hitType, pos, normal, partId, radius)
-
+    
+    local shot = System.GetEntity(hit.shooterId);
+    local weap = System.GetEntity(hit.weaponId);
+    local scou = self:GetName();
+    System.LogAlways("Scout:OnHit %s : %s : %s", shot:GetName(), weap:GetName(), scou);
+    
+    if (hit.type == "collision") then
+        if (hit.shooterId != hit.weaponId) then
+            -- sbilikiewicz fix this! Added due to scouts collide with other scouts what causes bug
+            self:AddImpulse(10, {x = 0, y = 0, z =0 },self.lastImpulseDir,self.lastImpulseAmt,1);
+        end
+    end
+    
 	if ( self.isVulnerable and self.isVulnerable ~=0 ) then
 		local health = self.actor:GetHealth();
 		return (health < 1.0);
@@ -841,8 +853,7 @@ function AI_Scout_x.Server:OnHit(hit)--(shooterId, weaponId, matName, damage, hi
 		local health = self.actor:GetHealth();
 		return (health < 1.0);
 	end
-	
-	--local damageMult = self:GetDamageMultiplier(hit);
+
 	local damage = hit.damage * damageMult;
 	local maxhealth = self.actor:GetMaxHealth();
 
@@ -891,9 +902,7 @@ function AI_Scout_x.Server:OnHit(hit)--(shooterId, weaponId, matName, damage, hi
 
 		end
 	end
-
 	return (health < 1.0 );
-
 end
 
 
