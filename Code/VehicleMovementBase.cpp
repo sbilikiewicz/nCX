@@ -400,7 +400,7 @@ void CVehicleMovementBase::Update(const float deltaTime)
   UpdateDamage(deltaTime);
   UpdateBoost(deltaTime);
   UpdateSpeedRatio(deltaTime);    
-  
+ 
   if (gEnv->bClient)
   {
 		if(!m_pVehicle->IsPlayerDriving(true))
@@ -1039,16 +1039,14 @@ void CVehicleMovementBase::OnEvent(EVehicleMovementEvent event, const SVehicleMo
 		{ 
 			if (!GetSound(eSID_Ambience) && (m_isEnginePowered||m_isEngineStarting))
 			{ 
-        PlaySound(eSID_Ambience);				
+				PlaySound(eSID_Ambience);				
         
-        // fade in ambience with rpmscale
-        SetSoundParam(eSID_Ambience, "rpm_scale", m_rpmScale); 
+				// fade in ambience with rpmscale
+				SetSoundParam(eSID_Ambience, "rpm_scale", m_rpmScale); 
 			}
 		}
-		else
-		{	
-      StopSound(eSID_Ambience);
-		}    
+		else	
+			StopSound(eSID_Ambience);		
 	}
 	else if (event == eVME_WarmUpEngine)
 	{

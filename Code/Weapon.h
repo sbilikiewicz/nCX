@@ -616,6 +616,8 @@ public:
 	float		m_BulletsPassed;
 	float		m_BulletsOut;
 	float		m_SpinupTime;
+	Vec3		m_LastRecoil;
+	int			m_RecoilWarning;
 	//nCX
 
 protected:
@@ -714,9 +716,7 @@ protected:
 	uint16					m_shootSeqN;
 	//nCX
 	std::vector<float> m_RecoilSys;
-	int			m_RecoilWarning;
 	int			m_RapidFireDetections;
-	Vec3		m_LastRecoil;
 	//nCX
 
 private:

@@ -833,13 +833,14 @@ function AI_Scout_x.Server:OnHit(hit)--(shooterId, weaponId, matName, damage, hi
     
     local shot = System.GetEntity(hit.shooterId);
     local weap = System.GetEntity(hit.weaponId);
-    local scou = self:GetName();
-    System.LogAlways("Scout:OnHit %s : %s : %s", shot:GetName(), weap:GetName(), scou);
+    System.LogAlways("Scout:OnHit %s : %s", shot:GetName(), weap:GetName());
     
     if (hit.type == "collision") then
-        if (hit.shooterId != hit.weaponId) then
+        if (hit.shooterId ~= hit.weaponId) then
             -- sbilikiewicz fix this! Added due to scouts collide with other scouts what causes bug
-            self:AddImpulse(10, {x = 0, y = 0, z =0 },self.lastImpulseDir,self.lastImpulseAmt,1);
+            local stats = self:GetPhysicalStats();
+            shot:AddImpulse(-1, {x = 0, y = 0, z =0 }, g_Vectors.temp_v1, stats.mass*2, 1);
+            System.LogAlways("AI_Scout_x.Server:OnHit added impulse to scout");
         end
     end
     

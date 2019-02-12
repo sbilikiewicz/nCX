@@ -12,6 +12,8 @@
 #include "StdAfx.h"
 #include "nCX_Main.h"
 #include "nCX_PCInfo.h"
+#include "nCX_AntiCheat.h"
+#include "Player.h"
 #include "GameRules.h"
 #include "IVehicleSystem.h"
 #include <regex>
@@ -356,28 +358,28 @@ void nCX::OnUpdate(float frameTime)
 	}
 }
 
-void nCX::PlayerTimer()//Every second
+void nCX::PlayerTimer(CActor *pActor)//Every second ! optimize those conversions !
 {
-	if (CPlayer *pPlayer = ((CPlayer*)this))
+	if (CPlayer *pPlayer = ((CPlayer*)pActor))
 	{
 		//Ripped from CPlayer::Update	
 		if (pPlayer->m_stats.spectatorMode == 3/*eASM_Follow*/)
 		{
-			CActor* pActor = static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActor(pPlayer->m_stats.spectatorTarget));
+			CActor* pActor = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pPlayer->m_stats.spectatorTarget));
 			if (pActor)
 			{
 				CPlayer* pTargetPlayer = static_cast<CPlayer*>(pActor);
 				float timeSinceDeath = gEnv->pTimer->GetFrameStartTime().GetSeconds() - pTargetPlayer->GetDeathTime();
-				if (pTargetPlayer && (pTargetPlayer->GetHealth() <= 0 && timeSinceDeath > 3.0f) || pTargetPlayer->GetSpectatorMode() != eASM_None)
+				if (pTargetPlayer && (pTargetPlayer->GetHealth() <= 0 && timeSinceDeath > 3.0f) || pTargetPlayer->GetSpectatorMode() != 0)
 				{
 					pPlayer->m_stats.spectatorTarget = 0;
-					g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+					g_pGame->GetGameRules()->RequestNextSpectatorTarget(pPlayer, 1);
 				}
 			}
 			else
 			{
 				pPlayer->m_stats.spectatorTarget = 0;
-				g_pGame->GetGameRules()->RequestNextSpectatorTarget(this, 1);
+				g_pGame->GetGameRules()->RequestNextSpectatorTarget(pPlayer, 1);
 			}
 		}
 		//Ripped from CNanosuit::OnUpdate
@@ -438,18 +440,22 @@ void nCX::TickTimer()
             			pActor->m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
                         
                     //RMI Flood
-                    if (m_RMIFlood > 140)
+					if (pActor->m_RMIFlood > 140)
                 	{
                 		char info[6];
-                		sprintf(info, "%d", m_RMIFlood);
-                		nCX_Anticheat::CheatDetected(GetEntityId(), "RMI Flood", info, true);
+						sprintf(info, "%d", pActor->m_RMIFlood);
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Flood", info, true);
                 	}
                     //Chat spam
-                	if (m_ChatCounter > 3)
-                		nCX_Anticheat::CheatDetected(GetEntityId(), "Chat Spam", info, true);
+					if (pActor->m_ChatCounter > 3)
+					{
+						char info[4];
+						sprintf(info, "%d", pActor->m_ChatCounter);
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Chat Spam", info, true);
+					}
                 
-                	m_ChatCounter = 0;
-                	m_RMIFlood = 0;
+					pActor->m_ChatCounter = 0;
+					pActor->m_RMIFlood = 0;
                     //Ping procession
 					int ping = pNetChannel->GetPing(true) * 1000;
 					int SmoothedPing = floor(ping - (ping*0.2));
@@ -460,6 +466,8 @@ void nCX::TickTimer()
 
 					if (ping > gEnv->pConsole->GetCVar("nCX_HighPingLimit")->GetIVal())
 						PingGuard(ping, *it);
+
+					PlayerTimer(pActor);
 
 					++PlayerCount;
 				}
@@ -503,7 +511,7 @@ void nCX::TickTimer()
 			}
 		}
 
-		pRules->UpdateEntitySchedules();
+		pRules->UpdateEntitySchedules(gEnv->pTimer->GetCurrTime()); //check this
 
 		//Check voting
 		//if (!m_VoteSystem.empty())

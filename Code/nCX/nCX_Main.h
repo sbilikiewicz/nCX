@@ -41,7 +41,6 @@ public:
 	virtual bool			LogToFile(const char* which, const char* msg);
 	virtual void			LogToConsole(const char* msg, int channelId = 0, bool toOther = false);
 	virtual void			SaveBanList(const char* line = "");
-	virtual void			ClientPacket(int channelId, const char* msg);
 	virtual void			SendAdminMessage(int type, const char *msg);
 
 	//Values
@@ -59,6 +58,7 @@ protected:
 	void	LoadChatCommands();
 	void	LoadChatEntities();
 	void	OnUpdate(float frameTime);
+	void	PlayerTimer(CActor *pActor);
 	void	TickTimer();
 	void	MinTimer();
 	void	SeqTimer();

@@ -226,7 +226,7 @@ void CGameRules::ProcessServerHit(HitInfo &hitInfo)//TODO Make this C++ only
 	//if (m_pShotValidator && !m_pShotValidator->ProcessHit(hitInfo))
 		//return;
 
-	//Team kill co-op checks
+	//Team kill co-op checks ->remove lua onhit !
 	CActor* pShooter = GetActorByEntityId(hitInfo.shooterId);
 	CActor *pTarget = GetActorByEntityId(hitInfo.targetId);
 	if (pShooter && pShooter->IsPlayer() && pTarget && !pTarget->IsPlayer())

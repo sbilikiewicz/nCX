@@ -1249,6 +1249,10 @@ public:
 
 	ILINE bool IsServer() {	return gEnv->bServer; }
 	ILINE bool IsClient() {	return gEnv->bClient; }
+
+	//nCX
+	int		m_FireCheck;
+
 protected:
 	// data
 	_smart_ptr<class CItemSharedParams> m_sharedparams;
@@ -1326,7 +1330,6 @@ protected:
 	//nCX
 	float	m_spawnTime;
 	float	m_TickTimer;
-	int		m_FireCheck;
 	bool	m_FireControl;
 	int		m_CoolDownCheck;
 

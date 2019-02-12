@@ -87,7 +87,7 @@ bool nCX_Anticheat::ShootPositionCheck(CActor *pActor, Vec3 DefinedPos, float ti
 	return false;
 }
 
-bool nCX_Anticheat::LongpokeCheck(CActor *pActor, seq)
+bool nCX_Anticheat::LongpokeCheck(CActor *pActor, int seq)
 {
     float currTime = gEnv->pTimer->GetCurrTime();
 	if (seq == 1)
@@ -102,21 +102,22 @@ bool nCX_Anticheat::LongpokeCheck(CActor *pActor, seq)
     return false;
 }
 
-bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
+bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, CWeapon::SvRequestShootParams params)
 {
     int currFireMode = pWeapon->GetCurrentFireMode();
 	if (IFireMode *pFireMode = pWeapon->GetFireMode(currFireMode))
 	{
-		++m_FireCheck;
+		++pWeapon->m_FireCheck;
 		float rate = pFireMode->GetFireRate();
-		if (pClass != sDetonatorClass && rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
+		IEntityClass *pClass = pWeapon->GetEntity()->GetClass();
+		if (pClass != CItem::sDetonatorClass && rate > 0.0f && ((rate < 50.f && pWeapon->m_FireCheck > 1) || (rate > 50.f && pWeapon->m_FireCheck > int(ceil(rate / 33.0f))))) //50.0f
 		{
-			OnCheatDetected(pWeapon->GetOwner()->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
-			m_FireCheck = 0;
-			pActor->m_WeaponCheatDelay = currTime + 3.0f;
+			OnCheatDetected(pWeapon->GetOwnerId(), "Rapid Fire", pClass->GetName(), false);
+			pWeapon->m_FireCheck = 0;
+			//pWeapon->GetOwnerActor()->m_WeaponCheatDelay = currTime + 3.0f;
 			return true;
 		}
-		if (pClass == sSCARClass || pClass == sFY71Class || pClass == sSMGClass || pClass == sHurricaneClass || (sAlienMountClass && currFireMode == 1))
+		if (pClass == CItem::sSCARClass || pClass == CItem::sFY71Class || pClass == CItem::sSMGClass || pClass == CItem::sHurricaneClass || (CItem::sAlienMountClass && currFireMode == 1))
 		{
 			/* not needed right now
             int clip = pFireMode->GetAmmoCount();
@@ -143,7 +144,7 @@ bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
 					else
 						info.Format("%s", pClass->GetName());
 
-					nCX_Anticheat::CheatDetected(pActor->GetEntityId(), type, info.c_str(), true);
+					OnCheatDetected(pWeapon->GetOwnerId(), type, info.c_str(), true);
 					pWeapon->m_RecoilWarning = 0;
 					return true;
 				}
@@ -152,12 +153,9 @@ bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
 				pWeapon->m_RecoilWarning = 0;
 
 			pWeapon->m_LastRecoil = params.dir;
-	   }
+		}
+		if (pClass == CItem::sAsian50CalClass) //CTAO added
+			pWeapon->GetOwnerActor()->m_RMIFlood = pWeapon->GetOwnerActor()->m_RMIFlood - 0.5;
     }
     return false;
-}
-
-bool nCX_Anticheat::RecoilCheck(CWeapon *pWeapon, IHitInfo params)
-{
-
 }

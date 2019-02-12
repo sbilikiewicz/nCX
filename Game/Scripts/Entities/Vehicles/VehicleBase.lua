@@ -794,17 +794,11 @@ function VehicleBase.Server:OnHit(hit)
 		direction.y = -direction.y;
 		direction.z = -direction.z;
 	end
-    --sbilikiewicz Debug
-    if (AI) then
-	    System.LogAlways("VehicleBase.Server:OnHit AI exists !");
-    else
-        System.LogAlways("VehicleBase.Server:OnHit AI doesnt exist !");
-    end
     
-	-- SP only
-	if(g_localActorId and self:GetSeat(g_localActorId)) then
-		HUD.DamageIndicator(hit.weaponId, hit.shooterId, direction, true);
-	end
+	-- OnClient in sp only !
+	--if(g_localActorId and self:GetSeat(g_localActorId)) then
+	--	HUD.DamageIndicator(hit.weaponId, hit.shooterId, direction, true);
+	--end
   	
 	self.vehicle:OnHit(targetId, hit.shooterId, hit.damage, hit.pos, hit.radius, hitType, explosion);
 
@@ -943,10 +937,9 @@ end
 --------------------------------------------------------------------------
 function VehicleBase:RegisterVehicleAI()
 	local AIType = self.AIType;
-    if (AIType == nil) then
-        AIType = 0;
+    if (AIType) then
+        AI.RegisterWithAI(self.id, self.AIType, self.Properties, self.PropertiesInstance, self.AIMovementAbility);
     end
-    AI.RegisterWithAI(self.id, self.AIType, self.Properties, self.PropertiesInstance, self.AIMovementAbility);
 end
 --------------------------------------------------------------------------
 function VehicleBase:OnActorChangeSeat(passengerId, exiting)

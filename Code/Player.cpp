@@ -717,7 +717,6 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 	if (pEnt->IsHidden() && !(GetEntity()->GetFlags() & ENTITY_FLAG_UPDATE_HIDDEN))
 		return;
 
-	CryLogAlways("CPlayer::Update for %s", GetEntity()->GetName());
     /* Moved to nCX sec timer
     if (gEnv->bServer && !IsClient() && IsPlayer())
 	{

@@ -377,30 +377,28 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
             //RMI Spoof
 			if (pActor->GetEntityId() != GetOwnerId())
             {
-                nCX_AntiCheat::CheatDetected(pActor->GetEntityId(), "RMI Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
+				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
                 return false;
             }
 			//Longpoke
             if (nCX_Anticheat::CheckLongpoke(pActor, params.seq))
                 return false;
-				
-            IEntityClass *pClass = GetEntity()->GetClass();
-			if (pClass == sAsian50CalClass) //CTAO added
-				pActor->m_RMIFlood = pActor->m_RMIFlood - 0.5;
 
 			if (!pActor->m_IsLagging)//Process anticheat only if player is not lagging !
 			{
+				float currTime = gEnv->pTimer->GetCurrTime();
 				//Shoot Pos Spoof
+				IEntityClass *pClass = GetEntity()->GetClass();
 				if (pClass != sDetonatorClass && pClass != sRadarKitClass && pClass != sAlienMountClass && pClass != sVehicleMOARMounted)
 					if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
 						return false;
 
 			    //RapidFire & NoRecoil
-				if (nCX_Anticheat::CheckRecoil(pWeapon, params))
+				if (nCX_Anticheat::CheckRecoil(this, params))
 					return false;
 				
                 //Weapon SpinUp time Check
-				float spinUpTime = pFireMode->GetSpinUpTime();
+				float spinUpTime = GetFireMode(GetCurrentFireMode())->GetSpinUpTime();
 				if (spinUpTime > 0.01f)
 				{
 					if (currTime - m_SpinupTime < spinUpTime)
