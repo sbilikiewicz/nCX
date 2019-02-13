@@ -18,7 +18,6 @@
 #include "IGameObject.h"
 #include "ISerialize.h"
 #include <IEntitySystem.h>
-
 #include "Actor.h"
 #include "Player.h"
 #include "IActorSystem.h"
@@ -35,15 +34,6 @@
 
 
 #pragma warning(disable: 4355)	// ´this´ used in base member initializer list
-
-#if defined(USER_alexll)
-#define ITEM_DEBUG_MEMALLOC
-#endif
-
-#ifdef ITEM_DEBUG_MEMALLOC
-int gInstanceCount = 0;
-#endif
-
 
 IEntitySystem *CItem::m_pEntitySystem=0;
 IItemSystem *CItem::m_pItemSystem=0;
@@ -124,9 +114,6 @@ CItem::CItem()
 	m_FireControl(false),
 	m_spawnTime(0.0f)
 {
-#ifdef ITEM_DEBUG_MEMALLOC
-	++gInstanceCount;
-#endif
 	memset(m_animationTime, 0, sizeof(m_animationTime));
 	memset(m_animationEnd, 0, sizeof(m_animationTime));
 	memset(m_animationSpeed, 0, sizeof(m_animationSpeed));
@@ -171,20 +158,12 @@ CItem::~CItem()
 		m_pItemSystem->RemoveItem(GetEntityId());
 
 	 Quiet();
-
-#ifdef ITEM_DEBUG_MEMALLOC
-	 --gInstanceCount;
-#endif
 }
 
 //------------------------------------------------------------------------
 bool CItem::Init( IGameObject *pGameObject )
 {
 	SetGameObject(pGameObject);
-
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("CItem::Init Instance=%d %p Id=%d Class=%s", gInstanceCount, GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-#endif
 
 	m_pEntityScript = GetEntity()->GetScriptTable();
 
@@ -269,10 +248,6 @@ bool CItem::Init( IGameObject *pGameObject )
 		ReadProperties(props);
 	}
 
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("CItem::Init End %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-#endif
-
 	if(!IsMounted())
 		GetEntity()->SetFlags(GetEntity()->GetFlags()|ENTITY_FLAG_ON_RADAR);
 
@@ -283,10 +258,6 @@ bool CItem::Init( IGameObject *pGameObject )
 void CItem::Reset()
 {
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
-
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("CItem::Reset Start %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-#endif
 
 	if (IsModifying())
 		ResetAccessoriesScreen(GetOwnerActor());
@@ -304,19 +275,11 @@ void CItem::Reset()
 		AttachEffect(it->second.slot, it->first, false);
 	m_effectGenId=0;
 
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("    CItem::Read ItemParams Start %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-#endif
-
 	// read params
 	m_sharedparams=0; // decrease refcount to force a deletion of old parameters in case we are reloading item scripts
 	m_sharedparams=g_pGame->GetItemSharedParamsList()->GetSharedParams(GetEntity()->GetClass()->GetName(), true);
 	const IItemParamsNode *root = m_pItemSystem->GetItemParams(GetEntity()->GetClass()->GetName());
 	ReadItemParams(root);
-
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("    CItem::Read ItemParams End %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-#endif
 
 	m_stateTable[0] = GetEntity()->GetScriptTable();
 	if (!!m_stateTable[0])
@@ -343,12 +306,6 @@ void CItem::Reset()
 		m_stats.first_selection = true; //Reset (just in case)
 
 	OnReset();
-
-#ifdef ITEM_DEBUG_MEMALLOC
-	CGame::DumpMemInfo("  CItem::Reset End %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
-	CryLogAlways(" ");
-#endif
-
 }
 
 //------------------------------------------------------------------------
@@ -423,8 +380,6 @@ void CItem::Update( SEntityUpdateContext& ctx, int slot )
 //------------------------------------------------------------------------
 bool CItem::SetAspectProfile( EEntityAspects aspect, uint8 profile )
 {
-	//CryLogAlways("%s::SetProfile(%d: %s)", GetEntity()->GetName(), profile, profile==eIPhys_Physicalized?"Physicalized":"NotPhysicalized");
-
 	if (aspect == eEA_Physics)
 	{
 		switch (profile)
@@ -1552,10 +1507,7 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory)
 	bool slave = false;
 	IInventory *pInventory = GetActorInventory(pActor);
 	if (!pInventory)
-	{
-		GameWarning("Actor '%s' has no inventory, when trying to pickup '%s'!",pActor->GetEntity()->GetName(),GetEntity()->GetName());
 		return;
-	}
 
 	if (IsServer() && pActor->IsPlayer())
 	{
@@ -1801,10 +1753,7 @@ void CItem::AttachArms(bool attach, bool shadow)
 		IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(m_params.attachment[m_stats.hand].c_str());
 
 		if (!pAttachment)
-		{
-			GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetEntity()->GetName(), m_params.attachment[m_stats.hand].c_str());
 			return;
-		}
 
 		if (!shadow)
 			pAttachment->ClearBinding();
@@ -1814,12 +1763,6 @@ void CItem::AttachArms(bool attach, bool shadow)
 			pCGFAttachment->pObj = pStatObj;
 
 			IEntityRenderProxy * pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-
-			//if (pOwnerActor->GetReplacementMaterial())
-			{
-				//pAttachment->HideInShadow(1);
-				//pAttachment->GetIAttachmentObject()->SetMaterial(pOwnerActor->GetReplacementMaterial());
-			}
 			pAttachment->AddBinding(pCGFAttachment);
 			pAttachment->HideAttachment(1);
 			pAttachment->HideInShadow(0);
@@ -2308,10 +2251,7 @@ bool CItem::AttachToHand(bool attach, bool checkAttachment)
 	IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(m_params.attachment[m_stats.hand].c_str());
 
 	if (!pAttachment)
-	{
-		GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetName(), m_params.attachment[m_stats.hand].c_str());
 		return false;
-	}
 
 	if (!attach)
 	{
@@ -2426,11 +2366,6 @@ bool CItem::AttachToBack(bool attach)
 	
 	if (!pAttachment)
 	{
-		if(m_stats.backAttachment == eIBA_Primary)
-			GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetName(), m_params.bone_attachment_01.c_str());
-		else
-			GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetName(), m_params.bone_attachment_02.c_str());
-
 		m_stats.backAttachment = eIBA_Unknown;
 		return false;
 	}

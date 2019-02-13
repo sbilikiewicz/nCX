@@ -622,7 +622,7 @@ void CProjectile::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity,
 
 				gEnv->pAISystem->GrenadeEvent(predictedPos, 0.0f, AIGE_GRENADE_THROWN, GetEntity(), pOwnerEntity);
 
-				// Inform the AI that sees the throw
+				// Inform the AI that sees the throw   sbilikiewicz that might be intrestting ?
 /*				IAIObject* pOwnerAI = pOwnerEntity->GetAI();
 				AutoAIObjectIter it(gEnv->pAISystem->GetFirstAIObjectInRange(IAISystem::OBJFILTER_TYPE, AIOBJECT_PUPPET, predictedPos, 20.0f, false));
 				for(; it->GetObject(); it->Next())

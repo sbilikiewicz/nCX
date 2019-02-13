@@ -212,7 +212,7 @@ void CSPAnalyst::ProcessPlayerEvent(IEntity* pEntity, const GameplayEvent& event
 	case eGE_Connected:
 		{
 			NewPlayer(pEntity);
-			const float t = gEnv->pTimer->GetCurrTime();
+			//const float t = gEnv->pTimer->GetCurrTime();
 			// CryLogAlways("[CSPAnalyst]: Connected at %f", t);
 		}
 		break;

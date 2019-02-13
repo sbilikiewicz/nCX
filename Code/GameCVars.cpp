@@ -1,14 +1,15 @@
 /*************************************************************************
   Crytek Source File.
-  Copyright (C), Crytek Studios, 2001-2004.
+  Copyright (C), Crytek Studios.
  -------------------------------------------------------------------------
-  $Id$
-  $DateTime$
-  
+  Actor.cpp
  -------------------------------------------------------------------------
   History:
-  - 11:8:2004   10:50 : Created by Márcio Martins
-
+  - 08/2004   :   Created by Márcio Martins
+				  Taken over by Filippo De Luca
+  - 02/2019   :   Edited and optimized by sbilikiewicz
+                  https://github.com/sbilikiewicz
+                  
 *************************************************************************/
 #include "StdAfx.h"
 #include "GameCVars.h"
@@ -28,7 +29,6 @@
 #include "Menus/FlashMenuObject.h"
 #include "Menus/MPHub.h"
 #include "INetworkService.h"
-
 
 void ValidateSvMaxPlayers(ICVar* p)
 {
