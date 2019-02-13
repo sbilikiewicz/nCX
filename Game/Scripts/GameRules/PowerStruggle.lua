@@ -948,7 +948,6 @@ function PowerStruggle.Server:OnChangeTeam(playerId, teamId)
 			if (self:IsTeamLocked(teamId, playerId)) then
 				if ((not player.last_team_locked_warning) or (_time-player.last_team_locked_warning>=4)) then
 					player.last_team_locked_warning=_time;
-					Log("team change request by %s denied: team %d has too many players", EntityName(playerId), teamId);
 					self.game:SendTextMessage(TextMessageError, "@mp_TeamLockedTooMany", TextMessageToClient, playerId);
 				end
 				return;
@@ -996,7 +995,6 @@ function PowerStruggle.Client:OnSetTeam(entityId, teamId)
 			HUD.SetObjectiveStatus("PS.SecObj2_Bunker", MO_DEACTIVATED, 1);
 			HUD.SetObjectiveStatus("PS.SecObj3_Turret", MO_DEACTIVATED, 1);	
 			HUD.SetMainObjective("PS.Obj1_CapturePT");
-			
 			self:UpdateObjectives();
 		end
 	else
@@ -1371,14 +1369,6 @@ function PowerStruggle.Server:SvRequestPP(playerId, amount)
 end
 
 function PowerStruggle:OnTeamKill(playerId)
-	if(System.GetCVar("g_tk_punish")==0) then
-		return;
-	end
-	
-	self.teamkills[playerId] = 1 + (self.teamkills[playerId] or 0);
-	if (self.teamkills[playerId] >= System.GetCVar("g_tk_punish_limit")) then
-		CryAction.BanPlayer(playerId, "You were banned for exceeding team kill limit");
-	end	
 end
 ----------------------------------------------------------------------------------------------------
 function GivePP(amt)
@@ -1445,9 +1435,6 @@ end
 jeep="special";
 van="nkapc";
 
-
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
 Script.LoadScript("scripts/gamerules/powerstrugglebuying.lua", 1, 1);
 Script.LoadScript("scripts/gamerules/powerstrugglerank.lua", 1, 1);
 Script.LoadScript("scripts/gamerules/powerstrugglealert.lua", 1, 1);

@@ -25,16 +25,16 @@
 #include "Radio.h"
 #include "SoundMoods.h"
 #include "IWorldQuery.h"
-#include "ShotValidator.h"
+//#include "ShotValidator.h"
 #include <StlUtils.h>
 #include <regex>
 #include "nCX\nCX_Main.h"
 
-void CGameRules::ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr)
+/*void CGameRules::ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr)
 {
 	if (m_pShotValidator)
 		m_pShotValidator->AddShot(playerId, weaponId, seq, seqr);
-}
+}*/
 
 void CGameRules::ClientSimpleHit(const SimpleHitInfo &simpleHitInfo)
 {
@@ -222,10 +222,6 @@ void CGameRules::ServerHit(const HitInfo &hitInfo)
 
 void CGameRules::ProcessServerHit(HitInfo &hitInfo)//TODO Make this C++ only
 {
-	//Crysis Co-op :: Removed to stop AI weapon crash in MP
-	//if (m_pShotValidator && !m_pShotValidator->ProcessHit(hitInfo))
-		//return;
-
 	//Team kill co-op checks ->remove lua onhit !
 	CActor* pShooter = GetActorByEntityId(hitInfo.shooterId);
 	CActor *pTarget = GetActorByEntityId(hitInfo.targetId);

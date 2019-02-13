@@ -26,7 +26,7 @@
 #include "SynchedStorage.h"
 #include <queue>
 #include "Voting.h"
-#include "ShotValidator.h"
+//#include "ShotValidator.h"
 
 
 class CActor;
@@ -39,7 +39,7 @@ class CRadio;
 class CBattleDust;
 class CMPTutorial;
 
-class CShotValidator;
+//class CShotValidator;
 
 
 #define GAMERULES_INVOKE_ON_TEAM(team, rmi, params)	\
@@ -391,7 +391,7 @@ public:
 	virtual void GameOver(int localWinner);
 	virtual void EndGameNear(EntityId id);
 
-	virtual void ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr);
+	//virtual void ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr);
 	virtual void ClientSimpleHit(const SimpleHitInfo &simpleHitInfo);
 	virtual void ServerSimpleHit(const SimpleHitInfo &simpleHitInfo);
 
@@ -1168,7 +1168,7 @@ protected:
 	bool                m_timeOfDayInitialized;
 	bool                m_explosionScreenFX;
 
-	CShotValidator			*m_pShotValidator;
+	//CShotValidator			*m_pShotValidator;
 
 	//nCX
 	string		m_LogRoot;

@@ -70,7 +70,7 @@ CGameRules::CGameRules()
 	m_timeOfDayInitialized(false),
 	m_processingHit(0),
 	m_explosionScreenFX(true),
-	m_pShotValidator(0)
+	//m_pShotValidator(0)
 {
 }
 
@@ -89,7 +89,7 @@ CGameRules::~CGameRules()
 
 	GetGameObject()->ReleaseActions(this);
 
-	delete m_pShotValidator;
+	//delete m_pShotValidator;
 	delete m_pRadio;
 	delete m_pBattleDust;
 	delete m_pVotingSystem;
@@ -114,10 +114,9 @@ bool CGameRules::Init( IGameObject * pGameObject )
 	s_invulnID = m_pMaterialManager->GetSurfaceTypeManager()->GetSurfaceTypeByName("mat_invulnerable")->GetId();
 	s_barbWireID = m_pMaterialManager->GetSurfaceTypeManager()->GetSurfaceTypeByName("mat_metal_barbwire")->GetId();
 	
-	// Crysis Co-op
+	// nCX ShotValidator due to AI erros
 	//if (gEnv->bServer && gEnv->bMultiplayer)
 	//	m_pShotValidator = new CShotValidator(this, m_pGameFramework->GetIItemSystem(), m_pGameFramework);
-	//~Crysis Co-op
 
 	//Register as ViewSystem listener (for cut-scenes, ...)
 	if(m_pGameFramework->GetIViewSystem())
@@ -320,8 +319,8 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
         //Moved this to ncx every sec update
 		//UpdateEntitySchedules(ctx.fFrameTime);
 
-		if (m_pShotValidator)
-			m_pShotValidator->Update();
+		//if (m_pShotValidator)
+		//	m_pShotValidator->Update();
   }
 
 	UpdateMinimap(ctx.fFrameTime);
@@ -356,8 +355,8 @@ void CGameRules::ProcessEvent( SEntityEvent& event)
 	switch(event.event)
 	{
 	case ENTITY_EVENT_RESET:
-		if (m_pShotValidator)
-			m_pShotValidator->Reset();
+		//if (m_pShotValidator)
+		//	m_pShotValidator->Reset();
 
 		m_timeOfDayInitialized = false;
 		ResetFrozen();
@@ -547,8 +546,8 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 		m_channelIds.push_back(channelId);
 		g_pGame->GetServerSynchedStorage()->OnClientConnect(channelId);
 
-		if (m_pShotValidator)
-			m_pShotValidator->Connected(channelId);
+		//if (m_pShotValidator)
+		//	m_pShotValidator->Connected(channelId);
 	}
 
 	if (gEnv->bServer && gEnv->bMultiplayer)
@@ -598,8 +597,8 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 //------------------------------------------------------------------------
 void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, const char *desc, bool keepClient)
 {
-	if (m_pShotValidator)
-		m_pShotValidator->Disconnected(channelId);
+	//if (m_pShotValidator)
+	//	m_pShotValidator->Disconnected(channelId);
 
 	CActor *pActor = GetActorByChannelId(channelId);
 	if (pActor = 0)//debug
