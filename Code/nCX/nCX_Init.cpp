@@ -20,39 +20,6 @@
 #include <fstream>
 #include <cstdlib>
 
-/*Multithreading
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <stdio.h>
-
-HANDLE *m_threads = NULL;
-DWORD_PTR WINAPI threadMain(void* p);
-
-DWORD_PTR GetNumCPUs() {
-	SYSTEM_INFO m_si = { 0, };
-	GetSystemInfo(&m_si);
-	return (DWORD_PTR)m_si.dwNumberOfProcessors;
-}
-
-int wmain() {
-
-	DWORD_PTR c = GetNumCPUs();
-	m_threads = new HANDLE[c];
-	for (DWORD_PTR i = 0; i < c; i++) {
-		DWORD_PTR m_id = 0;
-		DWORD_PTR m_mask = 1 << i;
-		m_threads[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadMain, (LPVOID)i, NULL, &m_id);
-		SetThreadAffinityMask(m_threads[i], m_mask);
-		//wprintf(L"Creating Thread %d (0x%08x) Assigning to CPU 0x%08x\r\n", i, (LONG_PTR)m_threads[i], m_mask);
-		CryLogAlways("[$6nCX$5] Creating multithread instance for core %d", i);
-	}
-	return 0;
-}
-
-DWORD_PTR WINAPI threadMain(void* p) {
-	return 0;
-}*/
-
 void nCX::Init_nCX(){
 	char path[256];
 	CryGetCurrentDirectory(256, path);
@@ -110,14 +77,6 @@ void nCX::Init_nCX(){
 
 		CryLogAlways("[$6nCX$5] : Starting nCX 3.0 on     %s", gEnv->pNetwork->GetHostName());
 		CryLogAlways(Spacer);
-		//Multithreading
-		//wmain();
-		
-		/*int x = 0;
-		while (x == x){
-			++x;
-		}*/
-		//
 	}
 }
 
