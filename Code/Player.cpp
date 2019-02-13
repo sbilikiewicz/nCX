@@ -1,20 +1,8 @@
 /*************************************************************************
-Crytek Source File.
-Copyright (C), Crytek Studios, 2001-2004.
--------------------------------------------------------------------------
-$Id$
-$DateTime$
-
--------------------------------------------------------------------------
-History:
-- 29:9:2004: Created by Filippo De Luca
-
-*************************************************************************/
-/*************************************************************************
   Crytek Source File.
   Copyright (C), Crytek Studios.
  -------------------------------------------------------------------------
-  Actor.cpp
+  Player.cpp
  -------------------------------------------------------------------------
   History:
   - 09/2004   :   Created by Filippo De Luca
@@ -47,7 +35,6 @@ History:
 #include <IRenderAuxGeom.h>
 #include <IWorldQuery.h>
 #include <IGameTokens.h>
-#include <IDebugHistory.h>
 #include <IMusicSystem.h>
 #include <StringUtils.h>
 #include "PlayerMovementController.h"
@@ -200,8 +187,6 @@ CPlayer::CPlayer()
 	m_baseQuat.SetIdentity();
 	m_eyeOffset.Set(0,0,0);
 	m_weaponOffset.Set(0,0,0);
-
-	m_pDebugHistoryManager = NULL;
 	m_pSoundProxy = 0;
 	m_bVoiceSoundPlaying = false;
 	m_bVoiceSoundRecursionFlag = false;
@@ -211,12 +196,6 @@ CPlayer::CPlayer()
 
 CPlayer::~CPlayer()
 {
-	if (m_pDebugHistoryManager != NULL) 
-	{
-		m_pDebugHistoryManager->Release();
-		delete m_pDebugHistoryManager;
-	}
-
 	StopLoopingSounds();
 
 	if(IsClient())
@@ -1253,10 +1232,6 @@ void CPlayer::ProcessCharacterOffset()
 	*/
 
 		m_modelOffset.z = 0.0f;
-
-		//DebugGraph_AddValue("ModelOffsetX", m_modelOffset.x);
-		//DebugGraph_AddValue("ModelOffsetY", m_modelOffset.y);
-
 		GetAnimatedCharacter()->SetExtraAnimationOffset(QuatT(m_modelOffset, IDENTITY));
 	}
 }
@@ -1274,8 +1249,6 @@ void CPlayer::PrePhysicsUpdate()
 	IEntity* pEnt = GetEntity();
 	if (pEnt->IsHidden() && !(GetEntity()->GetFlags() & ENTITY_FLAG_UPDATE_HIDDEN))
 		return;
-
-	Debug();
 
 	//workaround - Avoid collision with grabbed NPC - Beni
 	/*if(m_pHumanGrabEntity && !m_throwingNPC)
@@ -2605,17 +2578,6 @@ void CPlayer::UpdateStats(float frameTime)
 	}
 	//
 
-
-	DebugGraph_AddValue("PhysVelo", livStat.vel.GetLength());
-	DebugGraph_AddValue("PhysVeloX", livStat.vel.x);
-	DebugGraph_AddValue("PhysVeloY", livStat.vel.y);
-	DebugGraph_AddValue("PhysVeloZ", livStat.vel.z);
-
-	DebugGraph_AddValue("PhysVeloUn", livStat.velUnconstrained.GetLength());
-	DebugGraph_AddValue("PhysVeloUnX", livStat.velUnconstrained.x);
-	DebugGraph_AddValue("PhysVeloUnY", livStat.velUnconstrained.y);
-	DebugGraph_AddValue("PhysVeloUnZ", livStat.velUnconstrained.z);
-
 	bool onGround = false;
 	bool isFlying = (livStat.bFlying != 0);
 	bool isStuck = (livStat.bStuck != 0);
@@ -2645,16 +2607,6 @@ void CPlayer::UpdateStats(float frameTime)
 		if ((feetElevation < 0.1f) && !m_stats.jumped && (m_stats.inAir == 0.0f))
 			onGround = true;
 	}
-
-//*
-	DebugGraph_AddValue("OnGround", onGround ? 1.0f : 0.0f);
-	DebugGraph_AddValue("Jumping", m_stats.jumped ? 1.0f : 0.0f);
-	DebugGraph_AddValue("Flying", isFlying ? 1.0f : 0.0f);
-	DebugGraph_AddValue("StuckTimer", m_stats.stuckTimeout);
-	DebugGraph_AddValue("InAirTimer", m_stats.inAir);
-	DebugGraph_AddValue("OnGroundTimer", m_stats.onGround);
-	DebugGraph_AddValue("InWaterTimer", m_stats.inWaterTimer);
-/**/
 
 	//update status table
 	if (!onGround && !m_stats.spectatorMode && !GetLinkedVehicle())
@@ -5642,110 +5594,6 @@ void CPlayer::GetMemoryStatistics(ICrySizer * s)
 	if (m_pPlayerInput.get())
 		m_pPlayerInput->GetMemoryStatistics(s);
 	s->AddContainer(m_clientPostEffects);
-  
-	if (m_pDebugHistoryManager)
-    m_pDebugHistoryManager->GetMemoryStatistics(s);
-}
-
-
-void CPlayer::Debug()
-{
-	bool debug = (g_pGameCVars->pl_debug_movement != 0);
-
-	const char* filter = g_pGameCVars->pl_debug_filter->GetString();
-	const char* name = GetEntity()->GetName();
-	if ((strcmp(filter, "0") != 0) && (strcmp(filter, name) != 0))
-		debug = false;
-
-	if (!debug)
-	{
-		if (m_pDebugHistoryManager != NULL)
-			m_pDebugHistoryManager->Clear();
-    return;
-	}
-
-  if (m_pDebugHistoryManager == NULL)
-    m_pDebugHistoryManager = g_pGame->GetIGameFramework()->CreateDebugHistoryManager();
-
-	bool showReqVelo = true;
-	m_pDebugHistoryManager->LayoutHelper("ReqVelo", NULL, showReqVelo, -20, 20, 0, 5, 0.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("ReqVeloX", NULL, showReqVelo, -20, 20, -5, 5, 1.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("ReqVeloY", NULL, showReqVelo, -20, 20, -5, 5, 2.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("ReqVeloZ", NULL, showReqVelo, -20, 20, -5, 5, 3.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("ReqRotZ", NULL, showReqVelo, -360, 360, -5, 5, 4.0f, 0.0f);
-
-	m_pDebugHistoryManager->LayoutHelper("PhysVelo", NULL, showReqVelo, -20, 20, 0, 5, 0.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloX", NULL, showReqVelo, -20, 20, -5, 5, 1.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloY", NULL, showReqVelo, -20, 20, -5, 5, 2.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloZ", NULL, showReqVelo, -20, 20, -5, 5, 3.0f, 1.0f);
-
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloUn", NULL, showReqVelo, -20, 20, 0, 5, 0.0f, 2.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloUnX", NULL, showReqVelo, -20, 20, -5, 5, 1.0f, 2.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloUnY", NULL, showReqVelo, -20, 20, -5, 5, 2.0f, 2.0f);
-	m_pDebugHistoryManager->LayoutHelper("PhysVeloUnZ", NULL, showReqVelo, -20, 20, -5, 5, 3.0f, 2.0f);
-
-/*
-	m_pDebugHistoryManager->LayoutHelper("InputMoveX", NULL, showReqVelo, -1, 1, -1, 1, 0.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("InputMoveY", NULL, showReqVelo, -1, 1, -1, 1, 1.0f, 1.0f);
-/**/
-
-/*
-	bool showVelo = true;
-	m_pDebugHistoryManager->LayoutHelper("Velo", NULL, showVelo, -20, 20, 0, 8, 0.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("VeloX", NULL, showVelo, -20, 20, -5, 5, 1.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("VeloY", NULL, showVelo, -20, 20, -5, 5, 2.0f, 0.0f);
-	m_pDebugHistoryManager->LayoutHelper("VeloZ", NULL, showVelo, -20, 20, -5, 5, 3.0f, 0.0f);
-/**/
-
-/*
-	m_pDebugHistoryManager->LayoutHelper("Axx", NULL, showVelo, -20, 20, -1, 1, 0.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("AxxX", NULL, showVelo, -20, 20, -1, 1, 1.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("AxxY", NULL, showVelo, -20, 20, -1, 1, 2.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("AxxZ", NULL, showVelo, -20, 20, -1, 1, 3.0f, 1.0f);
-/**/
-
-	//m_pDebugHistoryManager->LayoutHelper("ModelOffsetX", NULL, true, 0, 1, -0.5, 0.5, 5.0f, 0.5f);
-	//m_pDebugHistoryManager->LayoutHelper("ModelOffsetY", NULL, true, 0, 1, 0, 1, 5.0f, 1.5f, 1.0f, 0.5f);
-
-//*
-	bool showJump = true;
-	m_pDebugHistoryManager->LayoutHelper("OnGround", NULL, showJump, 0, 1, 0, 1, 5.0f, 0.5f, 1.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("Jumping", NULL, showJump, 0, 1, 0, 1, 5.0f, 1.0f, 1.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("Flying", NULL, showJump, 0, 1, 0, 1, 5.0f, 1.5f, 1.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("StuckTimer", NULL, showJump, 0, 0.5, 0, 0.5, 5.0f, 2.0f, 1.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("InAirTimer", NULL, showJump, 0, 5, 0, 5, 4.0f, 2.0f, 1.0f, 1.0f);
-	m_pDebugHistoryManager->LayoutHelper("InWaterTimer", NULL, showJump, -5, 5, -0.5, 0.5, 4, 3);
-	m_pDebugHistoryManager->LayoutHelper("OnGroundTimer", NULL, showJump, 0, 5, 0, 5, 4.0f, 1.0f, 1.0f, 1.0f);
-/**/
-
-
-//*
-	m_pDebugHistoryManager->LayoutHelper("GroundSlope", NULL, true, 0, 90, 0, 90, 0, 3);
-	m_pDebugHistoryManager->LayoutHelper("GroundSlopeMod", NULL, true, 0, 90, 0, 90, 1, 3);
-/**/
-
-	//m_pDebugHistoryManager->LayoutHelper("ZGDashTimer", NULL, showVelo, -20, 20, -0.5, 0.5, 5.0f, 0.5f);
-/*
-	m_pDebugHistoryManager->LayoutHelper("StartTimer", NULL, showVelo, -20, 20, -0.5, 0.5, 5.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("DodgeFraction", NULL, showVelo, 0, 1, 0, 1, 5.0f, 1.5f, 1.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("RampFraction", NULL, showVelo, 0, 1, 0, 1, 5.0f, 2.0f, 1.0f, 0.5f);
-	m_pDebugHistoryManager->LayoutHelper("ThrustAmp", NULL, showVelo, 0, 5, 0, 5, 5.0f, 2.5f, 1.0f, 0.5f);
-*/
-}
-
-void CPlayer::DebugGraph_AddValue(const char* id, float value) const
-{
-	if (m_pDebugHistoryManager == NULL)
-		return;
-
-	if (id == NULL)
-		return;
-
-	// NOTE: It's alright to violate the const here. The player is a good common owner for debug graphs, 
-	// but it's also not non-const in all places, even though graphs might want to be added from those places.
-	IDebugHistory* pDH = const_cast<IDebugHistoryManager*>(m_pDebugHistoryManager)->GetHistory(id);
-	if (pDH != NULL)
-		pDH->AddValue(value);
 }
 
 //Try to predict if the player needs to go to crouch stance to pick up a weapon/item
@@ -5810,8 +5658,6 @@ void CPlayer::RemoveExplosiveEntity(EntityId entityId)
 void CPlayer::RecordExplosivePlaced(EntityId entityId, uint8 typeId)
 {
 	int limit=0;
-	bool debug = (g_pGameCVars->g_debugMines != 0);
-
 	if (typeId==0)
 		limit=g_pGameCVars->g_claymore_limit;
 	else if (typeId==1)
@@ -5824,33 +5670,18 @@ void CPlayer::RecordExplosivePlaced(EntityId entityId, uint8 typeId)
 		// remove the oldest mine.
 		EntityId explosiveId = explosives.front();
 		explosives.pop_front();
-		if(debug)
-			CryLog("%s: Explosive(%d) force removed: %d", GetEntity()->GetName(), typeId, explosiveId);
 		gEnv->pEntitySystem->RemoveEntity(explosiveId);
 	}
 	explosives.push_back(entityId);
-
-	if(debug)
-		CryLog("%s: Explosive(%d) placed: %d, now %d", GetEntity()->GetName(), typeId, entityId, explosives.size());
 }
 
 void CPlayer::RecordExplosiveDestroyed(EntityId entityId, uint8 typeId)
 {
-	bool debug = (g_pGameCVars->g_debugMines != 0);
-	
 	std::list<EntityId> &explosives=m_explosiveList[typeId];
-
 	std::list<EntityId>::iterator it = std::find(explosives.begin(), explosives.end(), entityId);
 	if(it != explosives.end())
 	{
 		explosives.erase(it);
-		if(debug)
-			CryLog("%s: Explosive(%d) destroyed: %d, now %d", GetEntity()->GetName(), typeId, entityId, explosives.size());
-	}
-	else
-	{
-		if(debug)
-			CryLog("%s: Explosive(%d) destroyed but not in list: %d", GetEntity()->GetName(), typeId, entityId);
 	}
 }
 

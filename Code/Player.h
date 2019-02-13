@@ -28,8 +28,6 @@ class CPlayerRotation;
 struct IPlayerInput;
 class CHUD;
 class CVehicleClient;
-struct IDebugHistory;
-struct IDebugHistoryManager;
 
 struct SPlayerStats : public SActorStats
 {
@@ -720,7 +718,6 @@ public:
 private:
 	void AnimationControlled(bool activate);
 	bool ShouldUsePhysicsMovement();
-  void Debug();
 	void SetPainEffect(float progress = 0.0f);
 	
 	void UpdateSounds(float fFrameTime);
@@ -852,8 +849,6 @@ protected:
 
 	static uint s_ladderMaterial;
 public:
-	IDebugHistoryManager* m_pDebugHistoryManager;
-	void DebugGraph_AddValue(const char* id, float value) const;
 	//nCX moved here
 	SPlayerStats	m_stats;
 	CNanoSuit		*m_pNanoSuit;

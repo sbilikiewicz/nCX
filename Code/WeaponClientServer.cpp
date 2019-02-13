@@ -19,14 +19,6 @@
 #include <IVehicleSystem.h>
 #include "nCX/nCX_Anticheat.h"
 
-#define CHECK_OWNER_REQUEST()	\
-	{ \
-		uint16 channelId=m_pGameFramework->GetGameChannelId(pNetChannel);	\
-		IActor *pOwnerActor=GetOwnerActor(); \
-		if (pOwnerActor && pOwnerActor->GetChannelId()!=channelId && !IsDemoPlayback()) \
-			return true; \
-	}
-
 //------------------------------------------------------------------------
 int CWeapon::NetGetCurrentAmmoCount() const
 {
@@ -377,7 +369,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
             //RMI Spoof
 			if (pActor->GetEntityId() != GetOwnerId())
             {
-				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "RMI Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
+				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Shoot Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
                 return false;
             }
 			//Longpoke
@@ -451,7 +443,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 	return true;
 }
 
-//------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 {
 	int channelId = m_pGameFramework->GetGameChannelId(pNetChannel);
@@ -471,65 +462,52 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 			pActor->GetGameObject()->Pulse('bang');
 			GetGameObject()->Pulse('bang');
 
-			if (pActor->GetEntityId() == GetOwnerId())
+            //RMI Spoof
+			if (pActor->GetEntityId() != GetOwnerId())
+            {
+				nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "ShootEx Spoof", "pActor->GetEntityId() != RMI:GetOwnerId()", true);
+                return false;
+            }
+			//Longpoke
+            if (nCX_Anticheat::CheckLongpoke(pActor, params.seq))
+                return false;
+
+			if (!pActor->m_IsLagging)
 			{
-				IEntityClass *pClass = GetEntity()->GetClass();
+				float currTime = gEnv->pTimer->GetCurrTime();
+				//Shoot Pos Spoof
+				if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
+					return false;
 
-				if (!pActor->m_IsLagging)
+			    //RapidFire & NoRecoil
+				if (nCX_Anticheat::CheckRecoil(this, params))
+					return false;
+				
+                //Check is this needed in shootex?
+                //Weapon SpinUp time Check
+				float spinUpTime = GetFireMode(GetCurrentFireMode())->GetSpinUpTime();
+				if (spinUpTime > 0.01f)
 				{
-					//Shoot Pos Spoof
-					float Distance = (pActor->GetEntity()->GetWorldPos() - params.pos).len2();
-					if (Distance > 0.0f)
-						Distance = cry_sqrtf_fast(Distance);
-
-					float Treshold = 50.0f;
-					if (Distance > Treshold)
+					if (currTime - m_SpinupTime < spinUpTime)
 					{
-						if (IVehicle *pVehicle = pActor->GetLinkedVehicle())
-						{
-							const SVehicleStatus& status = pVehicle->GetStatus();
-							if (status.speed > Treshold)
-								Treshold = status.speed;
-						}
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Spinup", pClass->GetName(), true);
+						m_SpinupTime = 0.0f;
 					}
-					if (Distance > Treshold)
-					{
-						if (gEnv->pTimer->GetCurrTime() - pActor->m_WeaponCheatDelay > 3.0f)
-						{
-							string info;
-							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "ShootEx Pos", info.Format("%.2fm", Distance).c_str(), false);
-							pActor->m_WeaponCheatDelay = gEnv->pTimer->GetCurrTime() + 10.0f;
-						}
-						return true;
-					}
-					if (IFireMode *pFireMode = GetFireMode(GetCurrentFireMode()))
-					{
-						//RapidFire check
-						++m_FireCheck;
-						float rate = pFireMode->GetFireRate();
-						if (rate > 0.0f && ((rate < 50.f && m_FireCheck > 1) || (rate > 50.f && m_FireCheck > int(ceil(rate / 33.0f)))))
-						{
-							nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Rapid Fire", pClass->GetName(), false);
-							CryLogAlways("[AntiCheat] Rapid Fire Ex: %s | FireMode: %d | Firerate: (%d) Max %.4f | Heat: %.2f | Recoil Amount: %.4f | Recoil: %.4f | Spread: %.4f | SpinUp: %.2f | SpinDown: %.2f ", pClass->GetName(), GetCurrentFireMode(), m_FireCheck, pFireMode->GetFireRate(), pFireMode->GetHeat(), pFireMode->GetRecoilMultiplier(), pFireMode->GetRecoil(), pFireMode->GetSpread(), pFireMode->GetSpinUpTime(), pFireMode->GetSpinDownTime());
-							m_FireCheck = 0;
-							return true;
-						}
-					}
-					else
-						m_FireCheck = 0;
 				}
-
-				//AntiCheat passed, process shoot
-				GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.pos + params.dir*5.0f, params.predictionHandle), 0x04 | 0x10000, channelId);
-				NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
-				//Can we remove this??
-				if (CGameRules *pGameRules = g_pGame->GetGameRules())
-					pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
-
-				//if (pClass == sRocketLauncherClass)
-				//	Reload(true);//CHRIS weird workaround but it works!
-				//must be done everytime we shoot.. otherwise it will drop before reload
 			}
+            else
+			    m_FireCheck = 0;
+                
+			//AntiCheat passed, process shoot
+			GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.pos + params.dir*5.0f, params.predictionHandle), 0x04 | 0x10000, channelId);
+			NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
+			//Can we remove this??
+			if (CGameRules *pGameRules = g_pGame->GetGameRules())
+				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
+
+			//if (pClass == sRocketLauncherClass)
+			//	Reload(true);//CHRIS weird workaround but it works!
+			//must be done everytime we shoot.. otherwise it will drop before reload
 		}
 	}
 	return true;
@@ -539,7 +517,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 IMPLEMENT_RMI(CWeapon, ClShoot)
 {
 	NetShoot(params.hit, params.predictionHandle);
-
 	return true;
 }
 
@@ -551,11 +528,6 @@ IMPLEMENT_RMI(CWeapon, ClShootX)
 		Vec3 hit = pEntity->GetWorldTM() * params.hit;
 		NetShoot(hit, params.predictionHandle);
 	}
-	else
-	{
-		GameWarning("ClShootX: invalid entity id %.8x", params.eid);
-	}
-
 	return true;
 }
 
@@ -634,8 +606,6 @@ IMPLEMENT_RMI(CWeapon, ClMeleeAttack)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestZoom)
 {
-	CHECK_OWNER_REQUEST();
-
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
 	if (!pActor || pActor->GetHealth()<=0)
@@ -780,7 +750,6 @@ IMPLEMENT_RMI(CWeapon, SvRequestLock)
 		m_fm->Lock(params.entityId, params.partId);
 
 	GetGameObject()->InvokeRMI(CWeapon::ClLock(), params, eRMI_ToRemoteClients);
-
 	return true;
 }
 
@@ -798,10 +767,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestUnlock)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, SvRequestWeaponRaised)
 {
-	CHECK_OWNER_REQUEST();
-
 	GetGameObject()->InvokeRMI(CWeapon::ClWeaponRaised(), params, eRMI_ToAllClients);
-
 	return true;
 }
 

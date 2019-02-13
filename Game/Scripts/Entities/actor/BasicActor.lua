@@ -1493,7 +1493,8 @@ end
 
 
 function BasicActor.Server:OnHit(hit)	
-	if (self.actor:GetSpectatorMode()~=0) then
+	System.LogAlways("BasicActor.Server:OnHit");
+    if (self.actor:GetSpectatorMode()~=0) then
 		return;
 	end
 

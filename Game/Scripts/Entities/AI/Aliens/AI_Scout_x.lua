@@ -833,7 +833,7 @@ function AI_Scout_x.Server:OnHit(hit)--(shooterId, weaponId, matName, damage, hi
     
     local shot = System.GetEntity(hit.shooterId);
     local weap = System.GetEntity(hit.weaponId);
-    System.LogAlways("Scout:OnHit %s : %s", shot:GetName(), weap:GetName());
+    System.LogAlways("AI_Scout_x:OnHit %s : %s", shot:GetName(), weap:GetName());
     
     if (hit.type == "collision") then
         if (hit.shooterId ~= hit.weaponId) then

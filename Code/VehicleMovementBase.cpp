@@ -1035,7 +1035,11 @@ void CVehicleMovementBase::OnEvent(EVehicleMovementEvent event, const SVehicleMo
   }
 	else if (event == eVME_PlayerEnterLeaveVehicle)
 	{
-		if (params.bValue)
+		CrylogAlways("VehicleMovementBase.cpp PlayerEnteredVehicle");
+        if (IAIObject *pAIObject = m_pVehicle->GetOwner()->GetEntity()->GetAI())
+			gEnv->pAISystem->SendSignal(SIGNALFILTER_LEADER, 1, "entered_vehicle",	pAIObject, 0);
+                
+        if (params.bValue)
 		{ 
 			if (!GetSound(eSID_Ambience) && (m_isEnginePowered||m_isEngineStarting))
 			{ 
