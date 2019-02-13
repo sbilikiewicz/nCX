@@ -98,12 +98,6 @@ void CPlayerMovement::Commit( CPlayer& player )
 
 		m_request.jumping = m_stats.jumped;
 
-		m_player.DebugGraph_AddValue("ReqVelo", m_request.velocity.GetLength());
-		m_player.DebugGraph_AddValue("ReqVeloX", m_request.velocity.x);
-		m_player.DebugGraph_AddValue("ReqVeloY", m_request.velocity.y);
-		m_player.DebugGraph_AddValue("ReqVeloZ", m_request.velocity.z);
-		m_player.DebugGraph_AddValue("ReqRotZ", RAD2DEG(m_request.rotation.GetRotZ()));
-
 		player.m_pAnimatedCharacter->AddMovement( m_request );
 	}
 
@@ -1339,12 +1333,6 @@ void CPlayerMovement::ProcessOnGroundOrJumping(CPlayer& player)
 		//be sure desired velocity is flat to the ground
 		Vec3 vz = desiredVel * baseMtxZ;
 		desiredVel -= vz;
-
-		if (debugJumping)
-		{
-			m_player.DebugGraph_AddValue("GroundSlope", slopeAngleCur);
-			m_player.DebugGraph_AddValue("GroundSlopeMod", slopeAngleMod);
-		}
 	}
 
 /*
@@ -1365,22 +1353,6 @@ void CPlayerMovement::ProcessOnGroundOrJumping(CPlayer& player)
 	m_request.velocity = desiredVel + jumpVec;
 	if(!m_stats.inZeroG && (m_movement.jump && (g_pGameCVars->dt_enable && m_stats.inAir > 0.3f)) && m_request.velocity.len() > 22.0f)	//cap maximum velocity when jumping (limits speed jump length)
 		m_request.velocity = m_request.velocity.normalized() * 22.0f;
-
-	if (debugJumping)
-	{
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(entityPos, ColorB(255,255,255,255), entityPos + modifiedSlopeNormal, ColorB(255,255,0,255), 2.0f);
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(entityPos+Vec3(0,0,2), ColorB(255,255,255,255), entityPos+Vec3(0,0,2) + desiredVel, ColorB(0,255,0,255), 2.0f);
-	}
-
-	if (debugJumping)
-	{
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawLine(entityPos, ColorB(255,255,255,255), entityPos + jumpVec, ColorB(0,255,255,255), 2.0f);
-	}
-
-	if (debugJumping)
-	{
-		gEnv->pRenderer->DrawLabel(entityPos - entityRight * 1.0f + Vec3(0,0,3.0f), 1.5f, "Velo[%2.3f = %2.3f, %2.3f, %2.3f]", m_request.velocity.len(), m_request.velocity.x, m_request.velocity.y, m_request.velocity.z);
-	}
 
 	m_velocity.Set(0,0,0);
 }

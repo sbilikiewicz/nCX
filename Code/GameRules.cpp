@@ -69,7 +69,7 @@ CGameRules::CGameRules()
 	m_ignoreEntityNextCollision(0),
 	m_timeOfDayInitialized(false),
 	m_processingHit(0),
-	m_explosionScreenFX(true),
+	m_explosionScreenFX(true)
 	//m_pShotValidator(0)
 {
 }
@@ -312,7 +312,8 @@ void CGameRules::Update( SEntityUpdateContext& ctx, int updateSlot )
 	if (server)
 	{
 		//nCX timer
-		nCX::Update(ctx.fCurrTime);
+		nCX::UpdateMT();
+		//nCX::UpdateThread();
 		//
 
 		ProcessQueuedExplosions();

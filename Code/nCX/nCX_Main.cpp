@@ -16,44 +16,19 @@
 #include "Player.h"
 #include "GameRules.h"
 #include "IVehicleSystem.h"
+#include <iostream>
 #include <regex>
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <stdio.h>
+// Static nCX_AI class instance forward declaration.
+nCX nCX::s_instance = nCX();
 
-HANDLE *m_threads = NULL;
-DWORD_PTR WINAPI threadnCX(void* p);
-
-DWORD_PTR GetNumCPUs() {
-	SYSTEM_INFO m_si = { 0, };
-	GetSystemInfo(&m_si);
-	return (DWORD_PTR)m_si.dwNumberOfProcessors;
-}
-
-int wmain()
+nCX::nCX() //Constructor
+: m_TickTimer(0)
 {
-	DWORD_PTR c = GetNumCPUs();
-	m_threads = new HANDLE[c];
-	for (DWORD_PTR i = 0; i < c; i++)
-    {
-		CryLogAlways("[$6nCX$5] GetNumCPUs %d", c);
-        if (i == c) //assign nCX to last cpu core cause its most likely the least loaded 
-        {
-            DWORD_PTR m_id = 0;
-    		DWORD_PTR m_mask = 1 << i;
-    		m_threads[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadnCX, (LPVOID)i, NULL, &m_id);
-    		SetThreadAffinityMask(m_threads[i], m_mask);
-    		//wprintf(L"Creating Thread %d (0x%08x) Assigning to CPU 0x%08x\r\n", i, (LONG_PTR)m_threads[i], m_mask);
-    		CryLogAlways("[$6nCX$5] Creating multithread instance for core %d", i);
-        }
-	}
-	return 0;
 }
 
-DWORD_PTR WINAPI threadnCX(void* p) {
-    nCX::OnUpdate(gEnv->pTimer->GetCurrTime());
-	return 0;
+nCX::~nCX() //Destructor
+{
 }
 
 string nCX::CensorCheck(string msg)
@@ -375,17 +350,13 @@ void nCX::SendAdminMessage(int type, const char *msg)
 	}
 }
 
-void nCX::OnUpdate(float frameTime)
+void nCX::OnUpdate()
 {
-    /*int x = 0;  Use this simple loop for cpu usage test
-	while (x == x){
-		++x;
-	}*/
-	if ((frameTime - m_TickTimer) > 1.0f)
+	if (++m_TickTimer > 29)
 	{
-		TickTimer();
         ++m_MinTimer;
-		m_TickTimer = frameTime;
+		m_TickTimer = 0;
+		TickTimer();
 		if (m_MinTimer > 59)
 		{
 			MinTimer();

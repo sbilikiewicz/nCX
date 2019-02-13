@@ -1,11 +1,14 @@
-/**********************************************************
-             #####  ##   ##
- ####    ## ##   ##  ## ##  Crysis nCX V3.0
-##  ##   ## ##        ###     by MrHorseDick
-##   ##  ## ##        ###       and
-##    ## ## ##   ##  ## ##        MrCtaoistrach
-##     ####  #####  ##   ##
-**********************************************************/
+/*************************************************************************
+nCX dedicated server
+Copyright (C), Sbilikiewicz.
+https://github.com/sbilikiewicz
+-------------------------------------------------------------------------
+nCX_Init.cpp
+-------------------------------------------------------------------------
+History:
+- 02/2019   :   Created by sbilikiewicz
+
+*************************************************************************/
 #include "StdAfx.h"
 #include "nCX_Main.h"
 #include "Game.h"
@@ -14,11 +17,45 @@
 #include "nCX_AI.h"
 #include <IAISystem.h>
 #include <ILevelSystem.h>
-
-#include <windows.h>
+#include <Windows.h>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+
+#define WIN32_LEAN_AND_MEAN
+#include <stdio.h>
+
+HANDLE *m_threads = NULL;
+
+DWORD_PTR GetNumCPUs() {
+	SYSTEM_INFO m_si = { 0, };
+	GetSystemInfo(&m_si);
+	return (DWORD_PTR)m_si.dwNumberOfProcessors;
+}
+
+DWORD_PTR WINAPI nCX_Thread() {
+	nCX::UpdateThread();
+	return 0;
+}
+
+int wmain()
+{
+	DWORD_PTR c = GetNumCPUs();
+	m_threads = new HANDLE[c];
+	for (DWORD_PTR i = 0; i < c; i++)
+	{
+		LPDWORD m_id = 0;
+		DWORD_PTR m_mask = 1 << i;
+		m_threads[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)nCX_Thread, (LPVOID)i, NULL, m_id);
+		SetThreadAffinityMask(m_threads[i], m_mask);
+		//wprintf(L"Creating Thread %d (0x%08x) Assigning to CPU 0x%08x\r\n", i, (LONG_PTR)m_threads[i], m_mask);
+	}
+	CryLogAlways("[$6nCX$5] : Created multithread instances for %d CPU cores", c);
+	return 0;
+}
+void nCX::nCX_Multithread(){
+	nCX_Thread();
+}
 
 void nCX::Init_nCX(){
 	char path[256];
@@ -74,6 +111,9 @@ void nCX::Init_nCX(){
 			CryLogAlways("[$6nCX$5] : AI system initialized");
 		else
 			CryLogAlways("[$6nCX$5] : Failed to initiate AI system!");
+
+		//Init multithreading
+		wmain();
 
 		CryLogAlways("[$6nCX$5] : Starting nCX 3.0 on     %s", gEnv->pNetwork->GetHostName());
 		CryLogAlways(Spacer);

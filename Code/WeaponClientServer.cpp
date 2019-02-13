@@ -478,9 +478,16 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 				//Shoot Pos Spoof
 				if (nCX_Anticheat::CheckShootPos(pActor, params.pos, currTime))
 					return false;
-
-			    //RapidFire & NoRecoil
-				if (nCX_Anticheat::CheckRecoil(this, params))
+				
+				//RapidFire & NoRecoil
+				SvRequestShootParams ShootParams;
+				ShootParams.dir = params.dir;
+				ShootParams.hit = params.hit;
+				ShootParams.pos = params.pos;
+				ShootParams.predictionHandle = params.predictionHandle;
+				ShootParams.seq = params.seq;
+				ShootParams.seqr = params.seqr;
+				if (nCX_Anticheat::CheckRecoil(this, ShootParams))
 					return false;
 				
                 //Check is this needed in shootex?
@@ -490,7 +497,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 				{
 					if (currTime - m_SpinupTime < spinUpTime)
 					{
-						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Spinup", pClass->GetName(), true);
+						nCX_Anticheat::CheatDetected(pActor->GetEntityId(), "Weapon Spinup", "", true);
 						m_SpinupTime = 0.0f;
 					}
 				}
@@ -501,9 +508,10 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 			//AntiCheat passed, process shoot
 			GetGameObject()->InvokeRMI(ClShoot(), ClShootParams(params.pos + params.dir*5.0f, params.predictionHandle), 0x04 | 0x10000, channelId);
 			NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
+			
 			//Can we remove this??
-			if (CGameRules *pGameRules = g_pGame->GetGameRules())
-				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
+			//if (CGameRules *pGameRules = g_pGame->GetGameRules())
+			//	pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, params.seqr);
 
 			//if (pClass == sRocketLauncherClass)
 			//	Reload(true);//CHRIS weird workaround but it works!
@@ -588,8 +596,8 @@ IMPLEMENT_RMI(CWeapon, SvRequestMeleeAttack)
 				else if (m_fm)
 					m_fm->NetShootEx(params.pos, params.dir, ZERO, ZERO, 1.0f, 0);
 			}
-			if (CGameRules *pGameRules = g_pGame->GetGameRules())
-				pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, 0);
+			//if (CGameRules *pGameRules = g_pGame->GetGameRules())
+			//	pGameRules->ValidateShot(pActor->GetEntityId(), GetEntityId(), params.seq, 0);
 		}
 	}
 	return true;

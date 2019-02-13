@@ -588,7 +588,7 @@ function VehicleBase:RequestSeat(userId)
 			return i;
 		end
 	end
-
+    
 	return nil;
 end
 

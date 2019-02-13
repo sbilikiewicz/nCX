@@ -1,21 +1,31 @@
 #pragma once
-#include <iostream>
+
 #include <IGameObject.h>
 #include <IGameRulesSystem.h>
 #include "Actor.h"
 
 class nCX
 {
+private:
+	static nCX s_instance;
+
+	nCX();
+	~nCX();
+
 public:
+	static inline nCX* GetInstance() {
+		return &s_instance;
+	}
 
 	//Override calls from Game classes
 	static void Init()							{ nCX i; i.Init_nCX(); };
 	static void InitChat()						{ nCX e; e.LoadChatEntities(); };
 	static bool IsAdmin(int channelId)			{ nCX a;  return stl::find(a.m_Admins, channelId); };
-	static void Update(float frameTime)			{ nCX f; f.OnUpdate(frameTime); };
+	//static void Update(float frameTime)			{ nCX_Thread(NULL); };//nCX f; f.OnUpdate(frameTime); };
 	static int CurrentChannel(int Id, bool set) { nCX c; if (set) { c.m_CurrChannel = Id; } else return c.m_CurrChannel; }
 	static const char* GetIP(int channelId)		{ nCX ip; return ip.GetIPAddress(channelId); };
 	static const char* GetID(int channelId)		{ nCX id; return id.GetProfileId(channelId); };
+	
 	//Event overrides
 	static void ClientConnect(CActor *pActor, int channelId, bool reset) { nCX con; con.OnClientConnect(pActor, channelId, reset); };
 	static void ClientDisconnect(CActor *pActor, int channelId, const char *desc) { nCX dcon; dcon.OnClientDisconnect(pActor, channelId, desc); };
@@ -26,6 +36,11 @@ public:
 	static void SimpleHit(int channelId, int shooterId, int targetId, int type, float value, int weaponId) { nCX hit;  hit.OnSimpleHit(channelId, shooterId, targetId, type, value, weaponId); }
 	static void Hit(HitInfo params, int channelId) { nCX hi; hi.OnHit(params, channelId); };
 	static void LogFile(const char* which, const char* msg) { nCX log; log.LogToFile(which, msg); };
+	//Experimental
+	static void nCX_Multithread();
+
+	static void UpdateMT() { nCX_Multithread(); };
+	static void UpdateThread() { nCX::GetInstance()->OnUpdate(); };
 	//Functions
 	string					CensorCheck(string msg);
 	virtual void			MsgFromChatEntity(int ent, int channelId, const char *msg);
@@ -42,7 +57,6 @@ public:
 	virtual void			LogToConsole(const char* msg, int channelId = 0, bool toOther = false);
 	virtual void			SaveBanList(const char* line = "");
 	virtual void			SendAdminMessage(int type, const char *msg);
-
 	//Values
 	string						m_RootDir;
 	string						m_LogRoot;
@@ -50,6 +64,7 @@ public:
 	std::vector<string>			m_CensorList;
 	std::vector<EntityId>		m_ChatEnts;
 	bool						m_UseChatCensor;
+	int							m_TickTimer;
 
 protected:
 	//Functions
@@ -57,7 +72,7 @@ protected:
 	void	LoadConfig();
 	void	LoadChatCommands();
 	void	LoadChatEntities();
-	void	OnUpdate(float frameTime);
+	void	OnUpdate();
 	void	PlayerTimer(CActor *pActor);
 	void	TickTimer();
 	void	MinTimer();
@@ -72,7 +87,6 @@ protected:
 	virtual void	OnSimpleHit(int channelId, int shooterId, int targetId, int type, float value, int weaponId);
 	virtual void	OnHit(HitInfo params, int channelId);
 	//Values
-	float				m_TickTimer;
 	int					m_MinTimer;
 	int					m_SeqTimer;
 	int					m_AveragePing;
