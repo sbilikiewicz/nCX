@@ -19,7 +19,7 @@
 #include <iostream>
 #include <regex>
 
-// Static nCX_AI class instance forward declaration.
+// Static nCX class instance forward declaration.
 nCX nCX::s_instance = nCX();
 
 nCX::nCX() //Constructor
@@ -352,17 +352,17 @@ void nCX::SendAdminMessage(int type, const char *msg)
 
 void nCX::OnUpdate()
 {
-	if (++m_TickTimer > 29)
+	if (++m_TickTimer > 29) //Every second ! works only with sv_dedicatedmaxrate = 30 !
 	{
         ++m_MinTimer;
 		m_TickTimer = 0;
 		TickTimer();
-		if (m_MinTimer > 59)
+		if (m_MinTimer > 59) //Every minute
 		{
 			MinTimer();
 			m_MinTimer = 0;
 			++m_SeqTimer;
-			if (m_SeqTimer > 9)
+			if (m_SeqTimer > 9) //Every 10 minutes
 			{
 				m_SeqTimer = 0;
 				SeqTimer();
@@ -453,7 +453,8 @@ void nCX::TickTimer()
             			pActor->m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
                         
                     //RMI Flood
-					if (pActor->m_RMIFlood > 140)
+					int RMIFlood = pActor->m_RMIFlood;
+                    if (pActor->m_RMIFlood > 140)
                 	{
                 		char info[6];
 						sprintf(info, "%d", pActor->m_RMIFlood);

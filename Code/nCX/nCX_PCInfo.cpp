@@ -1,11 +1,15 @@
-/**********************************************************
-####     ##  #####  ##   ##
-## ##    ## ##   ##  ## ##  Crysis nCX
-##  ##   ## ##        ###     by MrHorseDick
-##   ##  ## ##        ###       and
-##    ## ## ##   ##  ## ##        MrCtaostrach
-##     ####  #####  ##   ##
-**********************************************************/
+/*************************************************************************
+  nCX dedicated server
+  Copyright (C), Sbilikiewicz.
+  https://github.com/sbilikiewicz
+ -------------------------------------------------------------------------
+  nCX_PCInfo.cpp
+ -------------------------------------------------------------------------
+  History:
+  - 12/2012   :   Created by sbilikiewicz
+  - 01/2019   :   Upgraded
+                  
+*************************************************************************/
 #include "StdAfx.h"
 #include <cstdlib>
 #include <iostream>
@@ -19,6 +23,22 @@
 #include <Iphlpapi.h>
 #pragma comment(lib, "wsock32.lib")
 #pragma comment (lib, "WINMM.LIB")
+
+//GetPublicIP
+#include <wininet.h>
+#include <string>
+
+const char* nCX_PCInfo::GetPublicIP() 
+{
+    HINTERNET net = InternetOpen("IP retriever", INTERNET_OPEN_TYPE_PRECONFIG,NULL,NULL,0);
+    HINTERNET conn = InternetOpenUrl(net, "http://myexternalip.com/raw", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    char buffer[4096];
+    DWORD read;
+    InternetReadFile(conn, buffer, sizeof(buffer)/sizeof(buffer[0]), &read);
+    InternetCloseHandle(net);
+    //std::cout << real_ip() << "\n";
+    return std::string(buffer, read);
+}
 
 const char* nCX_PCInfo::query(const char *host)
 {

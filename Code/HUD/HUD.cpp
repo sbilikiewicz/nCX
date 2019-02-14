@@ -2994,22 +2994,17 @@ bool CHUD::WeaponHasAttachments()
 
 void CHUD::OnPostUpdate(float frameTime)
 {
-	FUNCTION_PROFILER(GetISystem(),PROFILE_GAME);
-
+	
+    
+    FUNCTION_PROFILER(GetISystem(),PROFILE_GAME);
 	if (m_bStopCutsceneNextUpdate)
 	{
-#ifdef USER_alexl
-		CryLogAlways("[CX] Frame=%d Aborting Cutscenes", gEnv->pRenderer->GetFrameID(false));
-#endif
 		if (gEnv->pMovieSystem)
 		{
 			ISequenceIt* pSeqIt = gEnv->pMovieSystem->GetSequences(true, true);
 			IAnimSequence *pSeq=pSeqIt->first();
 			while (pSeq)
 			{
-#ifdef USER_alexl
-				CryLogAlways("[CX] Frame=%d Aborting Cutscene 0x%p '%s'", gEnv->pRenderer->GetFrameID(false), pSeq, pSeq->GetName());
-#endif
 				gEnv->pMovieSystem->AbortSequence(pSeq, false);
 				pSeq=pSeqIt->next();
 			}

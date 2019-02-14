@@ -377,7 +377,8 @@ void CHUDRadar::Update(float fDeltaTime)
 	//~binocs**********************************************************************
 
 	//jammer***********************************************************************
-	UpdateRadarJammer(pActor);
+	if (!gEnv->bMultiplayer)//sbilikiewicz 
+        UpdateRadarJammer(pActor);
 	//~jammer**********************************************************************
 
 	//*********************************ACTUAL SCANNING****************************
@@ -1540,10 +1541,7 @@ void CHUDRadar::LoadMiniMap(const char* mapPath)
 		IEntityItPtr pIt=gEnv->pEntitySystem->GetEntityIterator();
 
 		if(!gEnv->pGame->GetIGameFramework()->GetClientActor())
-		{
-			CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Tried loading a map without having a client.");
 			return;
-		}
 
 		float minDistance = 0;
 		IEntity *pLocalActor = gEnv->pGame->GetIGameFramework()->GetClientActor()->GetEntity();
@@ -1597,10 +1595,7 @@ void CHUDRadar::LoadMiniMap(const char* mapPath)
 	fullPath.append(".xml");
 	XmlNodeRef mapInfo = GetISystem()->LoadXmlFile(fullPath.c_str());
 	if(mapInfo == 0)
-	{
-		GameWarning("Did not find a level meta data file %s in %s.", fullPath.c_str(), mapName.c_str());
 		return;
-	}
 
 	m_fLastRadarRatio = -1.0f;
 	//retrieve the coordinates of the map
@@ -1639,10 +1634,8 @@ void CHUDRadar::LoadMiniMap(const char* mapPath)
 							if(n >= 0 && n < NUM_MAP_TEXTURES)
 								mapNr = n;
 							else
-							{
-								CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Couldn't read map index correctly : %s.",keyString.c_str());
 								return;
-							}
+
 						}
 
 						m_mapFile[mapNr] = mapPath;
@@ -2459,19 +2452,9 @@ FlashRadarType CHUDRadar::ChooseType(IEntity* pEntity, bool radarOnly)
 
 	FlashRadarType returnType = ELTV;
 
-    // Crysis Co-op
-    if (pCls == m_pAI_Grunt)
-        returnType = EPlayer;
-	else if (pCls == m_pCivilian)
+	if(pCls == m_pPlayerClass || pCls == m_pGrunt || pCls == m_pAI_Grunt || pCls === m_pCivilian) //sbilikiewicz
 		returnType = EPlayer;
-	else if (pCls == m_pAI_Scout)
-		returnType = EHeli;
-	else if (pCls == m_pAI_Trooper)
-		returnType = EPlayer;
-    // ~Crysis Co-op
-	else if(pCls == m_pPlayerClass || pCls == m_pGrunt)
-		returnType = EPlayer;
-	else if(pCls == m_pAlien || pCls == m_pTrooper)
+	else if(pCls == m_pAlien || pCls == m_pTrooper || pCls == m_pAI_Trooper) //sbilikiewicz
 		returnType = EPlayer;
 	else if(pCls == m_pLTVUS || pCls == m_pLTVA)
 		returnType = ELTV;
@@ -2487,8 +2470,8 @@ FlashRadarType CHUDRadar::ChooseType(IEntity* pEntity, bool radarOnly)
 		returnType = EHeli;
 	else if(pCls == m_pVTOL)
 		returnType = EVTOL;
-	else if(pCls == m_pScout)
-		returnType = EHeli;
+	else if(pCls == m_pScout || pCls == m_pAI_Scout) //sbilikiewicz changed scouts to look like big aliens
+		returnType = EINVALID1;
 	else if(pCls == m_pWarrior || pCls == m_pHunter)
 		returnType = EINVALID1;
 	else if(pCls == m_pBoatCiv)
@@ -2836,10 +2819,7 @@ void CHUDRadar::SetJammer(EntityId id, float radius)
 void CHUDRadar::SetMiniMapTexture(int mapId, bool forceUpdate)
 {
 	if(mapId < 0 || mapId >= NUM_MAP_TEXTURES)
-	{
-		CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Failed loading map texture id %i. (out of id space, current maximum are %i)", mapId, NUM_MAP_TEXTURES);
 		return;
-	}
 
 	string *mapFile = &(m_mapFile[mapId]);
 
@@ -2855,8 +2835,6 @@ void CHUDRadar::SetMiniMapTexture(int mapId, bool forceUpdate)
 		}
 
 	}
-	else
-		CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Failed loading map texture id %i.", mapId);
 }
 
 bool CHUDRadar::RadarBounds_Inside(const Vec2 &pos, Vec2 &intersectionPoint)

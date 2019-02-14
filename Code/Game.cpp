@@ -381,24 +381,24 @@ bool CGame::CompleteInit()
 
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
-	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
+	bool bRun = m_pFramework->PreUpdate(true, updateFlags);
 	float frameTime = gEnv->pTimer->GetFrameTime();
 
 	if (m_pFramework->IsGamePaused() == false)
 	{
 		m_pWeaponSystem->Update(frameTime);
-
 		m_pBulletTime->Update();
 		m_pSoundMoods->Update();
 	}
 
 	m_pFramework->PostUpdate( true, updateFlags );
 
-	if(m_inDevMode != gEnv->pSystem->IsDevMode())
+	/* Sbilikiewicz No devmode in this mod. And for sure dont update it everyframe
+    if(m_inDevMode != gEnv->pSystem->IsDevMode())
 	{
 		m_inDevMode = gEnv->pSystem->IsDevMode();
 	}
-	m_pFramework->GetIActionMapManager()->EnableActionMap("debug", m_inDevMode);
+	m_pFramework->GetIActionMapManager()->EnableActionMap("debug", m_inDevMode);*/
 
 	CheckReloadLevel();
 
@@ -535,6 +535,8 @@ const char *CGame::GetName()
 void CGame::OnPostUpdate(float fDeltaTime)
 {
 	nCX_AI::GetInstance()->Update(fDeltaTime);
+    //Client mt update from CGame not CGamerules, we need hud in menu etc.
+    nCX::UpdateMT();
 }
 
 void CGame::OnSaveGame(ISaveGame* pSaveGame)
