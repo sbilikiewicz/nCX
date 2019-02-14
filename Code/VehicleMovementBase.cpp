@@ -1035,9 +1035,9 @@ void CVehicleMovementBase::OnEvent(EVehicleMovementEvent event, const SVehicleMo
   }
 	else if (event == eVME_PlayerEnterLeaveVehicle)
 	{
-		CryLogAlways("VehicleMovementBase.cpp PlayerEnteredVehicle");
+		/*CryLogAlways("VehicleMovementBase.cpp PlayerEnteredVehicle");
 		if (IAIObject *pAIObject = gEnv->pEntitySystem->GetEntity(m_pVehicle->GetOwnerId())->GetAI())
-			gEnv->pAISystem->SendSignal(SIGNALFILTER_LEADER, 1, "entered_vehicle",	pAIObject, 0);
+			gEnv->pAISystem->SendSignal(SIGNALFILTER_LEADER, 1, "entered_vehicle",	pAIObject, 0);*/
                 
         if (params.bValue)
 		{ 

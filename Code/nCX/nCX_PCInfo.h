@@ -12,7 +12,8 @@
 class nCX_PCInfo
 {
 public:
-    static const char* query(const char *host);
+	//static const char* GetPublicIP();
+	static const char* query(const char *host);
 	static const char* GetCPU();
 	static const char* GetRAM();
 	static int GetCPUSpeed();

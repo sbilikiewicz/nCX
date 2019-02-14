@@ -1492,8 +1492,7 @@ function BasicActor.Server:OnDeadHit(hit)
 end
 
 
-function BasicActor.Server:OnHit(hit)	
-	System.LogAlways("BasicActor.Server:OnHit");
+function BasicActor.Server:OnHit(hit)
     if (self.actor:GetSpectatorMode()~=0) then
 		return;
 	end

@@ -113,7 +113,7 @@ void nCX::Init_nCX(){
 			CryLogAlways("[$6nCX$5] : Failed to initiate AI system!");
 
 		//Init multithreading
-		wmain();
+		//wmain();
 
 		CryLogAlways("[$6nCX$5] : Starting nCX 3.0 on     %s", gEnv->pNetwork->GetHostName());
 		CryLogAlways(Spacer);

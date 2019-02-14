@@ -24,7 +24,7 @@
 #pragma comment(lib, "wsock32.lib")
 #pragma comment (lib, "WINMM.LIB")
 
-//GetPublicIP
+/*GetPublicIP
 #include <wininet.h>
 #include <string>
 
@@ -37,8 +37,8 @@ const char* nCX_PCInfo::GetPublicIP()
     InternetReadFile(conn, buffer, sizeof(buffer)/sizeof(buffer[0]), &read);
     InternetCloseHandle(net);
     //std::cout << real_ip() << "\n";
-    return std::string(buffer, read);
-}
+	return string(buffer, read).c_str();
+}*/
 
 const char* nCX_PCInfo::query(const char *host)
 {

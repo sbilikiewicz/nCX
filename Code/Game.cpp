@@ -534,9 +534,8 @@ const char *CGame::GetName()
 
 void CGame::OnPostUpdate(float fDeltaTime)
 {
-	nCX_AI::GetInstance()->Update(fDeltaTime);
-    //Client mt update from CGame not CGamerules, we need hud in menu etc.
-    nCX::UpdateMT();
+	//Not Used right now
+	//nCX_AI::GetInstance()->Update(fDeltaTime);
 }
 
 void CGame::OnSaveGame(ISaveGame* pSaveGame)

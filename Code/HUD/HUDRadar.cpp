@@ -2452,7 +2452,7 @@ FlashRadarType CHUDRadar::ChooseType(IEntity* pEntity, bool radarOnly)
 
 	FlashRadarType returnType = ELTV;
 
-	if(pCls == m_pPlayerClass || pCls == m_pGrunt || pCls == m_pAI_Grunt || pCls === m_pCivilian) //sbilikiewicz
+	if(pCls == m_pPlayerClass || pCls == m_pGrunt || pCls == m_pAI_Grunt || pCls == m_pCivilian) //sbilikiewicz
 		returnType = EPlayer;
 	else if(pCls == m_pAlien || pCls == m_pTrooper || pCls == m_pAI_Trooper) //sbilikiewicz
 		returnType = EPlayer;

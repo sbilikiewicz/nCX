@@ -364,8 +364,8 @@ void nCX::OnUpdate()
 			++m_SeqTimer;
 			if (m_SeqTimer > 9) //Every 10 minutes
 			{
-				m_SeqTimer = 0;
 				SeqTimer();
+				m_SeqTimer = 0;
 			}
 		}
 	}
@@ -453,7 +453,6 @@ void nCX::TickTimer()
             			pActor->m_IsLagging = pNetChannel->IsSufferingHighLatency(gEnv->pTimer->GetAsyncTime());
                         
                     //RMI Flood
-					int RMIFlood = pActor->m_RMIFlood;
                     if (pActor->m_RMIFlood > 140)
                 	{
                 		char info[6];
