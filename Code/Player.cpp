@@ -4759,9 +4759,9 @@ void CPlayer::UpdateFootSteps(float frameTime)
 			pMaterialEffects->ExecuteEffect(gearSearchEffectId, params);
 
 		//switch foot
-		m_currentFootID = footID;	
-
-		if (!gEnv->bMultiplayer && gEnv->pAISystem)
+		m_currentFootID = footID;
+		//Sbilikiewicz we need to make this available in MP and SP
+		if (/*!gEnv->bMultiplayer && */gEnv->pAISystem)
 		{
 			float pseudoSpeed = 0.0f;
 			if (m_stats.velocity.GetLengthSquared() > sqr(0.01f))
@@ -4807,9 +4807,15 @@ void CPlayer::UpdateFootSteps(float frameTime)
 			footstepRadius *= soundDamp;
 
 			if (GetEntity()->GetAI())
+            {
 				gEnv->pAISystem->SoundEvent(GetEntity()->GetWorldPos(), footstepRadius, AISE_MOVEMENT, GetEntity()->GetAI());
+                CryLogAlways("Player.cpp #1 informed AI that it hears player footsteps");
+            }
 			else
+            {
 				gEnv->pAISystem->SoundEvent(GetEntity()->GetWorldPos(), footstepRadius, AISE_MOVEMENT, NULL);
+                CryLogAlways("Player.cpp #2 informed AI that it hears player footsteps");
+            }
 		}
 	}
 }
