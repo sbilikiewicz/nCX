@@ -640,6 +640,9 @@ void CItem::FixResourceName(const ItemString& inName, TempResourceName& name, in
 //------------------------------------------------------------------------
 tSoundID CItem::PlayAction(const ItemString& actionName, int layer, bool loop, uint flags, float speedOverride)
 {
+	if (gEnv->bServer) //CTAO huge nigga not needed on server
+		return;
+
 	if (!m_enableAnimations)
 		return -1;
 

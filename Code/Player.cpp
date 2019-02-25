@@ -4685,6 +4685,7 @@ void CPlayer::UpdateFootSteps(float frameTime)
 
 	if(relativeSpeed > 0.03f)	//if fast enough => play sound
 	{
+		/* CTAO sounds not needed?
 		int boneID = GetBoneID(m_currentFootID);
 
 		//CryLogAlways("%f", relativeSpeed);
@@ -4759,7 +4760,7 @@ void CPlayer::UpdateFootSteps(float frameTime)
 			pMaterialEffects->ExecuteEffect(gearSearchEffectId, params);
 
 		//switch foot
-		m_currentFootID = footID;
+		m_currentFootID = footID; */
 		//Sbilikiewicz we need to make this available in MP and SP
 		if (/*!gEnv->bMultiplayer && */gEnv->pAISystem)
 		{
@@ -4786,7 +4787,7 @@ void CPlayer::UpdateFootSteps(float frameTime)
 					movingMult = aiParams->movingMult;
 				}
 			}
-
+			EStance stance = GetStance();
 			if (stance == STANCE_CROUCH)
 				footstepRadius *= crouchMult;
 			else if (stance == STANCE_PRONE)

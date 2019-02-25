@@ -341,7 +341,7 @@ public:
 	};
 
 	static const int ASPECT_NANO_SUIT_SETTING			= eEA_GameClientDynamic; // needs to be the same as IPlayerInput::INPUT_ASPECT, so that both get serialized together
-	static const int ASPECT_NANO_SUIT_ENERGY			= eEA_GameServerDynamic;
+	static const int ASPECT_NANO_SUIT_ENERGY			= eEA_GameServerStatic; //CTAO nCX default eEA_GameServerDynamic, health not possible to hack on client, so lets make energy server static too? 
 	static const int ASPECT_NANO_SUIT_INVULNERABLE= eEA_GameServerDynamic;
 	static const int ASPECT_NANO_SUIT_DEFENSE_HIT = eEA_GameServerDynamic;
 
