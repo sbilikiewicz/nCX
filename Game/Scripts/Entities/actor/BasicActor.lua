@@ -1138,6 +1138,15 @@ end
 function BasicActor.Server:OnUpdate(frameTime)
 	if (not self:IsDead()) then
 		self:UpdateEvents(frameTime);
+	else
+		local flags = { 
+			flags=
+			geom_colltype_explosion + 
+			geom_colltype_ray + 
+			geom_colltype_foliage_proxy + 
+			geom_colltype_player
+		};
+		self:SetPhysicParams(PHYSICPARAM_PART_FLAGS, flags); --CTAO enable ragdoll physics
 	end
 end
 

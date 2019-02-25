@@ -9,6 +9,7 @@
 ----------------------------------------------------------------------------------------------------
 --  History:
 --  - 16:8:2005   10:38 : Created by Márcio Martins
+--  02/2019  :  Edited by ctaoistrach
 --
 ----------------------------------------------------------------------------------------------------
 DestroyableObject =
@@ -140,11 +141,10 @@ Net.Expose {
 };
 
 -------------------------------------------------------
-function DestroyableObject.Client:ClLoadEffect()
+function DestroyableObject.Client:ClLoadEffect(pos, dir)
 	local explosion = self.Properties.Explosion;
 	self.FXSlot=self:LoadParticleEffect( -1,explosion.DelayEffect.Effect,explosion.DelayEffect.Params);
-	self:SetSlotPos(self.FXSlot,explosion.DelayEffect.vOffset);
-	self:SetSlotAngles(self.FXSlot,explosion.DelayEffect.vRotation);
+	self:SetSlotWorldTM(self.FXSlot, pos, dir);
 end
 
 -------------------------------------------------------
@@ -416,7 +416,6 @@ end
 
 ----------------------------------------------------------------------------------------------------
 function DestroyableObject:Die(shooterId)
-	System.LogAlways(self:GetName().." -> Die");
 	self.shooterId = shooterId;
 	self.dead = true;
 	if (self.health > 0) then
@@ -448,7 +447,6 @@ end
 
 ----------------------------------------------------------------------------------------------------
 function DestroyableObject.Server:OnHit(hit)
-	System.LogAlways(self:GetName().." -> Server OnHit ");
 	if (hit.dir) then
 		self:AddImpulse(hit.partId or -1,hit.pos,hit.dir, hit.damage, 1);
 	end
@@ -497,7 +495,7 @@ function DestroyableObject.Server:OnHit(hit)
 				--Log("Setting Delay on "..self:GetName()..": "..explosion.Delay+rnd);
 				self:SetTimer(0,(explosion.Delay+rnd)*1000);
 				if (not EmptyString(explosion.DelayEffect.Effect))then
-					self.allClients:ClLoadEffect(hit.pos, hit.normal);
+					self.allClients:ClLoadEffect(hit.pos, hit.normal); --nCX
 				end;
 			end;
 		end;
@@ -585,7 +583,6 @@ end
 
 ------------------------------------------------------------------------------------------------------
 function DestroyableObject.Client:OnPhysicsBreak( vPos,nPartId,nOtherPartId )
-System.LogAlways(self:GetName().." -> Client OnPhysicsBreak ");
 	self:ActivateOutput("Break",nPartId+1 );
 end
 

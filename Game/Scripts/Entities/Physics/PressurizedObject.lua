@@ -9,6 +9,7 @@
 ----------------------------------------------------------------------------------------------------
 --  History:
 --  - 19:5:2005   14:35 : Created by Márcio Martins
+--  02/2019  :  Edited by ctaoistrach
 --
 ----------------------------------------------------------------------------------------------------
 PressurizedObject =
@@ -105,7 +106,6 @@ function PressurizedObject.Client:ClStartLeak(slot, pos, dir)
 	self:DrawSlot(s, 0);
 	self:LoadParticleEffect(s, self.Properties.Leak.Effect.Effect, self.Properties.Leak.Effect);
 	self:SetSlotWorldTM(s, pos, dir);
-	--System.LogAlways("ClStartLeak "..s);
 end
 
 function PressurizedObject.Client:ClStopLeak(slot)
@@ -350,9 +350,7 @@ function PressurizedObject:UpdateLeak(i, frameTime, leak, gravityDir)
 	if (submergedVolume<self.volume) then
 		leaking=true;
 	end
-	
-	--System.LogAlways("UpdateLeak Pressure : "..self.pressure.."  | Volume : "..self.volume);	
-	
+
 	if (leaking or self.pressure>0) then
 		self.volume=self.volume-self.Properties.Leak.VolumeDecay*frameTime;
 		if (self.volume <=0) then
@@ -370,8 +368,6 @@ end
 function PressurizedObject:StartLeaking(i, leak)
 	if (not leak.leaking) then
 		leak.leaking=true;
-		--self:LoadParticleEffect(leak.slot, self.Properties.Leak.Effect.Effect, self.Properties.Leak.Effect);
-		--System.LogAlways(self:GetName().." -> StartLeaking ");
 		self.leaks = self.leaks+1;
 		self.allClients:ClStartLeak(i, leak.pos, leak.dir);
 	end
@@ -381,13 +377,9 @@ end
 ----------------------------------------------------------------------------------------------------
 function PressurizedObject:StopLeaking(i, leak)
 	if (leak.leaking) then
-		--System.LogAlways(self:GetName().." -> StopLeaking "..leak.slot);
 		leak.leaking=false;
-		--self:LoadObject(leak.slot, "dummy"); -- dummy particle effect
-		--self:DrawSlot(leak.slot, 0);
 		self.leaks = self.leaks-1;
 		self.allClients:ClStopLeak(i);
-		--self.slotCounter = (self.slotCounter or 1) - 1;
 		self.leakInfo[i] = nil;
 	end
 end
@@ -411,10 +403,7 @@ function PressurizedObject:AddLeak(pos, dir)
 	leak.slot = self.slotCounter;
 	leak.pos = pos;
 	leak.dir = dir;
-	--System.LogAlways("AddLeak slot $7"..leak.slot);
-	--self:DrawSlot(leak.slot, 0);
 	leak.leaking=false;
-	--self:SetSlotWorldTM(leak.slot, pos, dir);
 	self.leakInfo[leak.slot] = leak;
 end
 
