@@ -28,8 +28,7 @@ CScriptBind_GameRules::CScriptBind_GameRules(ISystem *pSystem, IGameFramework *p
 	
 	RegisterMethods();
 	RegisterGlobals();
-	if (gEnv->pSystem->IsDedicated())
-		SetGlobalName("nCX");
+	SetGlobalName("nCX");
 }
 
 CScriptBind_GameRules::~CScriptBind_GameRules()
