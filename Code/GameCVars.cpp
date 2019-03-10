@@ -40,6 +40,18 @@ void ValidateSvMaxPlayers(ICVar* p)
 		CryLogAlways("[$6nCX$5] : $6Warning sv_maxplayers over 99 won't be displayed correctly!");
 }
 
+void ValidateSvName(ICVar* n)
+{
+	string name = n->GetString();
+	if (!name.empty())
+	{
+		g_pGame->GetServerSynchedStorage()->SetGlobalValue(GLOBAL_SERVER_IP_KEY, CONST_TEMP_STRING(name));
+		g_pGame->GetServerSynchedStorage()->SetGlobalValue(GLOBAL_SERVER_NAME_KEY, CONST_TEMP_STRING(name));
+		//gEnv->pNetwork->SyncWithGame(eNGS_FrameStart);
+		//g_pGame->GetIGameFramework()->Reset(false);
+	}
+}
+
 void ResetMovementForAllPlayers(ICVar* p)//nCX needs to reset movement system onchanged movementcvar otherwise false positives sometimes
 {
 	if (CGameRules *pGameRules = g_pGame->GetGameRules())
@@ -577,6 +589,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_suitSpeedMultMultiplayer", &g_suitSpeedMultMultiplayer, 0.35f, 0, "Modify speed mode effect for Multiplayer.");
 	pConsole->GetCVar("g_suitspeedmultmultiplayer")->SetOnChangeCallback(ResetMovementForAllPlayers);
 	pConsole->GetCVar("sv_maxplayers")->SetOnChangeCallback(ValidateSvMaxPlayers);
+	pConsole->GetCVar("sv_servername")->SetOnChangeCallback(ValidateSvName);
 	
 	pConsole->Register("nCX_HighPingLimit", &nCX_HighPingLimit, 300, 0x00000080);
 	pConsole->Register("nCX_PerformanceValue", &nCX_PerformanceValue, 110, 0x00000080);

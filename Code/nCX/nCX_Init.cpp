@@ -22,6 +22,8 @@ History:
 #include <fstream>
 #include <cstdlib>
 
+#include "INetworkService.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 
@@ -114,6 +116,10 @@ void nCX::Init_nCX(){
 
 		//Init multithreading
 		//wmain();
+
+		//g_pGame->GetIGameFramework()->GetNetContext()->EnableBackgroundPassthrough(true);
+		
+		gEnv->pNetwork->GetService("GameSpy")->Close();
 
 		CryLogAlways("[$6nCX$5] : Starting nCX 3.0 on     %s", gEnv->pNetwork->GetHostName());
 		CryLogAlways(Spacer);

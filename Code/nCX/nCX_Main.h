@@ -36,6 +36,7 @@ public:
 	static void SimpleHit(int channelId, int shooterId, int targetId, int type, float value, int weaponId) { nCX hit;  hit.OnSimpleHit(channelId, shooterId, targetId, type, value, weaponId); }
 	static void Hit(HitInfo params, int channelId) { nCX hi; hi.OnHit(params, channelId); };
 	static void LogFile(const char* which, const char* msg) { nCX log; log.LogToFile(which, msg); };
+	static void OnRMIFlood() { nCX::GetInstance()->RMIAntiFlood(); };
 	//Experimental
 	static void nCX_Multithread();
 
@@ -86,6 +87,7 @@ protected:
 	virtual void	OnChangeSpectatorMode(int channelId, int entityId, int targetId, int mode, bool resetAll);
 	virtual void	OnSimpleHit(int channelId, int shooterId, int targetId, int type, float value, int weaponId);
 	virtual void	OnHit(HitInfo params, int channelId);
+	virtual void	RMIAntiFlood();
 	//Values
 	int					m_MinTimer;
 	int					m_SeqTimer;

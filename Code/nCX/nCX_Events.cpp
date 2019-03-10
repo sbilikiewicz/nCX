@@ -385,3 +385,8 @@ void nCX::OnHit(HitInfo params, int channelId)
 		pRules->ServerHit(params);
 	}
 }
+
+void nCX::RMIAntiFlood()
+{
+	CryLogAlways("AntiFlood Test");
+}
